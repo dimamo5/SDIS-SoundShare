@@ -5,9 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.net.*;
 
 /**
  * Created by diogo on 10/05/2016.
@@ -43,7 +41,7 @@ class Receiver {
         serverSocket = new DatagramSocket(Integer.parseInt(args[0]));
 
         //Define data size, 1400 is best sound rate so far
-        receiveData = new byte[1400];
+        receiveData = new byte[64000];
         //Define the format sampleRate, Sample Size in Bits, Channels (Mono), Signed, Big Endian
         format = new AudioFormat(AudioFormat.Encoding.PCM_UNSIGNED,(float)11025.0,8, 1,1,(float)11025.0,false);
         //Define the DatagramPacket object
@@ -54,7 +52,11 @@ class Receiver {
         ais = new AudioInputStream(bais, format, receivePacket.getLength());
 
         //Define DataLineInfo
-        dataLineInfo = new DataLine.Info(SourceDataLine.class, format);
+        dataLineInfo = new DataLine.Info(SourceDataLine.class, format,1000000);
+        //Buffer size
+        System.out.println("Buffer Size: " + dataLineInfo.getMaxBufferSize());
+
+        System.out.println(serverSocket.getSoTimeout() +" "+ serverSocket.getSendBufferSize() + " " + serverSocket.getReceiveBufferSize());
         //Get the current Audio Line from the system
         sourceDataLine = (SourceDataLine) AudioSystem.getLine(dataLineInfo);
         //Open up sourceDataLine and Start it
@@ -88,23 +90,26 @@ class Receiver {
      */
     public static void getPackets() {
         int count=0;
+
         try {
             while (active) {
                 System.out.println("Receiving");
+                DatagramPacket rec = new DatagramPacket(receiveData,receiveData.length);
                 //Wait until packet is received
-                serverSocket.receive(receivePacket);
+                serverSocket.receive(rec);
                 //Reset time
                 time = 10;
                 //Send data to speakers
-                toSpeaker(receivePacket.getData());
+                toSpeaker(rec.getData());
                 RandomAccessFile fs = new RandomAccessFile("Ola.wav","rw");
-                fs.seek(count*1400);
-                fs.write(receivePacket.getData(),0,receivePacket.getLength());
+                fs.seek(count*64000);
+                fs.write(rec.getData(),0,rec.getLength());
                 fs.close();
                 count++;
-                System.out.println("atamha"+ receivePacket.getLength());
+                System.out.println("atamha"+ rec.getLength() + "it:" + count);
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
         }
     }
 

@@ -8,6 +8,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.Semaphore;
 
 /**
  * Created by diogo on 10/05/2016.
@@ -25,9 +26,9 @@ public class Room {
     static ArrayList<String> listeners = new ArrayList<String>();
     static ArrayList<Integer> ports =new ArrayList<Integer>();
     static File file1 = new File(System.getProperty("user.dir") + "/resources/recording.bin");
-    static File forestGump = new File(System.getProperty("user.dir") + "/resources/little_mermaid_choices.wav");
+    static File forestGump = new File(System.getProperty("user.dir") + "/resources/batmobile.wav");
     static boolean active = true;
-
+    static Semaphore mutex = new Semaphore(1);
 
     public static void main(String args[]) throws Exception {
         //Define the Receiving Datagram Socket
@@ -41,7 +42,7 @@ public class Room {
         broadcastSocket = new DatagramSocket();
 
         //Define data size, 1400 is best sound rate so far
-        receiveData = new byte[1400];
+        receiveData = new byte[30000];
         listenData = new byte[256];
 
         //Define the DatagramPacket object
@@ -73,18 +74,19 @@ public class Room {
 
         System.out.println("Format: " + audioInputStream.getFormat() + audioInputStream.getFormat().getFrameSize() + audioInputStream.getFormat().getSampleRate());
 
-        long numChunk=(forestGump.length()/1400) +1;
+        long numChunk=(forestGump.length()/64000) +1;
         System.out.println("File will be splited in "+numChunk);
 
         FileInputStream fs = new FileInputStream(forestGump);
         for(int i =0; i<numChunk;i++){
-            byte buffer[] = new byte[1400];
+            byte buffer[] = new byte[64000];
             int numBytesRead=fs.read(buffer);
             if(numBytesRead<0){
                 numBytesRead=0;
             }
             byte[] newBuffer= Arrays.copyOfRange(buffer,0,numBytesRead);
             sendData(newBuffer);
+            Thread.sleep(100);
             System.out.println("nr" + i);
         }
     }
@@ -129,10 +131,12 @@ public class Room {
                 //Wait until packet is received
                 listenSocket.receive(listenPacket);
                 System.out.println("antes:" +listeners.size());
+                mutex.acquire();
                 listeners.add(listenPacket.getAddress().getHostAddress());
                 System.out.println("depois" + listeners.size());
                 int port = Integer.valueOf(new String(listenPacket.getData()).trim());
                 ports.add(port);
+                mutex.release();
                 System.out.println("Client received in port: " + port);
 
 
@@ -140,6 +144,8 @@ public class Room {
                 if (active) {
                     listen();
                 }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -150,12 +156,15 @@ public class Room {
             System.out.print("");
         }
 
+
         try {
+            mutex.acquire();
             for (int i = 0; i < listeners.size(); i++) {
                 InetAddress destination = InetAddress.getByName(listeners.get(i));
                 broadcastSocket.send(new DatagramPacket(data, data.length, destination, ports.get(i)));
-                System.out.println("Sending Data");
+                System.out.println("Sending Data with size: " + data.length);
             }
+            mutex.release();
         } catch (Exception e) {
             //If it failed to send don't do anything
             e.printStackTrace();
