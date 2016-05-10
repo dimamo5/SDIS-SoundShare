@@ -2,7 +2,9 @@ package Server;
 
 import javax.sound.sampled.*;
 import java.io.ByteArrayInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -15,7 +17,7 @@ class Receiver {
     static AudioInputStream ais;
     static AudioFormat format;
     static boolean active = true;
-    static int port = 50020;
+    static int port = 50015;
     static DatagramSocket serverSocket, socket;
     static byte[] receiveData;
     static DatagramPacket receivePacket, packet;
@@ -27,21 +29,23 @@ class Receiver {
     static SourceDataLine sourceDataLine;
 
     public static void main(String args[]) throws Exception {
+        //TODO Send sound to server
         socket = new DatagramSocket();
         InetAddress destination = InetAddress.getByName("localhost");
-        byte[] temp = new byte[256];
+        byte[] temp = args[0].getBytes();
         //putting buffer in the packet
-        packet = new DatagramPacket(temp, temp.length, destination, 50010);
+        packet = new DatagramPacket(temp, temp.length, destination,50010);
 
         socket.send(packet);
 
+
         //Define the Receiving Datagram Socket
-        serverSocket = new DatagramSocket(port);
+        serverSocket = new DatagramSocket(Integer.parseInt(args[0]));
 
         //Define data size, 1400 is best sound rate so far
         receiveData = new byte[1400];
         //Define the format sampleRate, Sample Size in Bits, Channels (Mono), Signed, Big Endian
-        format = new AudioFormat(sampleRate, 16, 1, true, false);
+        format = new AudioFormat(AudioFormat.Encoding.PCM_UNSIGNED,(float)11025.0,8, 1,1,(float)11025.0,false);
         //Define the DatagramPacket object
         receivePacket = new DatagramPacket(receiveData, receiveData.length);
         //Prepare the Byte Array Input Stream
@@ -83,6 +87,7 @@ class Receiver {
      * saves them, and outputs the audio to the speakers.
      */
     public static void getPackets() {
+        int count=0;
         try {
             while (active) {
                 System.out.println("Receiving");
@@ -92,6 +97,12 @@ class Receiver {
                 time = 10;
                 //Send data to speakers
                 toSpeaker(receivePacket.getData());
+                RandomAccessFile fs = new RandomAccessFile("Ola.wav","rw");
+                fs.seek(count*1400);
+                fs.write(receivePacket.getData(),0,receivePacket.getLength());
+                fs.close();
+                count++;
+                System.out.println("atamha"+ receivePacket.getLength());
             }
         } catch (IOException e) {
         }
@@ -104,6 +115,7 @@ class Receiver {
     public static void toSpeaker(byte soundbytes[]) {
         try {
             sourceDataLine.write(soundbytes, 0, soundbytes.length);
+            System.out.println("recebendo");
         } catch (Exception e) {
             System.out.println("Not working in speakers...");
             e.printStackTrace();

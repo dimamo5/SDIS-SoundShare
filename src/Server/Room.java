@@ -1,13 +1,13 @@
 package Server;
 
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import java.io.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by diogo on 10/05/2016.
@@ -23,7 +23,9 @@ public class Room {
     static DatagramPacket receivePacket, listenPacket;
     static DataOutputStream out;
     static ArrayList<String> listeners = new ArrayList<String>();
-    static File file = new File(System.getProperty("user.dir") + "/resources/recording.bin");
+    static ArrayList<Integer> ports =new ArrayList<Integer>();
+    static File file1 = new File(System.getProperty("user.dir") + "/resources/recording.bin");
+    static File forestGump = new File(System.getProperty("user.dir") + "/resources/little_mermaid_choices.wav");
     static boolean active = true;
 
 
@@ -47,15 +49,16 @@ public class Room {
         listenPacket = new DatagramPacket(listenData, listenData.length);
 
         //Prepare the DataOutputStream to write to file.
-        out = new DataOutputStream(new FileOutputStream(file));
+        //out = new DataOutputStream(new FileOutputStream(forestGump));
         //Write and Broadcast on a separate thread
-        Thread t = new Thread() {
+        /*Thread t = new Thread() {
             @Override
             public void run() {
                 getPackets();
             }
         };
-        t.start();
+        t.start();*/
+
         //Set up Connection Listener on a separate thread
         Thread l = new Thread() {
             @Override
@@ -64,6 +67,26 @@ public class Room {
             }
         };
         l.start();
+
+        AudioInputStream audioInputStream =
+                AudioSystem.getAudioInputStream(forestGump);
+
+        System.out.println("Format: " + audioInputStream.getFormat() + audioInputStream.getFormat().getFrameSize() + audioInputStream.getFormat().getSampleRate());
+
+        long numChunk=(forestGump.length()/1400) +1;
+        System.out.println("File will be splited in "+numChunk);
+
+        FileInputStream fs = new FileInputStream(forestGump);
+        for(int i =0; i<numChunk;i++){
+            byte buffer[] = new byte[1400];
+            int numBytesRead=fs.read(buffer);
+            if(numBytesRead<0){
+                numBytesRead=0;
+            }
+            byte[] newBuffer= Arrays.copyOfRange(buffer,0,numBytesRead);
+            sendData(newBuffer);
+            System.out.println("nr" + i);
+        }
     }
 
     /***
@@ -105,8 +128,13 @@ public class Room {
             try {
                 //Wait until packet is received
                 listenSocket.receive(listenPacket);
+                System.out.println("antes:" +listeners.size());
                 listeners.add(listenPacket.getAddress().getHostAddress());
-                System.out.println("Client received");
+                System.out.println("depois" + listeners.size());
+                int port = Integer.valueOf(new String(listenPacket.getData()).trim());
+                ports.add(port);
+                System.out.println("Client received in port: " + port);
+
 
             } catch (IOException e) {
                 if (active) {
@@ -117,10 +145,15 @@ public class Room {
     }
 
     public static void sendData(byte[] data) {
+        System.out.println("tamanho listeners"+ listeners.size());
+        while(listeners.size()==0) {
+            System.out.print("");
+        }
+
         try {
             for (int i = 0; i < listeners.size(); i++) {
                 InetAddress destination = InetAddress.getByName(listeners.get(i));
-                broadcastSocket.send(new DatagramPacket(data, data.length, destination, listenerPort));
+                broadcastSocket.send(new DatagramPacket(data, data.length, destination, ports.get(i)));
                 System.out.println("Sending Data");
             }
         } catch (Exception e) {
