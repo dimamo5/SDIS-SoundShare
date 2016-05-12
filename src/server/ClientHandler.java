@@ -12,7 +12,7 @@ public class ClientHandler {
 
     public ClientHandler(Socket s){
         try {
-            DataOutputStream out = new DataOutputStream(s.getOutputStream());
+            this.out = new DataOutputStream(s.getOutputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }

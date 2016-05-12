@@ -66,7 +66,7 @@ public class Server {
         System.out.println("Tamanho ficheiro: " + f.length() + "Dividido em: " + f.length() / FRAMESIZE);
 
         try {
-            sem.acquire(1);
+            sem.acquire();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
