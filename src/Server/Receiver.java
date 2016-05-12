@@ -1,4 +1,4 @@
-package Server;
+package server;
 
 import javax.sound.sampled.*;
 import java.io.ByteArrayInputStream;
