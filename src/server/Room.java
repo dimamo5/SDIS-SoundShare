@@ -74,19 +74,19 @@ public class Room {
 
         System.out.println("Format: " + audioInputStream.getFormat() + audioInputStream.getFormat().getFrameSize() + audioInputStream.getFormat().getSampleRate());
 
-        long numChunk=(forestGump.length()/64000) +1;
+        long numChunk=(forestGump.length()/2048) +1;
         System.out.println("File will be splited in "+numChunk);
 
         FileInputStream fs = new FileInputStream(forestGump);
         for(int i =0; i<numChunk;i++){
-            byte buffer[] = new byte[64000];
+            byte buffer[] = new byte[2048];
             int numBytesRead=fs.read(buffer);
             if(numBytesRead<0){
                 numBytesRead=0;
             }
             byte[] newBuffer= Arrays.copyOfRange(buffer,0,numBytesRead);
             sendData(newBuffer);
-            Thread.sleep(100);
+            //Thread.sleep(100);
             System.out.println("nr" + i);
         }
     }

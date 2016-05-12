@@ -41,7 +41,7 @@ class Receiver {
         serverSocket = new DatagramSocket(Integer.parseInt(args[0]));
 
         //Define data size, 1400 is best sound rate so far
-        receiveData = new byte[64000];
+        receiveData = new byte[2048];
         //Define the format sampleRate, Sample Size in Bits, Channels (Mono), Signed, Big Endian
         format = new AudioFormat(AudioFormat.Encoding.PCM_UNSIGNED,(float)11025.0,8, 1,1,(float)11025.0,false);
         //Define the DatagramPacket object
@@ -100,11 +100,11 @@ class Receiver {
                 //Reset time
                 time = 10;
                 //Send data to speakers
-                toSpeaker(rec.getData());
-                RandomAccessFile fs = new RandomAccessFile("Ola.wav","rw");
-                fs.seek(count*64000);
-                fs.write(rec.getData(),0,rec.getLength());
-                fs.close();
+                //toSpeaker(rec.getData());
+                //RandomAccessFile fs = new RandomAccessFile("Ola.wav","rw");
+                //fs.seek(count*2048);
+                //fs.write(rec.getData(),0,rec.getLength());
+                //fs.close();
                 count++;
                 System.out.println("atamha"+ rec.getLength() + "it:" + count);
             }
