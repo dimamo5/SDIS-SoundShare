@@ -18,24 +18,24 @@ public class Server {
     private static ArrayList<ClientHandler> clients = new ArrayList<ClientHandler>();
     private static Semaphore sem = new Semaphore(1);
     private static Timer timer = new Timer();
-    private static int musicSec = 0;
-    private static int songTime = 0;
+    private static double musicSec = 0;
 
     public static void main(String[] args) {
+        //new Converter("resources/batmobile.wav","resources/batmobile.mp3").encodeMP3();
         try {
             welcomeSocket = new ServerSocket(listenPort);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        File myFile = new File(System.getProperty("user.dir") + "/resources/renegades.mp3");
+        File myFile = new File(System.getProperty("user.dir") + "/resources/Mine.mp3");
 
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                musicSec++;
+                musicSec+=0.5;
             }
-        }, 1000, 1000);
+        }, 500, 500);
 
 
         while (true) {
@@ -53,7 +53,7 @@ public class Server {
                     }
                 }.start();
                 sem.release();
-                if (clients.size() > 0) {
+                if (clients.size() == 1) {
                     musicSec = 0;
                 }
 
@@ -67,7 +67,7 @@ public class Server {
 
     }
 
-    public static void sendFile(File f) {
+    /*public static void sendFile(File f) {
         byte[] mybytearray = new byte[FRAMESIZE];
 
         FileInputStream fis = null;
@@ -100,6 +100,6 @@ public class Server {
             sem.release();
         }
 
-    }
+    }*/
 
 }

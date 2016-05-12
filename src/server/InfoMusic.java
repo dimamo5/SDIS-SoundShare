@@ -15,16 +15,22 @@ import java.util.Map;
  */
 public class InfoMusic {
 
-    private String filename;
+    private String filename=null;
     private String title;
     private String author;
     private int hours;
     private int minutes;
     private int seconds;
     private int fullTime;
+    private File file;
 
     public InfoMusic(String filename) {
         this.filename = filename;
+        this.file=new File(System.getProperty("user.dir") + "/resources/" + filename);
+    }
+
+    public InfoMusic(File file) {
+        this.file=file;
     }
 
     public void splitToComponentTimes(Long biggy)
@@ -41,7 +47,7 @@ public class InfoMusic {
     }
 
     public void getMusicInfo() {
-        File file = new File(System.getProperty("user.dir") + "/" + filename);
+        File file = this.file;
         AudioFileFormat baseFileFormat = null;
         AudioFormat baseFormat = null;
         try {

@@ -6,10 +6,10 @@ import java.net.Socket;
 /**
  * Created by diogo on 12/05/2016.
  */
-public class ClientHandler{
+public class ClientHandler {
     private DataOutputStream out;
 
-    public ClientHandler(Socket s){
+    public ClientHandler(Socket s) {
         try {
             this.out = new DataOutputStream(s.getOutputStream());
         } catch (IOException e) {
@@ -17,7 +17,7 @@ public class ClientHandler{
         }
     }
 
-    public void send(byte[] bytes){
+    public void send(byte[] bytes) {
         try {
             out.write(bytes, 0, Server.FRAMESIZE);
         } catch (IOException e) {
@@ -25,7 +25,7 @@ public class ClientHandler{
         }
     }
 
-    public void sendFile(File f,int sec) {
+    public void sendFile(File f, double sec) {
 
         byte[] mybytearray = new byte[Server.FRAMESIZE];
 
@@ -36,25 +36,37 @@ public class ClientHandler{
             // Do exception handling
         }
 
-        InfoMusic info = new InfoMusic("resources/renegades.mp3");
+        InfoMusic info = new InfoMusic(f);
         info.getMusicInfo();
-        int songTime=info.getFullTime();
+        int songTime = info.getFullTime();
         System.out.println("Full Time: " + info.getFullTime());
 
         int chunks = (int) f.length() / Server.FRAMESIZE;
         BufferedInputStream bis = new BufferedInputStream(fis);
-        System.out.println("Tamanho ficheiro: " + f.length() + "Dividido em: " + f.length() / Server.FRAMESIZE);
-        int bytesperSec=(int) f.length()/songTime;
+        double bytesperSec = (f.length()-4) / songTime;
+        double frameToElapse = bytesperSec * sec / Server.FRAMESIZE;
+        double frameToElapseRounded=Math.round(frameToElapse);
 
-        int frameToElapse=Math.round(bytesperSec*sec/Server.FRAMESIZE);
+        //TODO ver tolerancia
+        //long tolerance= (long) Math.abs((frameToElapse-frameToElapseRounded)/(bytesperSec/Server.FRAMESIZE)*1000);
 
-        for (int m = 0; m < chunks; m++){
+        /*try {
+            Thread.sleep(tolerance);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }*/
+
+        System.out.println("Tamanho ficheiro: " + f.length() + " Dividido em: " + f.length() / Server.FRAMESIZE +
+                " Bytes per sec: " + bytesperSec + " Frames passed: " + frameToElapse);
+
+
+        for (int m = 0; m < chunks; m++) {
             try {
                 bis.read(mybytearray, 0, Server.FRAMESIZE);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            if(m>=frameToElapse)
+            if (m >= frameToElapseRounded)
                 this.send(mybytearray);
         }
 
