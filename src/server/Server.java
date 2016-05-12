@@ -29,6 +29,18 @@ public class Server {
 
         File myFile = new File(System.getProperty("user.dir") + "/resources/renegades.mp3");
 
+        /*
+        InfoMusic info = new InfoMusic("resources/renegades.mp3");
+        info.getMusicInfo();
+        System.out.println("File: " + info.getFilename());
+        System.out.println("Title: " + info.getTitle());
+        System.out.println("Author: " + info.getAuthor());
+        System.out.println("Hours: " + info.getHours());
+        System.out.println("Minutes: " + info.getMinutes());
+        System.out.println("Seconds: " + info.getSeconds());
+        System.out.println("Full Time: " + info.getFullTime());
+        */
+
         Thread t = new Thread() {
             @Override
             public void run() {
