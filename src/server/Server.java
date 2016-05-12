@@ -4,7 +4,9 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
+import java.util.Timer;
 
 /**
  * Created by diogo on 12/05/2016.
@@ -15,6 +17,8 @@ public class Server {
     public static final int FRAMESIZE = 2048;
     private static ArrayList<ClientHandler> clients = new ArrayList<ClientHandler>();
     private static Semaphore sem = new Semaphore(1);
+    private static Timer timer = new Timer();
+    private static int musicSec=0;
 
     public static void main(String[] args) {
         try {
@@ -32,6 +36,13 @@ public class Server {
             }
         };
 
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                musicSec++;
+            }
+        },1000,1000);
+
 
         while (true) {
             try {
@@ -43,6 +54,7 @@ public class Server {
                 sem.release();
                 if (!t.isAlive())
                     t.start();
+
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -81,7 +93,7 @@ public class Server {
             }
             for (ClientHandler client : clients) {
                 client.send(mybytearray);
-
+                System.out.println(musicSec);
             }
             sem.release();
         }
