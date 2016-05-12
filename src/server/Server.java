@@ -32,15 +32,16 @@ public class Server {
             }
         };
 
+
         while (true) {
-            Socket connectionSocket = null;
             try {
-                connectionSocket = welcomeSocket.accept();
+                Socket connectionSocket = welcomeSocket.accept();
+                System.out.println("New Client");
                 sem.acquire();
                 clients.add(new ClientHandler(connectionSocket));
                 sem.release();
-                System.out.println("New Client");
-                t.start();
+                if (!t.isAlive())
+                    t.start();
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -65,23 +66,25 @@ public class Server {
         BufferedInputStream bis = new BufferedInputStream(fis);
         System.out.println("Tamanho ficheiro: " + f.length() + "Dividido em: " + f.length() / FRAMESIZE);
 
-        try {
-            sem.acquire();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         for (int m = 0; m < chunks; m++) {
-            for (ClientHandler client : clients) {
-                try {
-                    bis.read(mybytearray, 0, FRAMESIZE);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                client.send(mybytearray);
+            try {
+                sem.acquire();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+            try {
+                bis.read(mybytearray, 0, FRAMESIZE);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            for (ClientHandler client : clients) {
+                client.send(mybytearray);
+
+            }
+            sem.release();
         }
 
-        sem.release();
     }
 
 }

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 
 /**
  * Created by diogo on 12/05/2016.
@@ -34,6 +35,11 @@ public class Client {
             is = receiveSocket.getInputStream();
         } catch (IOException ex) {
             // Do exception handling
+        }
+        try {
+            receiveSocket.setReceiveBufferSize(10000000);
+        } catch (SocketException e) {
+            e.printStackTrace();
         }
 
         //Define the format sampleRate, Sample Size in Bits, Channels (Mono), Signed, Big Endian
