@@ -37,7 +37,7 @@ public class Client {
             // Do exception handling
         }
         try {
-            receiveSocket.setReceiveBufferSize(10000000);
+            receiveSocket.setReceiveBufferSize(64000);
         } catch (SocketException e) {
             e.printStackTrace();
         }

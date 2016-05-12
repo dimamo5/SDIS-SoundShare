@@ -36,6 +36,7 @@ public class Server {
         while (true) {
             try {
                 Socket connectionSocket = welcomeSocket.accept();
+                connectionSocket.setSendBufferSize(1000000);
                 System.out.println("New Client");
                 sem.acquire();
                 clients.add(new ClientHandler(connectionSocket));
