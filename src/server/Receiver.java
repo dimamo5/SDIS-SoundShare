@@ -1,15 +1,15 @@
 package server;
 
 import javax.sound.sampled.*;
-import java.io.ByteArrayInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+
+import javafx.scene.media.MediaPlayer;
+import javazoom.jl.decoder.JavaLayerException;
+import javazoom.jl.player.Player;
+import javazoom.spi.mpeg.sampled.file.MpegEncoding;
+
+import java.io.*;
 import java.net.*;
 
-/**
- * Created by diogo on 10/05/2016.
- */
 class Receiver {
 
     static AudioInputStream ais;
@@ -22,6 +22,8 @@ class Receiver {
     static ByteArrayInputStream bais;
     static int sampleRate = 8000;
     static int time = 10;
+    static Player mp3;
+    static BufferedInputStream buf;
 
     static DataLine.Info dataLineInfo;
     static SourceDataLine sourceDataLine;
@@ -43,7 +45,7 @@ class Receiver {
         //Define data size, 1400 is best sound rate so far
         receiveData = new byte[2048];
         //Define the format sampleRate, Sample Size in Bits, Channels (Mono), Signed, Big Endian
-        format = new AudioFormat(AudioFormat.Encoding.PCM_UNSIGNED,(float)11025.0,8, 1,1,(float)11025.0,false);
+        format = new AudioFormat(MpegEncoding.MPEG1L1,(float)44100.0,16, 2,4,(float)44100.0,false);
         //Define the DatagramPacket object
         receivePacket = new DatagramPacket(receiveData, receiveData.length);
         //Prepare the Byte Array Input Stream
@@ -52,16 +54,23 @@ class Receiver {
         ais = new AudioInputStream(bais, format, receivePacket.getLength());
 
         //Define DataLineInfo
-        dataLineInfo = new DataLine.Info(SourceDataLine.class, format,1000000);
+        //dataLineInfo = new DataLine.Info(SourceDataLine.class, format);
         //Buffer size
-        System.out.println("Buffer Size: " + dataLineInfo.getMaxBufferSize());
+        //System.out.println("Buffer Size: " + dataLineInfo.getMaxBufferSize());
 
         System.out.println(serverSocket.getSoTimeout() +" "+ serverSocket.getSendBufferSize() + " " + serverSocket.getReceiveBufferSize());
         //Get the current Audio Line from the system
-        sourceDataLine = (SourceDataLine) AudioSystem.getLine(dataLineInfo);
+        //sourceDataLine = (SourceDataLine) AudioSystem.getLine(dataLineInfo);
         //Open up sourceDataLine and Start it
-        sourceDataLine.open(format);
-        sourceDataLine.start();
+        //sourceDataLine.open(format);
+        //sourceDataLine.start();
+
+        buf = new BufferedInputStream(ais);
+
+
+        mp3=new Player(buf);
+
+        mp3.play();
 
         //Write and play on a separate thread
         Thread t = new Thread() {
@@ -101,12 +110,13 @@ class Receiver {
                 time = 10;
                 //Send data to speakers
                 //toSpeaker(rec.getData());
-                //RandomAccessFile fs = new RandomAccessFile("Ola.wav","rw");
-                //fs.seek(count*2048);
-                //fs.write(rec.getData(),0,rec.getLength());
-                //fs.close();
+
+                RandomAccessFile fs = new RandomAccessFile("Ola.mp3","rw");
+                fs.seek(count*2048);
+                fs.write(rec.getData(),0,rec.getLength());
+                fs.close();
                 count++;
-                System.out.println("atamha"+ rec.getLength() + "it:" + count);
+                System.out.println("atamha"+ rec.getLength() + "it:" + count + "Size: "+ buf.available());
             }
         }
         catch (IOException e) {

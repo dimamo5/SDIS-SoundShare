@@ -26,7 +26,7 @@ public class Room {
     static ArrayList<String> listeners = new ArrayList<String>();
     static ArrayList<Integer> ports =new ArrayList<Integer>();
     static File file1 = new File(System.getProperty("user.dir") + "/resources/recording.bin");
-    static File forestGump = new File(System.getProperty("user.dir") + "/resources/batmobile.wav");
+    static File forestGump = new File(System.getProperty("user.dir") + "/resources/renegades.mp3");
     static boolean active = true;
     static Semaphore mutex = new Semaphore(1);
 
@@ -72,7 +72,10 @@ public class Room {
         AudioInputStream audioInputStream =
                 AudioSystem.getAudioInputStream(forestGump);
 
-        System.out.println("Format: " + audioInputStream.getFormat() + audioInputStream.getFormat().getFrameSize() + audioInputStream.getFormat().getSampleRate());
+        //System.out.println("Format: " + audioInputStream.getFormat() + audioInputStream.getFormat().getFrameSize() + audioInputStream.getFormat().getSampleRate());
+
+        System.out.println("Format: " + audioInputStream.getFormat().getSampleRate() + audioInputStream.getFormat().getChannels());
+
 
         long numChunk=(forestGump.length()/2048) +1;
         System.out.println("File will be splited in "+numChunk);
@@ -86,7 +89,7 @@ public class Room {
             }
             byte[] newBuffer= Arrays.copyOfRange(buffer,0,numBytesRead);
             sendData(newBuffer);
-            //Thread.sleep(100);
+            Thread.sleep(50);
             System.out.println("nr" + i);
         }
     }
