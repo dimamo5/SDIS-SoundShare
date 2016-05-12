@@ -6,7 +6,7 @@ import java.net.Socket;
 /**
  * Created by diogo on 12/05/2016.
  */
-public class ClientHandler {
+public class ClientHandler{
     private DataOutputStream out;
 
     public ClientHandler(Socket s){
@@ -26,6 +26,7 @@ public class ClientHandler {
     }
 
     public void sendFile(File f,int sec) {
+
         byte[] mybytearray = new byte[Server.FRAMESIZE];
 
         FileInputStream fis = null;
@@ -58,6 +59,4 @@ public class ClientHandler {
         }
 
     }
-
-
 }

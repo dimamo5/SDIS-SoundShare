@@ -18,8 +18,8 @@ public class Server {
     private static ArrayList<ClientHandler> clients = new ArrayList<ClientHandler>();
     private static Semaphore sem = new Semaphore(1);
     private static Timer timer = new Timer();
-    private static int musicSec=0;
-    private static int songTime=0;
+    private static int musicSec = 0;
+    private static int songTime = 0;
 
     public static void main(String[] args) {
         try {
@@ -30,21 +30,12 @@ public class Server {
 
         File myFile = new File(System.getProperty("user.dir") + "/resources/renegades.mp3");
 
-
-
-        Thread t = new Thread() {
-            @Override
-            public void run() {
-                //sendFile(myFile);
-            }
-        };
-
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 musicSec++;
             }
-        },1000,1000);
+        }, 1000, 1000);
 
 
         while (true) {
@@ -53,13 +44,17 @@ public class Server {
                 connectionSocket.setSendBufferSize(1000000);
                 System.out.println("New Client");
                 sem.acquire();
-                ClientHandler c=new ClientHandler(connectionSocket);
+                ClientHandler c = new ClientHandler(connectionSocket);
                 clients.add(c);
-                c.sendFile(myFile,musicSec);
+                new Thread() {
+                    @Override
+                    public void run() {
+                        c.sendFile(myFile, musicSec);
+                    }
+                }.start();
                 sem.release();
-                if (!t.isAlive()){
-                    musicSec=0;
-                    t.start();
+                if (clients.size() > 0) {
+                    musicSec = 0;
                 }
 
 
@@ -85,7 +80,7 @@ public class Server {
         int chunks = (int) f.length() / FRAMESIZE;
         BufferedInputStream bis = new BufferedInputStream(fis);
         System.out.println("Tamanho ficheiro: " + f.length() + "Dividido em: " + f.length() / FRAMESIZE);
-        System.out.println("Fram per sec: " + f.length()/songTime);
+        System.out.println("Fram per sec: " + f.length() / songTime);
 
         for (int m = 0; m < chunks; m++) {
             try {
