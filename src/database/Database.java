@@ -1,3 +1,5 @@
+package database;
+
 import java.security.MessageDigest;
 import java.sql.*;
 import java.util.ArrayList;

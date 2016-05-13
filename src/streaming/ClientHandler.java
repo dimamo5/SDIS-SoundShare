@@ -1,15 +1,19 @@
-package server;
+package streaming;
+
+import player.InfoMusic;
 
 import java.io.*;
 import java.net.Socket;
 
+import static streaming.Room.FRAMESIZE;
+
 /**
  * Created by diogo on 12/05/2016.
  */
-public class ClientHandler {
+public class ClientHandler{
     private DataOutputStream out;
 
-    public ClientHandler(Socket s) {
+    public ClientHandler(Socket s){
         try {
             this.out = new DataOutputStream(s.getOutputStream());
         } catch (IOException e) {
@@ -17,9 +21,9 @@ public class ClientHandler {
         }
     }
 
-    public void send(byte[] bytes) {
+    public void send(byte[] bytes){
         try {
-            out.write(bytes, 0, Server.FRAMESIZE);
+            out.write(bytes, 0, FRAMESIZE);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -27,7 +31,7 @@ public class ClientHandler {
 
     public void sendFile(File f, double sec) {
 
-        byte[] mybytearray = new byte[Server.FRAMESIZE];
+        byte[] mybytearray = new byte[Room.FRAMESIZE];
 
         FileInputStream fis = null;
         try {
@@ -41,10 +45,10 @@ public class ClientHandler {
         int songTime = info.getFullTime();
         System.out.println("Full Time: " + info.getFullTime());
 
-        int chunks = (int) f.length() / Server.FRAMESIZE;
+        int chunks = (int) f.length() / Room.FRAMESIZE;
         BufferedInputStream bis = new BufferedInputStream(fis);
         double bytesperSec = (f.length()-4) / songTime;
-        double frameToElapse = bytesperSec * sec / Server.FRAMESIZE;
+        double frameToElapse = bytesperSec * sec / Room.FRAMESIZE;
         double frameToElapseRounded=Math.round(frameToElapse);
 
         //TODO ver tolerancia
@@ -56,13 +60,13 @@ public class ClientHandler {
             e.printStackTrace();
         }*/
 
-        System.out.println("Tamanho ficheiro: " + f.length() + " Dividido em: " + f.length() / Server.FRAMESIZE +
+        System.out.println("Tamanho ficheiro: " + f.length() + " Dividido em: " + f.length() / Room.FRAMESIZE +
                 " Bytes per sec: " + bytesperSec + " Frames passed: " + frameToElapse);
 
 
         for (int m = 0; m < chunks; m++) {
             try {
-                bis.read(mybytearray, 0, Server.FRAMESIZE);
+                bis.read(mybytearray, 0, Room.FRAMESIZE);
             } catch (IOException e) {
                 e.printStackTrace();
             }

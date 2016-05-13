@@ -1,4 +1,4 @@
-package server;
+package player;
 
 import org.tritonus.share.sampled.file.TAudioFileFormat;
 

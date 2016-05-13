@@ -1,4 +1,4 @@
-package server;
+package player;
 
 import it.sauronsoftware.jave.AudioAttributes;
 import it.sauronsoftware.jave.Encoder;
