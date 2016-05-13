@@ -1,11 +1,11 @@
-package server;
+package streaming;
 
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
 import javazoom.spi.mpeg.sampled.file.MpegEncoding;
 
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
+
 import javazoom.*;
 
 import java.io.BufferedInputStream;
