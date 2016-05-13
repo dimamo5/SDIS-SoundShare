@@ -202,7 +202,7 @@ public class Database {
 
         db.insert_user("Manuel123456789", "lol");
 
-        ArrayList<ArrayList<String>> users = db.select_user_by_credentials("Manuel123456789", new String(db.get_sha256_hash("lol")) );
+        ArrayList<ArrayList<String>> users = db.select_user_by_credentials("Manuel123456789", new String(db.get_sha256_hash("lol")));
         try {
             for (ArrayList<String> user : users)
                 System.out.println(user.get(0) + " " + user.get(1));
