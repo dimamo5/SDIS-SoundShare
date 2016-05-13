@@ -1,8 +1,6 @@
 package database;
 
 import com.soundcloud.api.*;
-import javazoom.jl.decoder.JavaLayerException;
-import javazoom.jl.player.Player;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.json.JSONArray;
@@ -11,8 +9,6 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 
 
