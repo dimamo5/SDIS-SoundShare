@@ -16,13 +16,9 @@ public class Playlist {
         return null;
     }
 
-    ;
-
     public boolean addRequestedTrack(String music, String clientNo) {
         return false;
     }
-
-    ;
 
     public Track getPreviousTrack() {
         return null;
