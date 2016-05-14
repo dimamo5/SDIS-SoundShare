@@ -1,5 +1,3 @@
-package streaming;
-
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
 import javazoom.spi.mpeg.sampled.file.MpegEncoding;

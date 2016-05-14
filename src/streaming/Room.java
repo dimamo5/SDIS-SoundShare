@@ -15,7 +15,7 @@ public class Room implements Runnable{
     private static ServerSocket welcomeSocket;
     private static final int listenPort = 5000;
     public static final int FRAMESIZE = 2048;
-    private ArrayList<ClientHandler> clients = new ArrayList<ClientHandler>();
+    private ArrayList<User> clients = new ArrayList<User>();
     private Semaphore sem = new Semaphore(1);
     private Timer timer = new Timer();
     private double musicSec = 0;
@@ -23,41 +23,6 @@ public class Room implements Runnable{
     public static void main(String[] args) {
 
     }
-
-    /*public static void sendFile(File f) {
-        byte[] mybytearray = new byte[FRAMESIZE];
-
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream(f);
-        } catch (FileNotFoundException ex) {
-            // Do exception handling
-        }
-
-        int chunks = (int) f.length() / FRAMESIZE;
-        BufferedInputStream bis = new BufferedInputStream(fis);
-        System.out.println("Tamanho ficheiro: " + f.length() + "Dividido em: " + f.length() / FRAMESIZE);
-        System.out.println("Fram per sec: " + f.length() / songTime);
-
-        for (int m = 0; m < chunks; m++) {
-            try {
-                sem.acquire();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            try {
-                bis.read(mybytearray, 0, FRAMESIZE);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            for (ClientHandler client : clients) {
-                client.send(mybytearray);
-                System.out.println(musicSec);
-            }
-            sem.release();
-        }
-
-    }*/
 
     @Override
     public void run() {
@@ -84,7 +49,7 @@ public class Room implements Runnable{
                 connectionSocket.setSendBufferSize(1000000);
                 System.out.println("New Client");
                 sem.acquire();
-                ClientHandler c = new ClientHandler(connectionSocket);
+                User c = new User(connectionSocket);
                 clients.add(c);
                 new Thread() {
                     @Override
