@@ -12,20 +12,20 @@ public class Playlist {
     private int i = 0;
     private boolean repeat = false;
 
-    public Track getNextTrack() {
-        return new Track();
+    public InfoMusic getNextTrack() {
+        return null;
     }
 
     ;
 
-    public boolean addRequestedTrack(String music, int clientNo) {
+    public boolean addRequestedTrack(String music, String clientNo) {
         return false;
     }
 
     ;
 
     public Track getPreviousTrack() {
-        return new Track();
+        return null;
     }
 
     public boolean isRepeat() {
