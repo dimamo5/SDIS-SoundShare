@@ -53,7 +53,7 @@ public class Client {
 
         try {
             this.player=new AdvancedPlayer(abuffer);
-            this.play();
+
         } catch (JavaLayerException e) {
             e.printStackTrace();
         }
@@ -62,9 +62,15 @@ public class Client {
 
         while(true){
             try {
-                is.read(teste);
-                //System.out.println(bytesRead++);
-                abuffer.write(teste);
+                bytesRead=is.read(teste);
+                if(bytesRead!=-1) {
+                    //System.out.println(bytesRead);
+                    abuffer.write(teste);
+                    if(!playing){
+                        this.play();
+                        this.playing=true;
+                    }
+                }
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -84,7 +90,6 @@ public class Client {
             @Override
             public void run() {
                 System.out.println("Playing!");
-                c.playing=true;
                 try {
                     c.player.play();
                 } catch (JavaLayerException e) {
