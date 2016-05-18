@@ -1,5 +1,6 @@
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
+import javazoom.jl.player.advanced.AdvancedPlayer;
 import javazoom.spi.mpeg.sampled.file.MpegEncoding;
 
 import javax.sound.sampled.AudioFormat;
@@ -17,12 +18,18 @@ import java.net.SocketException;
  * Created by diogo on 12/05/2016.
  */
 public class Client {
-    private static Socket receiveSocket;
-    private static final int listenPort = 5000;
+    private Socket receiveSocket;
+    private final int listenPort = 5000;
+    private boolean playing=false;
+    public AdvancedPlayer player;
 
-    public static void main(String[] args) throws JavaLayerException {
-        byte[] aByte = new byte[4655334];
-        int bytesRead;
+    public static void main(String[] args) {
+        new Client();
+    }
+
+    public Client(){
+        byte[] buffer = new byte[streaming.Room.FRAMESIZE];
+        int bytesRead=0;
 
         Socket clientSocket = null;
         InputStream is = null;
@@ -40,30 +47,36 @@ public class Client {
             e.printStackTrace();
         }
 
-        //Define the format sampleRate, Sample Size in Bits, Channels (Mono), Signed, Big Endian
-        AudioFormat format = new AudioFormat(MpegEncoding.MPEG1L1,(float)44100.0,16, 2,4,(float)44100.0,false);
-
         BufferedInputStream buf = new BufferedInputStream(is);
-        Player mp3=new Player(is);
 
-
-        if (is != null) {
-
-            try {
-                bytesRead = is.read(aByte, 0, 1);
-                System.out.println(bytesRead + " "+ buf.available());
-                mp3.play();
-                /*
-                do {;
-                    bytesRead = is.read(aByte);
-                    System.out.println(buf.available());
-                    mp3.play();
-                } while (bytesRead != -1);
-*/
-                clientSocket.close();
-            } catch (IOException ex) {
-                // Do exception handling
-            }
+        try {
+            this.player=new AdvancedPlayer(is);
+            this.play();
+        } catch (JavaLayerException e) {
+            e.printStackTrace();
         }
+
+            /*try {
+                clientSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }*/
+
+        }
+
+    public void play(){
+        Client c= this;
+        new Thread() {
+            @Override
+            public void run() {
+                System.out.println("Playing!");
+                c.playing=true;
+                try {
+                    c.player.play();
+                } catch (JavaLayerException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 }
