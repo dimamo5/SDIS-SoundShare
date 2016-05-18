@@ -18,18 +18,18 @@ public class User implements Runnable{
     private boolean connected = true;
 
     public User(Socket socket){
-        this.communicationSocket = socket;
-        this.streamingSocket = new Socket();
+        //this.communicationSocket = new Socket();
+        this.streamingSocket = socket;
         int streamingPort = streamingSocket.getPort();
-        try {
-            this.out = new ObjectOutputStream(socket.getOutputStream());
-            this.in = new ObjectInputStream(socket.getInputStream());
+        /*try {
+            this.out = new ObjectOutputStream(this.communicationSocket.getOutputStream());
+            this.in = new ObjectInputStream(this.communicationSocket.getInputStream());
 
             //Send message with the streaming port for the User to connect to in order to receive streaming data
-            out.writeObject(new Message(Message.Type.STREAM,streamingPort+""));
+            out.writeObject(new Message(Message.Type.STREAM,[streamingPort,]));
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     public void send(byte[] bytes){
@@ -41,7 +41,7 @@ public class User implements Runnable{
     }
 
     public void sendFile(File f, double sec) {
-
+        System.out.println("Envia ficheiro");
         byte[] mybytearray = new byte[Room.FRAMESIZE];
 
         FileInputStream fis = null;
@@ -83,6 +83,11 @@ public class User implements Runnable{
             }
             if (m >= frameToElapseRounded)
                 this.send(mybytearray);
+        }
+        try {
+            this.streamingSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
     }

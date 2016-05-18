@@ -6,10 +6,12 @@ import javazoom.spi.mpeg.sampled.file.MpegEncoding;
 import javax.sound.sampled.AudioFormat;
 
 import javazoom.*;
+import streaming.Room;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PipedInputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
@@ -47,15 +49,27 @@ public class Client {
             e.printStackTrace();
         }
 
-        BufferedInputStream buf = new BufferedInputStream(is);
+        AudioBuffer abuffer= new AudioBuffer();
 
         try {
-            this.player=new AdvancedPlayer(is);
+            this.player=new AdvancedPlayer(abuffer);
             this.play();
         } catch (JavaLayerException e) {
             e.printStackTrace();
         }
 
+        byte[] teste=new byte[Room.FRAMESIZE];
+
+        while(true){
+            try {
+                is.read(teste);
+                //System.out.println(bytesRead++);
+                abuffer.write(teste);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
             /*try {
                 clientSocket.close();
             } catch (IOException e) {

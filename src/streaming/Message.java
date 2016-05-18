@@ -16,9 +16,9 @@ public class Message {
     }
 
     private Type type;
-    private String arg;
+    private String[] arg;
 
-    public Message(Type type, String arg) {
+    public Message(Type type, String arg[]) {
         this.type = type;
         this.arg = arg;
     }

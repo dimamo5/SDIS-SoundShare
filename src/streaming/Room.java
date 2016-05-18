@@ -14,7 +14,7 @@ import java.util.Timer;
 public class Room{
     private static ServerSocket welcomeSocket;
     private static final int listenPort = 5000;
-    public static final int FRAMESIZE = 2048;
+    public static final int FRAMESIZE = 50000;
     private ArrayList<User> clients = new ArrayList<User>();
     private Semaphore sem = new Semaphore(1);
     private Timer timer = new Timer();
@@ -45,8 +45,7 @@ public class Room{
         while (true) {
             try {
                 Socket connectionSocket = welcomeSocket.accept();
-                connectionSocket.setSendBufferSize(1000000);
-                System.out.println("New Client");
+                connectionSocket.setSendBufferSize(64000);
                 sem.acquire();
                 User c = new User(connectionSocket);
                 clients.add(c);
