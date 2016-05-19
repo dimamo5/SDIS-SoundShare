@@ -16,15 +16,14 @@ public class Playlist {
         return playlist.get(i);
     }
 
-    public InfoMusic getNextTrack() {
-        if(i >= playlist.size() && !isRepeat()){
+    public Track getNextTrack() {
+        if(i+1 >= playlist.size() && !isRepeat()){
             return null;
         }else{
             if(i >= playlist.size() && isRepeat()){
                 i = -1;
             }
-            i++;
-            Track nextTrack = playlist.get(i);
+            Track nextTrack = playlist.get(i+1);
 
             if(i >= playlist.size() && isRepeat()) {
                 i = -1;
@@ -34,10 +33,30 @@ public class Playlist {
         }
     }
 
+    public boolean skipTrack(){
+        if(i+1 >= playlist.size() && !isRepeat()){
+            return false;
+        }else{
+            if(i >= playlist.size() && isRepeat()){
+                i = -1;
+            }
+            i++;
+
+            if(i >= playlist.size() && isRepeat()) {
+                i = -1;
+            }
+            return true;
+        }
+    }
+
     public void  addRequestedTrack(String music, String clientNo) {
         Track track = new Track(music,clientNo);
-        if(track.getFile()!=null)
+        if(track.getFile()!=null){
             playlist.add(track);
+            if(i==-1){
+                i=0;
+            }
+        }
 
     }
 
@@ -59,6 +78,10 @@ public class Playlist {
 
     public boolean isRepeat() {
         return repeat;
+    }
+
+    public boolean isEmpty(){
+        return playlist.isEmpty();
     }
 
     public void setRepeat(boolean repeat) {
