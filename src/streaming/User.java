@@ -1,6 +1,7 @@
 package streaming;
 
 import player.InfoMusic;
+import player.Track;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -44,21 +45,28 @@ public class User implements Runnable{
         }
     }
 
-    public void sendFile(File f, double sec) {
-        System.out.println("Envia ficheiro");
+    public void sendFile(Track track, double sec) {
         byte[] mybytearray = new byte[Room.FRAMESIZE];
 
+        File f= track.getFile();
+        InfoMusic info = new InfoMusic(f);
+        info.getMusicInfo();
+        int songTime = info.getFullTime();
         FileInputStream fis = null;
         try {
             fis = new FileInputStream(f);
         } catch (FileNotFoundException ex) {
-            // Do exception handling
+            System.err.println("File for Track " + track + "not found");
         }
 
-        InfoMusic info = new InfoMusic(f);
-        info.getMusicInfo();
-        int songTime = info.getFullTime();
-        System.out.println("Full Time: " + info.getFullTime());
+        System.out.println("Enviar " + track.getTrackName()+ " - "+track.getAuthor() + " Duration: " + track.getFullTime());
+
+        try {
+            Message m = new Message();m.createMusicMessage(track,sec);
+            this.out.writeObject(m);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         int chunks = (int) f.length() / Room.FRAMESIZE;
         BufferedInputStream bis = new BufferedInputStream(fis);

@@ -1,42 +1,58 @@
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Queue;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
-/**
- * Created by diogo on 18/05/2016.
- */
 public class AudioBuffer extends InputStream{
 
-    ArrayDeque<Byte> buf;
+    ArrayList<Byte> b = new ArrayList<>();
+    LinkedBlockingQueue<Byte> queue= new LinkedBlockingQueue<>();
     int pos;
+    private final int sizeToClean=128000;
 
     AudioBuffer(){
-        buf=new ArrayDeque<>();
         pos=0;
     }
     public synchronized int read() throws IOException {
-        if (!buf.isEmpty()) {
+        if (b.size()==0) {
             return -1;
         }
-        return buf.remove();
+        pos++;
+        return b.get(pos);
     }
     public synchronized int read(byte[] bytes, int off, int len) throws IOException {
-        len = Math.min(len, buf.size());
-        for(int i=off; i< len;i++){
-            bytes[i]= buf.remove();
+        len = Math.min(len, queue.size());
+        for (int i = off; i < len; i++) {
+            //bytes[i]=b.get(pos+i);
+            try {
+                bytes[i]=queue.take();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
         pos+=len;
+        if(pos>sizeToClean){
+            System.out.println("Antes:" + pos);
+            //cleanBuffer();
+            System.out.println("Depois:" + pos);
+
+        }
         return len;
     }
 
-    public synchronized void write(byte[] buffer){
-        for (int i =0; i<buffer.length;i++) {
-            this.buf.add(buffer[i]);
-        }
+    private void cleanBuffer() {
+        b.subList(0,sizeToClean-8000).clear();
+        pos-=sizeToClean-8000;
+    }
 
+    public synchronized void write(byte[] buffer){
+        for(Byte b1: buffer){
+            //b.add(b1);
+            try {
+                queue.put(b1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

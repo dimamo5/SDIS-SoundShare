@@ -1,6 +1,7 @@
 package player;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -9,6 +10,7 @@ import java.util.Date;
 public class Track extends InfoMusic{
     private String clientRequested;
     private Date requestTimestamp = new Date();
+    private ArrayList<String> skipedRequests = new ArrayList<>();
 
     public Track(File file, String clientRequested) {
         super(file);

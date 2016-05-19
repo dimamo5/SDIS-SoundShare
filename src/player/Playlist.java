@@ -12,7 +12,7 @@ public class Playlist {
     private int i = -1;
     private boolean repeat = false;
 
-    public InfoMusic getCurrentTrack(){
+    public Track getCurrentTrack(){
         return playlist.get(i);
     }
 

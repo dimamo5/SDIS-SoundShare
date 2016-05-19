@@ -84,11 +84,15 @@ public class InfoMusic {
     }
 
     public String getTitle() {
-        return title;
+        if (title == null)
+            return "";
+        else return title;
     }
 
     public String getAuthor() {
-        return author;
+        if (author == null)
+            return "";
+        else return author;
     }
 
     public int getHours() {

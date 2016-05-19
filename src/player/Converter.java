@@ -30,7 +30,7 @@ public class Converter {
         try {
             File fileConvert = new File(System.getProperty("user.dir") + "/" + toConvert);
             File fileConversion = new File(System.getProperty("user.dir") + "/" + resultConversion);
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(fileConvert);
+
 
             Encoder enc = new Encoder();
             EncodingAttributes att = new EncodingAttributes();
@@ -51,11 +51,7 @@ public class Converter {
             e.printStackTrace();
             return false;
         }
-        catch (UnsupportedAudioFileException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         return true;
     }
 }
