@@ -145,5 +145,12 @@ public class Client  implements Runnable {
         }
     }
 
+    private void handleMessage(Message message) {
+        switch(message.Type){
+            case Message.Type.MUSIC:
+                break;
+        }
+    }
+
 }
 
