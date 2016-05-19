@@ -1,5 +1,7 @@
 package streaming;
 
+import player.Playlist;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -19,6 +21,7 @@ public class Room{
     private Semaphore sem = new Semaphore(1);
     private Timer timer = new Timer();
     private double musicSec = 0;
+    private Playlist playlist = new Playlist();
 
     public static void main(String[] args) {
         new Room();
