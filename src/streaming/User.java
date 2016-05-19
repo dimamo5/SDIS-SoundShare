@@ -3,6 +3,7 @@ package streaming;
 import player.InfoMusic;
 
 import java.io.*;
+import java.net.ServerSocket;
 import java.net.Socket;
 
 import static streaming.Room.FRAMESIZE;
@@ -21,13 +22,15 @@ public class User implements Runnable{
         this.communicationSocket = socket;
 
         // TODO: 19-05-2016 Verificar se ao criar o streaming socket desta maneira ele já atribuí um port para o client se ligar
-        this.streamingSocket = new Socket();
+
         try {
-             this.out = new ObjectOutputStream(this.communicationSocket.getOutputStream());
-             this.in = new ObjectInputStream(this.communicationSocket.getInputStream());
+            ServerSocket serverSocketStreaming = new ServerSocket(0);
+            this.out = new ObjectOutputStream(this.communicationSocket.getOutputStream());
+            this.in = new ObjectInputStream(this.communicationSocket.getInputStream());
 
             //Send message with the streaming port for the User to connect to in order to receive streaming data
-            out.writeObject(new Message(Message.Type.STREAM, new String[]{this.streamingSocket.getPort()+""} ));
+            out.writeObject(new Message(Message.Type.STREAM, new String[]{serverSocketStreaming.getLocalPort()+""} ));
+            this.streamingSocket = serverSocketStreaming.accept();
          } catch (IOException e) {
              e.printStackTrace();
          }
