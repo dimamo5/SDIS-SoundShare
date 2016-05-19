@@ -36,7 +36,6 @@ public class Room {
 
         playlist.addRequestedTrack("test1.mp3", "Local");
         playlist.addRequestedTrack("test2.mp3", "Local");
-        playlist.addRequestedTrack("batmobile.mp3", "Local");
     }
 
     public Room() {
