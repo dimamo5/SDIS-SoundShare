@@ -1,8 +1,13 @@
 import javazoom.jl.decoder.JavaLayerException;
+import javazoom.jl.player.Player;
 import javazoom.jl.player.advanced.AdvancedPlayer;
 
+import javazoom.jl.player.advanced.PlaybackEvent;
+import javazoom.jl.player.advanced.PlaybackListener;
 import streaming.Message;
 import streaming.Room;
+import sun.audio.AudioPlayer;
+import sun.audio.AudioStream;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -13,30 +18,29 @@ import java.net.UnknownHostException;
 /**
  * Created by diogo on 12/05/2016.
  */
-public class Client{
+public class Client  implements Runnable {
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private InputStream streamIn;
     private Socket communicationSocket;
     private Socket streamingSocket;
-    public AudioBuffer aBuffer;
     private boolean playing=false;
+    public boolean connected=false;
     public AdvancedPlayer player;
 
-    public static void main(String[] args) {
+    public static void main(String[] args){
         String serverAddress = args[0];
         int serverPort = new Integer(args[1]);
 
         try {
             Client client = new Client(InetAddress.getByName(serverAddress),serverPort);
-            //new Thread(client).start();
+            new Thread(client).start();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
     }
 
     public Client(InetAddress serverAddress, int serverPort){
-        aBuffer= new AudioBuffer();
         try {
             communicationSocket = new Socket(serverAddress, serverPort);
             this.out = new ObjectOutputStream(communicationSocket.getOutputStream());
@@ -49,6 +53,7 @@ public class Client{
                 if(message.getType().equals(Message.Type.STREAM)){
                     streamingPort = new Integer(message.getArg()[0]);
                     System.out.println("Streaming Port: "+streamingPort);
+                    this.connected=true;
                 }
             }
 
@@ -78,32 +83,34 @@ public class Client{
             }
         }.start();
     }
-    /*
+
     @Override
     public void run() {
-        int bytesRead=0;
+        while(connected){
+            if(communicationSocket.isClosed()){
+                connected=false;
+                break;
+            }
 
-        try {
-            streamingSocket.setReceiveBufferSize(64000);
-        } catch (SocketException e) {
-            e.printStackTrace();
-        }
-
-        byte[] teste=new byte[Room.FRAMESIZE];
-
-        /* @DEPRECATED
-        while(true){
             try {
-                bytesRead=streamIn.read(teste);
-                    if(!playing){
-                        this.play();
-                        this.playing=true;
-                    }
-                } catch (IOException e) {
+                final Message message = (Message) in.readObject();
+                new Thread(() -> {
+                    handleMessage(message);
+                }).start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
 
         }
 
-    }*/
+        try {
+            streamingSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
+

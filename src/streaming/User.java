@@ -61,11 +61,12 @@ public class User implements Runnable{
 
         System.out.println("Enviar " + track.getTrackName()+ " - "+track.getAuthor() + " Duration: " + track.getFullTime());
 
-        /*try {
-            this.out.writeObject(new Message().createMusicMessage(track,sec));
+        try {
+            Message m = new Message();m.createMusicMessage(track,sec);
+            this.out.writeObject(m);
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
 
         int chunks = (int) f.length() / Room.FRAMESIZE;
         BufferedInputStream bis = new BufferedInputStream(fis);
