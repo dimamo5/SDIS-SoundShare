@@ -1,6 +1,7 @@
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.advanced.AdvancedPlayer;
 
+import streaming.Message;
 import streaming.Room;
 
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 
 /**
  * Created by diogo on 12/05/2016.
@@ -24,7 +26,14 @@ public class Client implements Runnable{
     public AdvancedPlayer player;
 
     public static void main(String[] args) {
-        new Client();
+        String serverAddress = args[0];
+        int serverPort = new Integer(args[1]);
+
+        try {
+            Client client = new Client(InetAddress.getByAddress(serverAddress.getBytes()),serverPort);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
     }
 
     public Client(InetAddress serverAddress, int serverPort){
@@ -37,10 +46,23 @@ public class Client implements Runnable{
             communicationSocket = new Socket(serverAddress, serverPort);
             this.out = new ObjectOutputStream(communicationSocket.getOutputStream());
             this.in = new ObjectInputStream(communicationSocket.getInputStream());
+            int streamingPort = 0;
 
+            while(streamingPort == 0){
+                Message message = (Message) in.readObject();
+                if(message.getType() == Message.Type.STREAM){
+                    streamingPort = new Integer(message.getArg()[0]);
+                }else{
+                    continue;
+                }
+            }
+
+            this.streamingSocket = new Socket(serverAddress,streamingPort);
             is = streamingSocket.getInputStream();
         } catch (IOException ex) {
             // Do exception handling
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
         try {
             streamingSocket.setReceiveBufferSize(64000);

@@ -26,4 +26,20 @@ public class Message {
     public Message(Type type) {
         this.type = type;
     }
+
+    public String[] getArg() {
+        return arg;
+    }
+
+    public void setArg(String[] arg) {
+        this.arg = arg;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
 }
