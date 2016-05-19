@@ -64,7 +64,7 @@ public class Client {
             try {
                 bytesRead=is.read(teste);
                 if(bytesRead!=-1) {
-                    //System.out.println(bytesRead);
+                    System.out.println(bytesRead);
                     abuffer.write(teste);
                     if(!playing){
                         this.play();

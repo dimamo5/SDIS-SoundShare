@@ -1,9 +1,8 @@
 package streaming;
 
 import com.sun.deploy.util.SessionState;
-import com.sun.javafx.scene.layout.region.Margins;
-import player.Converter;
 import player.Playlist;
+import player.Track;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -16,7 +15,7 @@ import java.util.Timer;
 /**
  * Created by diogo on 12/05/2016.
  */
-public class Room{
+public class Room {
     private static ServerSocket socket;
     private static final int listenPort = 5000;
     public static final int FRAMESIZE = 2048;
@@ -27,24 +26,17 @@ public class Room{
     private Playlist playlist = new Playlist();
 
     public static void main(String[] args) {
-        Room r=new Room();
-        r.fillPlayList();
+        Room r = new Room();
     }
 
-    public void fillPlayList(){
-        Converter conv = new Converter("resources/batmobile.wav", "resources/batmobile.mp3");
-        conv.encodeMP3();
-        conv = new Converter("resources/renegades.mp3", "resources/renegades.mp3");
-        conv.encodeMP3();
-        conv = new Converter("resources/batmobile.mp3", "resources/batmobile.mp3");
-        conv.encodeMP3();
-
-        playlist.addRequestedTrack("batmobile.mp3","Local");
-        playlist.addRequestedTrack("renegades.mp3","Local");
-        playlist.addRequestedTrack("batmobile.mp3","Local");
+    public void fillPlayList() {
+        playlist.addRequestedTrack("Mine.mp3", "Local");
+        playlist.addRequestedTrack("renegades.mp3", "Local");
+        playlist.addRequestedTrack("batmobile.mp3", "Local");
     }
 
-    public Room(){
+    public Room() {
+        this.fillPlayList();
 
         try {
             socket = new ServerSocket(listenPort);
@@ -55,9 +47,14 @@ public class Room{
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                musicSec+=0.5;
-                if(musicSec/playlist.getCurrentTrack().getFullTime()>=0.9){
-                    sendNewTrack();
+                musicSec += 0.5;
+                if (musicSec == playlist.getCurrentTrack().getFullTime()) {
+                    playlist.skipTrack();
+                    musicSec=0;
+                } else if (musicSec / playlist.getCurrentTrack().getFullTime() >= 0.9) {
+                    Track t = playlist.getNextTrack();
+                    if(t!=null)
+                        sendNewTrack(playlist.getNextTrack());
                 }
             }
         }, 500, 500);
@@ -85,17 +82,17 @@ public class Room{
         }
     }
 
-    public void sendNewTrack(){
-        for(User user:clients)
-        new Thread() {
-            @Override
-            public void run() {
-                user.sendFile(playlist.getNextTrack().getFile(),0);
-            }
-        }.start();
+    public void sendNewTrack(Track track) {
+        for (User user : clients)
+            new Thread() {
+                @Override
+                public void run() {
+                    user.sendFile(track.getFile(), 0);
+                }
+            }.start();
     }
 
-    public void sendActualTrack(User u){
+    public void sendActualTrack(User u) {
         new Thread() {
             @Override
             public void run() {

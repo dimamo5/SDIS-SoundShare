@@ -70,11 +70,13 @@ public class User implements Runnable{
             if (m >= frameToElapseRounded)
                 this.send(mybytearray);
         }
-        try {
+
+        //TODO close socket somehow
+        /*try {
             this.streamingSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
 
     }
 
