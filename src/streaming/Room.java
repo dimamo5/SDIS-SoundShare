@@ -1,6 +1,8 @@
 package streaming;
 
 import com.sun.deploy.util.SessionState;
+import com.sun.javafx.scene.layout.region.Margins;
+import player.Converter;
 import player.Playlist;
 
 import java.io.*;
@@ -30,12 +32,20 @@ public class Room{
     }
 
     public void fillPlayList(){
+        Converter conv = new Converter("resources/batmobile.wav", "resources/batmobile.mp3");
+        conv.encodeMP3();
+        conv = new Converter("resources/renegades.mp3", "resources/renegades.mp3");
+        conv.encodeMP3();
+        conv = new Converter("resources/batmobile.mp3", "resources/batmobile.mp3");
+        conv.encodeMP3();
+
         playlist.addRequestedTrack("batmobile.mp3","Local");
         playlist.addRequestedTrack("renegades.mp3","Local");
         playlist.addRequestedTrack("batmobile.mp3","Local");
     }
 
     public Room(){
+
         try {
             socket = new ServerSocket(listenPort);
         } catch (IOException e) {

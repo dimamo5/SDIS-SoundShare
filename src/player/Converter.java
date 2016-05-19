@@ -17,6 +17,9 @@ import java.io.IOException;
 public class Converter {
     private String toConvert;
     private String resultConversion;
+    private final int BITRATE = 192;
+    private final int CHANNELS = 2;
+    private final float SAMPLE = 44100;
 
     public Converter(String toConvert, String resultConversion) {
         this.toConvert = toConvert;
@@ -34,8 +37,10 @@ public class Converter {
             AudioAttributes audioAttributes = new AudioAttributes();
 
             audioAttributes.setBitRate(audioInputStream.getFormat().getSampleSizeInBits());
-            audioAttributes.setChannels(audioInputStream.getFormat().getChannels());
-            audioAttributes.setSamplingRate((int)audioInputStream.getFormat().getSampleRate());
+            audioAttributes.setChannels(CHANNELS);
+            audioAttributes.setSamplingRate((int)SAMPLE);
+
+            System.out.println("bits: " + audioInputStream.getFormat().getSampleSizeInBits() + " rate: " + (int)audioInputStream.getFormat().getSampleRate());
 
             att.setAudioAttributes(audioAttributes);
             att.setFormat("mp3");
