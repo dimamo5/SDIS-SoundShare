@@ -1,11 +1,13 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
 
 
 public class AudioBuffer extends InputStream{
 
-    ArrayList<Byte> b = new ArrayList<>(1);
+    ArrayList<Byte> b = new ArrayList<>();
+    LinkedBlockingQueue<Byte> queue= new LinkedBlockingQueue<>();
     int pos;
     private final int sizeToClean=128000;
 
@@ -20,14 +22,21 @@ public class AudioBuffer extends InputStream{
         return b.get(pos);
     }
     public synchronized int read(byte[] bytes, int off, int len) throws IOException {
-        len = Math.min(len, b.size());
+        len = Math.min(len, queue.size());
         for (int i = off; i < len; i++) {
-            bytes[i]=b.get(pos+i);
+            //bytes[i]=b.get(pos+i);
+            try {
+                System.out.println("Antes:" + pos);
+                bytes[i]=queue.take();
+                System.out.println("Depois:" + pos);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
         pos+=len;
         if(pos>sizeToClean){
             System.out.println("Antes:" + pos);
-            cleanBuffer();
+            //cleanBuffer();
             System.out.println("Depois:" + pos);
 
         }
@@ -41,7 +50,12 @@ public class AudioBuffer extends InputStream{
 
     public synchronized void write(byte[] buffer){
         for(Byte b1: buffer){
-            b.add(b1);
+            //b.add(b1);
+            try {
+                queue.put(b1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
