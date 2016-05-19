@@ -34,8 +34,11 @@ public class Playlist {
         }
     }
 
-    public boolean addRequestedTrack(String music, String clientNo) {
-        return false;
+    public void  addRequestedTrack(String music, String clientNo) {
+        Track track = new Track(music,clientNo);
+        if(track.getFile()!=null)
+            playlist.add(track);
+
     }
 
     public Track getPreviousTrack() {
