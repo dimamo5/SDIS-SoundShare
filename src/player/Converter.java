@@ -17,6 +17,9 @@ import java.io.IOException;
 public class Converter {
     private String toConvert;
     private String resultConversion;
+    private final int BITRATE = 192;
+    private final int CHANNELS = 2;
+    private final float SAMPLE = 44100;
 
     public Converter(String toConvert, String resultConversion) {
         this.toConvert = toConvert;
@@ -31,11 +34,14 @@ public class Converter {
 
             Encoder enc = new Encoder();
             EncodingAttributes att = new EncodingAttributes();
+            InfoMusic inf = new InfoMusic(fileConvert);
+            inf.getMusicInfo();
+            att.setDuration((float)inf.getFullTime());
             AudioAttributes audioAttributes = new AudioAttributes();
 
-            audioAttributes.setBitRate(audioInputStream.getFormat().getSampleSizeInBits());
-            audioAttributes.setChannels(audioInputStream.getFormat().getChannels());
-            audioAttributes.setSamplingRate((int)audioInputStream.getFormat().getSampleRate());
+            audioAttributes.setBitRate(BITRATE);
+            audioAttributes.setChannels(CHANNELS);
+            audioAttributes.setSamplingRate((int)SAMPLE);
 
             att.setAudioAttributes(audioAttributes);
             att.setFormat("mp3");
