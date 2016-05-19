@@ -17,6 +17,7 @@ public class Track extends InfoMusic{
 
     public Track(String filename, String clientRequested) {
         super(filename);
+        getMusicInfo();
         this.clientRequested = clientRequested;
     }
 

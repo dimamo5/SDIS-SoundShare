@@ -1,6 +1,8 @@
 package streaming;
 
+import player.Converter;
 import player.Playlist;
+import player.Track;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -13,52 +15,67 @@ import java.util.Timer;
 /**
  * Created by diogo on 12/05/2016.
  */
-public class Room{
-    private ServerSocket welcomeSocket;
-    private final int listenPort = 5000;
+public class Room {
+    private ServerSocket socket;
+    private int port = 0;
+    private static final int listenPort = 5000;
     public static final int FRAMESIZE = 2048;
-    private ArrayList<ClientHandler> clients = new ArrayList<ClientHandler>();
+    private ArrayList<User> clients = new ArrayList<User>();
     private Semaphore sem = new Semaphore(1);
     private Timer timer = new Timer();
     private double musicSec = 0;
     private Playlist playlist = new Playlist();
 
     public static void main(String[] args) {
-        new Room();
+        Room r = new Room(listenPort);
+    }
+
+    public void fillPlayList() {
+        new Converter("resources/batmobile.wav","resources/test1.mp3").encodeMP3();
+        new Converter("resources/renegades.mp3","resources/test2.mp3").encodeMP3();
+
+        playlist.addRequestedTrack("test1.mp3", "Local");
+        playlist.addRequestedTrack("test2.mp3", "Local");
     }
 
     public Room() {
-        //new Converter("resources/batmobile.wav","resources/batmobile.mp3").encodeMP3();
+        this(0);
+    }
+
+    public Room(int port) {
+        this.fillPlayList();
+
         try {
-            welcomeSocket = new ServerSocket(listenPort);
+            socket = new ServerSocket(port);
+            this.port = socket.getLocalPort();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        File myFile = new File(System.getProperty("user.dir") + "/resources/Mine.mp3");
-
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                musicSec+=0.5;
+                musicSec += 0.5;
+                if (musicSec == playlist.getCurrentTrack().getFullTime()) {
+                    playlist.skipTrack();
+                    musicSec=0;
+                } else if (musicSec / playlist.getCurrentTrack().getFullTime() >= 0.9) {
+                    Track t = playlist.getNextTrack();
+                    if(t!=null)
+                        sendNewTrack(playlist.getNextTrack());
+                }
             }
         }, 500, 500);
 
 
         while (true) {
             try {
-                Socket connectionSocket = welcomeSocket.accept();
-                connectionSocket.setSendBufferSize(1000000);
-                System.out.println("New Client");
+                Socket connectionSocket = socket.accept();
+                connectionSocket.setSendBufferSize(64000);
                 sem.acquire();
-                ClientHandler c = new ClientHandler(connectionSocket);
+                User c = new User(connectionSocket);
                 clients.add(c);
-                new Thread() {
-                    @Override
-                    public void run() {
-                        c.sendFile(myFile, musicSec);
-                    }
-                }.start();
+                sendActualTrack(c);
                 sem.release();
                 if (clients.size() == 1) {
                     musicSec = 0;
@@ -72,4 +89,37 @@ public class Room{
             }
         }
     }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+        try {
+            this.socket = new ServerSocket(port);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendNewTrack(Track track) {
+        for (User user : clients)
+            new Thread() {
+                @Override
+                public void run() {
+                    user.sendFile(track.getFile(), 0);
+                }
+            }.start();
+    }
+
+    public void sendActualTrack(User u) {
+        new Thread() {
+            @Override
+            public void run() {
+                u.sendFile(playlist.getCurrentTrack().getFile(), musicSec);
+            }
+        }.start();
+    }
+
 }
