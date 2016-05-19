@@ -11,11 +11,24 @@ import static streaming.Room.FRAMESIZE;
  * Created by diogo on 12/05/2016.
  */
 public class User implements Runnable{
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
+    private Socket communicationSocket;
     private Socket streamingSocket;
     private boolean connected = true;
 
     public User(Socket socket){
-        this.streamingSocket = socket;
+        this.communicationSocket = socket;
+        this.streamingSocket = new Socket();
+        try {
+             this.out = new ObjectOutputStream(this.communicationSocket.getOutputStream());
+             this.in = new ObjectInputStream(this.communicationSocket.getInputStream());
+
+            //Send message with the streaming port for the User to connect to in order to receive streaming data
+            out.writeObject(new Message(Message.Type.STREAM, new String[]{this.streamingSocket.getPort()+""} ));
+         } catch (IOException e) {
+             e.printStackTrace();
+         }
     }
 
     public void send(byte[] bytes){
@@ -94,22 +107,22 @@ public class User implements Runnable{
 
     @Override
     public void run() {
-        /*while(connected){
-            if(streamingSocket.isClosed()){
+        while(connected){
+            if(communicationSocket.isClosed()){
                 setConnected(false);
                 break;
             }
 
             try {
-                //final Message message = (Message) in.readObject();
+                final Message message = (Message) in.readObject();
 
                 //ANTES ESTAVA ASSIM MAS O IDEA SUGERIU USAR LAMBDA. SE DER ERRO MUDAR PARA ISTO
-                new Thread(new Runnable() {
+                /*new Thread(new Runnable() {
                     @Override
                     public void run() {
                         handleMessage(message);
                     }
-                }).start();
+                }).start();*/
 
                 new Thread(() -> {
                     handleMessage(message);
@@ -126,6 +139,6 @@ public class User implements Runnable{
             streamingSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
     }
 }
