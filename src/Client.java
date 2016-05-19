@@ -29,6 +29,7 @@ public class Client implements Runnable{
 
         try {
             Client client = new Client(InetAddress.getByAddress(serverAddress.getBytes()),serverPort);
+            client.play();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
