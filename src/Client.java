@@ -97,7 +97,6 @@ public class Client implements Runnable{
             try {
                 bytesRead=streamIn.read(teste);
                 if(bytesRead!=-1) {
-                    System.out.println(bytesRead);
                     aBuffer.write(teste);
                     if(!playing){
                         this.play();
