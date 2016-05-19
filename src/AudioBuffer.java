@@ -3,7 +3,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
-
 public class AudioBuffer extends InputStream{
 
     ArrayList<Byte> b = new ArrayList<>();
@@ -26,9 +25,7 @@ public class AudioBuffer extends InputStream{
         for (int i = off; i < len; i++) {
             //bytes[i]=b.get(pos+i);
             try {
-                System.out.println("Antes:" + pos);
                 bytes[i]=queue.take();
-                System.out.println("Depois:" + pos);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

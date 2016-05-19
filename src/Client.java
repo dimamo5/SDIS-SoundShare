@@ -13,7 +13,7 @@ import java.net.UnknownHostException;
 /**
  * Created by diogo on 12/05/2016.
  */
-public class Client implements Runnable{
+public class Client{
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private InputStream streamIn;
@@ -29,7 +29,7 @@ public class Client implements Runnable{
 
         try {
             Client client = new Client(InetAddress.getByName(serverAddress),serverPort);
-            new Thread(client).start();
+            //new Thread(client).start();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
@@ -54,6 +54,7 @@ public class Client implements Runnable{
 
             this.streamingSocket = new Socket(serverAddress,streamingPort);
             streamIn = streamingSocket.getInputStream();
+            this.play();
         } catch (IOException ex) {
             ex.printStackTrace();
         } catch (ClassNotFoundException e) {
@@ -69,7 +70,7 @@ public class Client implements Runnable{
             public void run() {
                 System.out.println("Playing!");
                 try {
-                    c.player=new AdvancedPlayer(c.aBuffer);
+                    c.player=new AdvancedPlayer(c.streamIn);
                     c.player.play();
                 } catch (JavaLayerException e) {
                     e.printStackTrace();
@@ -77,10 +78,9 @@ public class Client implements Runnable{
             }
         }.start();
     }
-
+    /*
     @Override
     public void run() {
-        byte[] buffer = new byte[streaming.Room.FRAMESIZE];
         int bytesRead=0;
 
         try {
@@ -89,29 +89,21 @@ public class Client implements Runnable{
             e.printStackTrace();
         }
 
-
-
         byte[] teste=new byte[Room.FRAMESIZE];
 
+        /* @DEPRECATED
         while(true){
             try {
                 bytesRead=streamIn.read(teste);
-                if(bytesRead!=-1) {
-                    aBuffer.write(teste);
                     if(!playing){
                         this.play();
                         this.playing=true;
                     }
-                }
-
-            } catch (IOException e) {
+                } catch (IOException e) {
                 e.printStackTrace();
             }
+
         }
-            /*try {
-                clientSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }*/
-    }
+
+    }*/
 }
