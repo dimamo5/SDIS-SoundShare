@@ -61,6 +61,39 @@ public class Client implements Runnable{
 
     }
 
+    private void sendMessage(Message message){
+        try {
+            out.writeObject(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Message getMessage(){
+        try {
+            return (Message) in.readObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean requestSong(String url){
+        sendMessage(new Message(Message.Type.REQUEST,new String[]{url}));
+
+        Message result = getMessage();
+        if(result.getType().equals(Message.Type.TRUE))
+            return true;
+        else
+            return false;
+    }
+
+    public void skip(){
+        sendMessage(new Message(Message.Type.VOTE_SKIP,new String[]{}));
+    }
+
     public void play(){
         Client c= this;
         new Thread() {

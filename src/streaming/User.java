@@ -5,6 +5,7 @@ import player.InfoMusic;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Random;
 
 import static streaming.Room.FRAMESIZE;
 
@@ -17,8 +18,11 @@ public class User implements Runnable{
     private Socket communicationSocket;
     private Socket streamingSocket;
     private boolean connected = true;
+    private Room room;
+    private int userId = new Random().nextInt(2048)+1;
 
-    public User(Socket socket){
+    public User(Socket socket, Room room){
+        this.room = room;
         this.communicationSocket = socket;
 
         // TODO: 19-05-2016 Verificar se ao criar o streaming socket desta maneira ele já atribuí um port para o client se ligar
@@ -107,7 +111,26 @@ public class User implements Runnable{
     }
 
     public void handleMessage(Message message){
+        try{
+            switch (message.getType()){
+                case VOTE_SKIP:
+                    room.voteSkip(getUserId());
+                    break;
+                default:
+                    throw new MessageException("Message Type not valid");
+            }
+        }catch (MessageException e) {
+            e.printStackTrace();
+        }
 
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     @Override

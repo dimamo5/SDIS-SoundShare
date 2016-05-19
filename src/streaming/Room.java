@@ -7,24 +7,26 @@ import player.Track;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.Semaphore;
-import java.util.Timer;
 
 /**
  * Created by diogo on 12/05/2016.
  */
-public class Room {
-    private ServerSocket socket;
-    private int port = 0;
+public class Room implements Runnable{
     private static final int listenPort = 5000;
     public static final int FRAMESIZE = 2048;
+    private static final int MAX_NUM_SKIP_VOTES = 5;
+
+
+    private ServerSocket socket;
+    private int port = 0;
     private ArrayList<User> clients = new ArrayList<User>();
     private Semaphore sem = new Semaphore(1);
     private Timer timer = new Timer();
     private double musicSec = 0;
     private Playlist playlist = new Playlist();
+    private Set<Integer> skipList = new TreeSet<>();
 
     public static void main(String[] args) {
         Room r = new Room(listenPort);
@@ -51,7 +53,50 @@ public class Room {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+        try {
+            this.socket = new ServerSocket(port);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void voteSkip(int user){
+        skipList.add(user);
+        if (skipList.size() >= MAX_NUM_SKIP_VOTES){
+            sendNewTrack(playlist.getNextTrack());
+        }
+    }
+
+    public void sendNewTrack(Track track) {
+        skipList.clear();
+        for (User user : clients)
+            new Thread() {
+                @Override
+                public void run() {
+                    user.sendFile(track.getFile(), 0);
+                }
+            }.start();
+    }
+
+    public void sendActualTrack(User u) {
+        new Thread() {
+            @Override
+            public void run() {
+                u.sendFile(playlist.getCurrentTrack().getFile(), musicSec);
+            }
+        }.start();
+    }
+
+    @Override
+    public void run() {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -73,7 +118,7 @@ public class Room {
                 Socket connectionSocket = socket.accept();
                 connectionSocket.setSendBufferSize(64000);
                 sem.acquire();
-                User c = new User(connectionSocket);
+                User c = new User(connectionSocket,this);
                 clients.add(c);
                 sendActualTrack(c);
                 sem.release();
@@ -89,37 +134,4 @@ public class Room {
             }
         }
     }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-        try {
-            this.socket = new ServerSocket(port);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void sendNewTrack(Track track) {
-        for (User user : clients)
-            new Thread() {
-                @Override
-                public void run() {
-                    user.sendFile(track.getFile(), 0);
-                }
-            }.start();
-    }
-
-    public void sendActualTrack(User u) {
-        new Thread() {
-            @Override
-            public void run() {
-                u.sendFile(playlist.getCurrentTrack().getFile(), musicSec);
-            }
-        }.start();
-    }
-
 }
