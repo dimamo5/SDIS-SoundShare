@@ -34,13 +34,14 @@ public class Converter {
 
             Encoder enc = new Encoder();
             EncodingAttributes att = new EncodingAttributes();
+            InfoMusic inf = new InfoMusic(fileConvert);
+            inf.getMusicInfo();
+            att.setDuration((float)inf.getFullTime());
             AudioAttributes audioAttributes = new AudioAttributes();
 
-            audioAttributes.setBitRate(audioInputStream.getFormat().getSampleSizeInBits());
+            audioAttributes.setBitRate(BITRATE);
             audioAttributes.setChannels(CHANNELS);
             audioAttributes.setSamplingRate((int)SAMPLE);
-
-            System.out.println("bits: " + audioInputStream.getFormat().getSampleSizeInBits() + " rate: " + (int)audioInputStream.getFormat().getSampleRate());
 
             att.setAudioAttributes(audioAttributes);
             att.setFormat("mp3");
