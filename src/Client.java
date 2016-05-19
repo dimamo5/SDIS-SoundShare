@@ -42,6 +42,7 @@ public class Client  implements Runnable {
 
     public Client(InetAddress serverAddress, int serverPort){
         try {
+            System.out.println("add " + serverAddress + " port " + serverPort);
             communicationSocket = new Socket(serverAddress, serverPort);
             this.out = new ObjectOutputStream(communicationSocket.getOutputStream());
             this.in = new ObjectInputStream(communicationSocket.getInputStream());
@@ -91,7 +92,7 @@ public class Client  implements Runnable {
         sendMessage(new Message(Message.Type.REQUEST,new String[]{url}));
 
         Message result = getMessage();
-        if(result.getType().equals(Message.Type.TRUE))
+        if(result.getType().equals(Message.Type.AYY_CAPTAIN))
             return true;
         else
             return false;
@@ -146,8 +147,9 @@ public class Client  implements Runnable {
     }
 
     private void handleMessage(Message message) {
-        switch(message.Type){
-            case Message.Type.MUSIC:
+        switch(message.getType()){
+            case MUSIC:
+                System.out.println(message.toString());
                 break;
         }
     }

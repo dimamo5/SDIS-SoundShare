@@ -16,8 +16,8 @@ public class Message implements Serializable {
         REQUEST,
         VOTE_KICK,
         MUSIC,
-        TRUE,
-        FALSE
+        AYY_CAPTAIN,
+        FUCK_NO
     }
 
     private Type type;
@@ -57,5 +57,40 @@ public class Message implements Serializable {
         this.arg[1]= track.getAuthor();
         this.arg[2]=String.valueOf(track.getFullTime());
         this.arg[3]=String.valueOf(sec);
+    }
+
+    @Override
+    public String toString() {
+
+        switch(this.type) {
+            case MUSIC:
+                StringBuilder sb = new StringBuilder();
+                sb.append(type.toString());
+                sb.append(" Currently playing music ");
+                sb.append(arg[0]);
+                sb.append(" from ");
+                sb.append(arg[1]);
+                sb.append(" with duration ");
+                sb.append(arg[2]);
+                sb.append(" seconds.");
+                return sb.toString();
+            case STREAM:
+                break;
+            case DISCONNECT:
+                break;
+            case CONNECT:
+                break;
+            case VOTE_SKIP:
+                break;
+            case VOTE_KICK:
+                break;
+            case REQUEST:
+                break;
+            case AYY_CAPTAIN:
+                break;
+            case FUCK_NO:
+                break;
+        }
+        return null;
     }
 }

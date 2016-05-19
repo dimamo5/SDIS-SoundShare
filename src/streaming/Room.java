@@ -30,14 +30,15 @@ public class Room implements Runnable{
 
     public static void main(String[] args) {
         Room r = new Room(DEFAULTPORT);
+        new Thread(r).start();
     }
 
     public void fillPlayList() {
-        new Converter("resources/batmobile.wav","resources/test1.mp3").encodeMP3();
-        new Converter("resources/renegades.mp3","resources/test2.mp3").encodeMP3();
+        //new Converter("resources/batmobile.wav","resources/test1.mp3").encodeMP3();
+        //new Converter("resources/renegades.mp3","resources/test2.mp3").encodeMP3();
 
         playlist.addRequestedTrack("test1.mp3", "Local");
-        playlist.addRequestedTrack("test2.mp3", "Local");
+        playlist.addRequestedTrack("renegades.mp3", "Local");
     }
 
     public Room() {
@@ -97,6 +98,8 @@ public class Room implements Runnable{
 
     @Override
     public void run() {
+        System.out.print("Room started!");
+
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -106,8 +109,11 @@ public class Room implements Runnable{
                     musicSec=0;
                 } else if (musicSec / playlist.getCurrentTrack().getFullTime() >= 0.9) {
                     Track t = playlist.getNextTrack();
-                    if(t!=null)
+                    if(t!=null && !t.isSent()) {
+                        t.setSent(true);
                         sendNewTrack(playlist.getNextTrack());
+                    }
+
                 }
             }
         }, 500, 500);
