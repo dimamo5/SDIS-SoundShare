@@ -28,8 +28,8 @@ public class Client implements Runnable{
         int serverPort = new Integer(args[1]);
 
         try {
-            Client client = new Client(InetAddress.getByAddress(serverAddress.getBytes()),serverPort);
-            client.play();
+            Client client = new Client(InetAddress.getByName(serverAddress),serverPort);
+            new Thread(client).start();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
@@ -44,17 +44,17 @@ public class Client implements Runnable{
 
             while(streamingPort == 0){
                 Message message = (Message) in.readObject();
-                if(message.getType() == Message.Type.STREAM){
+                System.out.println(streamingPort);
+                if(message.getType().equals(Message.Type.STREAM)){
                     streamingPort = new Integer(message.getArg()[0]);
-                }else{
-                    continue;
+                    System.out.println("Streaming Port: "+streamingPort);
                 }
             }
 
             this.streamingSocket = new Socket(serverAddress,streamingPort);
             streamIn = streamingSocket.getInputStream();
         } catch (IOException ex) {
-            // Do exception handling
+            ex.printStackTrace();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -91,7 +91,6 @@ public class Client implements Runnable{
 
         try {
             this.player=new AdvancedPlayer(abuffer);
-
         } catch (JavaLayerException e) {
             e.printStackTrace();
         }
@@ -102,7 +101,7 @@ public class Client implements Runnable{
             try {
                 bytesRead=streamIn.read(teste);
                 if(bytesRead!=-1) {
-                    System.out.println(bytesRead);
+                    //System.out.println(bytesRead);
                     abuffer.write(teste);
                     if(!playing){
                         this.play();

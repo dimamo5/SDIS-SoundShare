@@ -30,8 +30,8 @@ public class Room {
     }
 
     public void fillPlayList() {
-        new Converter("resources/batmobile.wav","resources/test1.mp3").encodeMP3();
-        new Converter("resources/Mine.mp3","resources/test2.mp3").encodeMP3();
+        //new Converter("resources/batmobile.wav","resources/test1.mp3").encodeMP3();
+        //new Converter("resources/Mine.mp3","resources/test2.mp3").encodeMP3();
 
         playlist.addRequestedTrack("test1.mp3", "Local");
         playlist.addRequestedTrack("test2.mp3", "Local");

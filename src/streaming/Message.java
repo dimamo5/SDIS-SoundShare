@@ -1,9 +1,11 @@
 package streaming;
 
+import java.io.Serializable;
+
 /**
  * Created by duarte on 14-05-2016.
  */
-public class Message {
+public class Message implements Serializable {
     public enum Type{
         DISCONNECT,
         CONNECT,
