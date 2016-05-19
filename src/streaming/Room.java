@@ -16,7 +16,8 @@ import java.util.Timer;
  * Created by diogo on 12/05/2016.
  */
 public class Room {
-    private static ServerSocket socket;
+    private ServerSocket socket;
+    private int port = 0;
     private static final int listenPort = 5000;
     public static final int FRAMESIZE = 2048;
     private ArrayList<User> clients = new ArrayList<User>();
@@ -26,12 +27,12 @@ public class Room {
     private Playlist playlist = new Playlist();
 
     public static void main(String[] args) {
-        Room r = new Room();
+        Room r = new Room(listenPort);
     }
 
     public void fillPlayList() {
-        //new Converter("resources/batmobile.wav","resources/test1.mp3").encodeMP3();
-        //new Converter("resources/Mine.mp3","resources/test2.mp3").encodeMP3();
+        new Converter("resources/batmobile.wav","resources/test1.mp3").encodeMP3();
+        new Converter("resources/renegades.mp3","resources/test2.mp3").encodeMP3();
 
         playlist.addRequestedTrack("test1.mp3", "Local");
         playlist.addRequestedTrack("test2.mp3", "Local");
@@ -39,10 +40,15 @@ public class Room {
     }
 
     public Room() {
+        this(0);
+    }
+
+    public Room(int port) {
         this.fillPlayList();
 
         try {
-            socket = new ServerSocket(listenPort);
+            socket = new ServerSocket(port);
+            this.port = socket.getLocalPort();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -82,6 +88,19 @@ public class Room {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+        try {
+            this.socket = new ServerSocket(port);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
