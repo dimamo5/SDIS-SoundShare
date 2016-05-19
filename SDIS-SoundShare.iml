@@ -9,5 +9,9 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="SDIS-SoundShare" level="project" />
+    <orderEntry type="library" name="java-api-wrapper-1.2.0-all" level="project" />
+    <orderEntry type="library" name="jave-1.0.2" level="project" />
+    <orderEntry type="library" name="jl1.0.1" level="project" />
+    <orderEntry type="library" name="lib" level="project" />
   </component>
 </module>
