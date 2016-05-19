@@ -1,6 +1,7 @@
 package streaming;
 
 import com.sun.deploy.util.SessionState;
+import player.Converter;
 import player.Playlist;
 import player.Track;
 
@@ -30,8 +31,11 @@ public class Room {
     }
 
     public void fillPlayList() {
-        playlist.addRequestedTrack("Mine.mp3", "Local");
-        playlist.addRequestedTrack("renegades.mp3", "Local");
+        new Converter("resources/batmobile.wav","resources/test1.mp3").encodeMP3();
+        new Converter("resources/Mine.mp3","resources/test2.mp3").encodeMP3();
+
+        playlist.addRequestedTrack("test1.mp3", "Local");
+        playlist.addRequestedTrack("test2.mp3", "Local");
         playlist.addRequestedTrack("batmobile.mp3", "Local");
     }
 
