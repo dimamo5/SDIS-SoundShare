@@ -29,6 +29,10 @@ public class InfoMusic {
         this.file=new File(System.getProperty("user.dir") + "/resources/" + filename);
     }
 
+    public File getFile() {
+        return file;
+    }
+
     public InfoMusic(File file) {
         this.file=file;
     }
