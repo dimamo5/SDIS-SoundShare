@@ -19,6 +19,8 @@ public class User implements Runnable{
 
     public User(Socket socket){
         this.communicationSocket = socket;
+
+        // TODO: 19-05-2016 Verificar se ao criar o streaming socket desta maneira ele já atribuí um port para o client se ligar
         this.streamingSocket = new Socket();
         try {
              this.out = new ObjectOutputStream(this.communicationSocket.getOutputStream());

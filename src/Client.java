@@ -1,17 +1,12 @@
 import javazoom.jl.decoder.JavaLayerException;
-import javazoom.jl.player.Player;
 import javazoom.jl.player.advanced.AdvancedPlayer;
-import javazoom.spi.mpeg.sampled.file.MpegEncoding;
 
-import javax.sound.sampled.AudioFormat;
-
-import javazoom.*;
 import streaming.Room;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PipedInputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
@@ -19,8 +14,11 @@ import java.net.SocketException;
 /**
  * Created by diogo on 12/05/2016.
  */
-public class Client {
-    private Socket receiveSocket;
+public class Client implements Runnable{
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
+    private Socket communicationSocket;
+    private Socket streamingSocket;
     private final int listenPort = 5000;
     private boolean playing=false;
     public AdvancedPlayer player;
@@ -29,22 +27,23 @@ public class Client {
         new Client();
     }
 
-    public Client(){
+    public Client(InetAddress serverAddress, int serverPort){
         byte[] buffer = new byte[streaming.Room.FRAMESIZE];
         int bytesRead=0;
 
-        Socket clientSocket = null;
         InputStream is = null;
 
         try {
-            InetAddress destination = InetAddress.getByName("localhost");
-            receiveSocket = new Socket(destination, listenPort);
-            is = receiveSocket.getInputStream();
+            communicationSocket = new Socket(serverAddress, serverPort);
+            this.out = new ObjectOutputStream(communicationSocket.getOutputStream());
+            this.in = new ObjectInputStream(communicationSocket.getInputStream());
+
+            is = streamingSocket.getInputStream();
         } catch (IOException ex) {
             // Do exception handling
         }
         try {
-            receiveSocket.setReceiveBufferSize(64000);
+            streamingSocket.setReceiveBufferSize(64000);
         } catch (SocketException e) {
             e.printStackTrace();
         }
@@ -97,5 +96,10 @@ public class Client {
                 }
             }
         }.start();
+    }
+
+    @Override
+    public void run() {
+
     }
 }
