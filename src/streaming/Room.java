@@ -18,7 +18,7 @@ import java.util.Timer;
 public class Room {
     private ServerSocket socket;
     private int port = 0;
-    private static final int listenPort = 5000;
+    public static final int DEFAULTPORT = 5000;
     public static final int FRAMESIZE = 2048;
     private ArrayList<User> clients = new ArrayList<User>();
     private Semaphore sem = new Semaphore(1);
@@ -27,15 +27,17 @@ public class Room {
     private Playlist playlist = new Playlist();
 
     public static void main(String[] args) {
-        Room r = new Room(listenPort);
+        Room r = new Room(DEFAULTPORT);
     }
 
     public void fillPlayList() {
-        new Converter("resources/batmobile.wav","resources/test1.mp3").encodeMP3();
-        new Converter("resources/renegades.mp3","resources/test2.mp3").encodeMP3();
+        //new Converter("resources/batmobile.wav","resources/test1.mp3").encodeMP3();
+        //new Converter("resources/renegades.mp3","resources/test2.mp3").encodeMP3();
 
-        playlist.addRequestedTrack("test1.mp3", "Local");
-        playlist.addRequestedTrack("test2.mp3", "Local");
+        playlist.addRequestedTrack("Mine.mp3", "Local");
+        playlist.addRequestedTrack("Mine.mp3", "Local");
+        playlist.addRequestedTrack("Mine.mp3", "Local");
+        //playlist.addRequestedTrack("test2.mp3", "Local");
     }
 
     public Room() {
@@ -108,7 +110,7 @@ public class Room {
             new Thread() {
                 @Override
                 public void run() {
-                    user.sendFile(track.getFile(), 0);
+                    user.sendFile(track, 0);
                 }
             }.start();
     }
@@ -117,7 +119,7 @@ public class Room {
         new Thread() {
             @Override
             public void run() {
-                u.sendFile(playlist.getCurrentTrack().getFile(), musicSec);
+                u.sendFile(playlist.getCurrentTrack(), musicSec);
             }
         }.start();
     }

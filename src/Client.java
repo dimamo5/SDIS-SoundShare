@@ -19,7 +19,7 @@ public class Client implements Runnable{
     private InputStream streamIn;
     private Socket communicationSocket;
     private Socket streamingSocket;
-    private final int listenPort = 5000;
+    public AudioBuffer aBuffer;
     private boolean playing=false;
     public AdvancedPlayer player;
 
@@ -36,6 +36,7 @@ public class Client implements Runnable{
     }
 
     public Client(InetAddress serverAddress, int serverPort){
+        aBuffer= new AudioBuffer();
         try {
             communicationSocket = new Socket(serverAddress, serverPort);
             this.out = new ObjectOutputStream(communicationSocket.getOutputStream());
@@ -68,6 +69,7 @@ public class Client implements Runnable{
             public void run() {
                 System.out.println("Playing!");
                 try {
+                    c.player=new AdvancedPlayer(c.aBuffer);
                     c.player.play();
                 } catch (JavaLayerException e) {
                     e.printStackTrace();
@@ -87,13 +89,7 @@ public class Client implements Runnable{
             e.printStackTrace();
         }
 
-        AudioBuffer abuffer= new AudioBuffer();
 
-        try {
-            this.player=new AdvancedPlayer(abuffer);
-        } catch (JavaLayerException e) {
-            e.printStackTrace();
-        }
 
         byte[] teste=new byte[Room.FRAMESIZE];
 
@@ -101,8 +97,8 @@ public class Client implements Runnable{
             try {
                 bytesRead=streamIn.read(teste);
                 if(bytesRead!=-1) {
-                    //System.out.println(bytesRead);
-                    abuffer.write(teste);
+                    System.out.println(bytesRead);
+                    aBuffer.write(teste);
                     if(!playing){
                         this.play();
                         this.playing=true;

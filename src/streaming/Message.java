@@ -1,5 +1,7 @@
 package streaming;
 
+import player.Track;
+
 import java.io.Serializable;
 
 /**
@@ -13,6 +15,7 @@ public class Message implements Serializable {
         VOTE_SKIP,
         REQUEST,
         VOTE_KICK,
+        MUSIC,
         TRUE,
         FALSE
     }
@@ -24,6 +27,8 @@ public class Message implements Serializable {
         this.type = type;
         this.arg = arg;
     }
+
+    public Message(){};
 
     public Message(Type type) {
         this.type = type;
@@ -43,5 +48,14 @@ public class Message implements Serializable {
 
     public void setType(Type type) {
         this.type = type;
+    }
+
+    public Message createMusicMessage(Track track, double sec){
+        this.type=Type.MUSIC;
+        this.arg[0]= track.getTrackName();
+        this.arg[1]= track.getAuthor();
+        this.arg[2]=String.valueOf(track.getFullTime());
+        this.arg[3]=String.valueOf(sec);
+        return this;
     }
 }
