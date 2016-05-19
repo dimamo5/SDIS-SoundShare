@@ -4,10 +4,7 @@ import javazoom.jl.player.advanced.AdvancedPlayer;
 import streaming.Message;
 import streaming.Room;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
@@ -19,6 +16,7 @@ import java.net.UnknownHostException;
 public class Client implements Runnable{
     private ObjectOutputStream out;
     private ObjectInputStream in;
+    private InputStream streamIn;
     private Socket communicationSocket;
     private Socket streamingSocket;
     private final int listenPort = 5000;
@@ -37,11 +35,6 @@ public class Client implements Runnable{
     }
 
     public Client(InetAddress serverAddress, int serverPort){
-        byte[] buffer = new byte[streaming.Room.FRAMESIZE];
-        int bytesRead=0;
-
-        InputStream is = null;
-
         try {
             communicationSocket = new Socket(serverAddress, serverPort);
             this.out = new ObjectOutputStream(communicationSocket.getOutputStream());
@@ -58,12 +51,35 @@ public class Client implements Runnable{
             }
 
             this.streamingSocket = new Socket(serverAddress,streamingPort);
-            is = streamingSocket.getInputStream();
+            streamIn = streamingSocket.getInputStream();
         } catch (IOException ex) {
             // Do exception handling
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+
+    }
+
+    public void play(){
+        Client c= this;
+        new Thread() {
+            @Override
+            public void run() {
+                System.out.println("Playing!");
+                try {
+                    c.player.play();
+                } catch (JavaLayerException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
+    @Override
+    public void run() {
+        byte[] buffer = new byte[streaming.Room.FRAMESIZE];
+        int bytesRead=0;
+
         try {
             streamingSocket.setReceiveBufferSize(64000);
         } catch (SocketException e) {
@@ -83,7 +99,7 @@ public class Client implements Runnable{
 
         while(true){
             try {
-                bytesRead=is.read(teste);
+                bytesRead=streamIn.read(teste);
                 if(bytesRead!=-1) {
                     System.out.println(bytesRead);
                     abuffer.write(teste);
@@ -102,26 +118,5 @@ public class Client implements Runnable{
             } catch (IOException e) {
                 e.printStackTrace();
             }*/
-
-        }
-
-    public void play(){
-        Client c= this;
-        new Thread() {
-            @Override
-            public void run() {
-                System.out.println("Playing!");
-                try {
-                    c.player.play();
-                } catch (JavaLayerException e) {
-                    e.printStackTrace();
-                }
-            }
-        }.start();
-    }
-
-    @Override
-    public void run() {
-
     }
 }
