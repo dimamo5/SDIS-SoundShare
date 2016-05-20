@@ -1,8 +1,10 @@
 package database;
 
 import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.UUID;
 
 /* A database implementation using JBDC(Java DataBase Connectivity API)
    > No left open connections: each query requires establishing a db connection which is closed at the end;
@@ -32,15 +34,15 @@ public class Database {
     }
 
     public static Database getInstance() {
-        if(instance == null) {
-            instance = new Database("db");
+        if (instance == null) {
+            instance = new Database("soundshare");
         }
         return instance;
     }
 
     private void init_db(String db_name) {
         connect_to_db(db_name);
-        create_table();
+        //create_table();
         close_connection();
     }
 
@@ -50,7 +52,7 @@ public class Database {
     private void connect_to_db(String db_name) {
         try {
             Class.forName("org.sqlite.JDBC");
-            this.connection = DriverManager.getConnection("jdbc:sqlite:" + db_name);
+            this.connection = DriverManager.getConnection("jdbc:sqlite:" + System.getProperty("user.dir") + "/resources/" + db_name + ".db");
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
@@ -129,6 +131,16 @@ public class Database {
         return (ArrayList) execute_sql(Query_types.SELECT.name(), sql, values);
     }
 
+    public String generateToken(int id) {
+        String sql = "UPDATE USERS SET ACCESSTOKEN= ? WHERE id=?";
+        String token = UUID.randomUUID().toString();
+        String values[] = {token, String.valueOf(id)};
+
+        this.execute_sql(Query_types.UPDATE.name(), sql, values);
+
+        return token;
+    }
+
 
     /*
     Execute a query using prepared statement
@@ -167,6 +179,8 @@ public class Database {
                     user.add(rs.getString("PASSWORD"));
                     users.add(user);
                 }
+            }else if(query_type.equals(Query_types.UPDATE.name())){
+                ret=pstmt.executeUpdate() !=0;
             }
 
 
@@ -206,18 +220,20 @@ public class Database {
 
     public static void main(String args[]) {
 
-        Database db = new Database("Users.db");
+        Database db = Database.getInstance();
 
-        db.insert_user("Manuel123456789", "lol");
+        System.out.println(db.generateToken(1));
 
-        ArrayList<ArrayList<String>> users = db.select_user_by_credentials("Manuel123456789", new String(db.get_sha256_hash("lol")));
+        ///db.insert_user("Manuel123456789", "lol");
+
+        /*ArrayList<ArrayList<String>> users = db.select_user_by_credentials("Manuel123456789", new String(db.get_sha256_hash("lol")));
         try {
             for (ArrayList<String> user : users)
                 System.out.println(user.get(0) + " " + user.get(1));
 
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
 
     }
 
