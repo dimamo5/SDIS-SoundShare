@@ -67,7 +67,7 @@ public class Client  implements Runnable {
                 }
             }
             this.streamingSocket = new Socket(serverAddress,streamingPort);
-            //requestSong("batmobile.wav", false);
+            requestSong("mama.wma", false);
             streamIn = streamingSocket.getInputStream();
             this.play();
         } catch (IOException ex) {
@@ -98,14 +98,14 @@ public class Client  implements Runnable {
         String dateMsg = format.format(new Date());
         if (isSoundCloud) {
             try {
-                sendMessage(new RequestMessage(new String[]{url,dateMsg}, RequestMessage.RequestType.SOUNDCLOUD));
+                sendMessage(new RequestMessage(new String[]{url,dateMsg}, token, RequestMessage.RequestType.SOUNDCLOUD));
                 return true;
             } catch (IOException e) {
                 return false;
             }
         }
         else {
-            Message m = new RequestMessage(new String[]{url, dateMsg}, RequestMessage.RequestType.STREAM_SONG);
+            Message m = new RequestMessage(new String[]{url, dateMsg}, token, RequestMessage.RequestType.STREAM_SONG);
             System.out.println(m.toString());
             try {
                 sendMessage(m);
@@ -147,7 +147,7 @@ public class Client  implements Runnable {
 
     public void skip(){
         try {
-            sendMessage(new Message(Message.Type.VOTE_SKIP,new String[]{}));
+            sendMessage(new Message(Message.Type.VOTE_SKIP, token, new String[]{}));
         } catch (IOException e) {
             e.printStackTrace();
         }
