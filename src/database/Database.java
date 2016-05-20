@@ -86,7 +86,7 @@ public class Database {
     Insert's an user in the database
     */
     //TODO : Verificar se username já existe na base de dados
-    private boolean insert_user(String username, String password) {
+    public boolean insert_user(String username, String password) {
         String hashed = null;
         String sql = null;
 
@@ -113,7 +113,7 @@ public class Database {
     }
 
 
-    private ArrayList select_user_by_username(String username) {
+    public ArrayList select_user_by_username(String username) {
         String sql;
         String values[] = {username};
         sql = "SELECT * FROM USERS WHERE USERNAME = ?";
@@ -122,12 +122,21 @@ public class Database {
     }
 
     /* For log in purpose prolly */
-    private ArrayList select_user_by_credentials(String username, String password) {
+    public String select_user_by_credentials(String username, String password) {
         String sql;
-        String values[] = {username, password};
+        String values[] = {username, get_sha256_hash(password)};
+
         sql = "SELECT * FROM USERS WHERE USERNAME = ? AND PASSWORD = ?";
 
-        return (ArrayList) execute_sql(Query_types.SELECT.name(), sql, values);
+        ArrayList<ArrayList<String>> arr = (ArrayList) execute_sql(Query_types.SELECT.name(), sql, values);
+        try {
+            if (arr.get(0).get(1).equals(username)) {
+                return generateToken(Integer.parseInt(arr.get(0).get(0)));
+            } else return "ERROR";
+        }
+        catch (IndexOutOfBoundsException i) {
+            return "ERROR";
+        }
     }
 
     public String generateToken(int id) {
@@ -187,8 +196,10 @@ public class Database {
                 while (rs.next()) {
                     ArrayList<String> user = new ArrayList<>();
 
+                    user.add(rs.getString("ID"));
                     user.add(rs.getString("USERNAME"));
                     user.add(rs.getString("PASSWORD"));
+                    user.add(rs.getString("ACCESSTOKEN"));
                     users.add(user);
                 }
             } else if (query_type.equals(Query_types.UPDATE.name())) {
@@ -240,7 +251,7 @@ public class Database {
     public static void main(String args[]) {
 
         Database db = Database.getInstance();
-        db.insert_user("Manuel123456789", "lol");
+        db.insert_user("teste", "lol");
 
         /*String s=db.generateToken(2);
         System.out.println(s);
