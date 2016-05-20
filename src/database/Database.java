@@ -141,6 +141,20 @@ public class Database {
         return token;
     }
 
+    public boolean verifyToken(String token) {
+        String sql = "SELECT * FROM USERS WHERE ACCESSTOKEN =?";
+        String[] values = {token};
+        ArrayList result= (ArrayList) this.execute_sql(Query_types.SELECT.name(), sql, values);
+        return result.size()!=0;
+    }
+
+    public boolean deleteToken(String token) {
+        String sql = "UPDATE USERS SET ACCESSTOKEN=NULL WHERE ACCESSTOKEN =?";
+        String[] values = {token};
+        return (Boolean) this.execute_sql(Query_types.DELETE.name(), sql, values);
+
+    }
+
 
     /*
     Execute a query using prepared statement
@@ -162,7 +176,6 @@ public class Database {
                 pstmt.setString(i + 1, values[i]);
             }
 
-            //TODO Add 2 missing cases (DELETE + UPDATE)
             if (query_type.equals(Query_types.INSERT.name())) {
                 ret = pstmt.executeUpdate() != 0;
             } else if (query_type.equals(Query_types.SELECT.name())) {
@@ -179,8 +192,10 @@ public class Database {
                     user.add(rs.getString("PASSWORD"));
                     users.add(user);
                 }
-            }else if(query_type.equals(Query_types.UPDATE.name())){
-                ret=pstmt.executeUpdate() !=0;
+            } else if (query_type.equals(Query_types.UPDATE.name())) {
+                ret = pstmt.executeUpdate() != 0;
+            } else if (query_type.equals(Query_types.DELETE.name())) {
+                ret = pstmt.executeUpdate() != 0;
             }
 
 
@@ -198,6 +213,10 @@ public class Database {
             return ret;
         } else if (query_type.equals(Query_types.SELECT.name())) {
             return users;
+        } else if (query_type.equals(Query_types.DELETE.name())) {
+            return ret;
+        } else if (query_type.equals(Query_types.UPDATE.name())) {
+            return ret;
         } else return false;
     }
 
@@ -221,10 +240,14 @@ public class Database {
     public static void main(String args[]) {
 
         Database db = Database.getInstance();
+        //db.insert_user("Manuel123456789", "lol");
 
-        System.out.println(db.generateToken(1));
+        String s=db.generateToken(2);
+        System.out.println(s);
+        System.out.println("Encontrou:" + db.verifyToken(s));
+        System.out.println("Eliminou:" + db.deleteToken(s));
+        System.out.println("Encontrou:" + db.verifyToken(s));
 
-        ///db.insert_user("Manuel123456789", "lol");
 
         /*ArrayList<ArrayList<String>> users = db.select_user_by_credentials("Manuel123456789", new String(db.get_sha256_hash("lol")));
         try {
