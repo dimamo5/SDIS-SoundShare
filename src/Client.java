@@ -1,18 +1,12 @@
 import javazoom.jl.decoder.JavaLayerException;
-import javazoom.jl.player.Player;
 import javazoom.jl.player.advanced.AdvancedPlayer;
 
-import javazoom.jl.player.advanced.PlaybackEvent;
-import javazoom.jl.player.advanced.PlaybackListener;
 import streaming.Message;
 import streaming.Room;
-import sun.audio.AudioPlayer;
-import sun.audio.AudioStream;
 
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import static streaming.Room.FRAMESIZE;
@@ -94,7 +88,7 @@ public class Client  implements Runnable {
             sendMessage(new Message(Message.Type.REQUEST, new String[]{url}));
 
             Message result = getMessage();
-            if (result.getType().equals(Message.Type.AYY_CAPTAIN))
+            if (result.getType().equals(Message.Type.TRUE))
                 return true;
             else
                 return false;
@@ -188,7 +182,7 @@ public class Client  implements Runnable {
             case MUSIC:
                 System.out.println(message.toString());
                 break;
-            case AYY_CAPTAIN:
+            case TRUE:
                 System.out.println(message.toString());
                 sendSong(message.getArg()[0]);
                 break;

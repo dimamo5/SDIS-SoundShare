@@ -16,8 +16,8 @@ public class Message implements Serializable {
         REQUEST,
         VOTE_KICK,
         MUSIC,
-        AYY_CAPTAIN,
-        FUCK_NO
+        TRUE,
+        FALSE
     }
 
     private Type type;
@@ -90,13 +90,14 @@ public class Message implements Serializable {
                 sb.append(" ");
                 sb.append(arg[1]);
                 return sb.toString();
-            case AYY_CAPTAIN:
+            case FALSE:
+            case TRUE:
                 sb.append(type.toString());
-                sb.append(" Request for song ");
-                sb.append(arg[0]);
-                sb.append(" accepted");
+                for(String argument : arg){
+                    sb.append(" "+argument);
+                }
                 return sb.toString();
-            case FUCK_NO:
+            default:
                 break;
         }
         return null;

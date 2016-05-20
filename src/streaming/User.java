@@ -134,7 +134,7 @@ public class User implements Runnable{
                     break;
                 case REQUEST:
                     System.out.println(message);
-                    sendMessage(new Message(Message.Type.AYY_CAPTAIN, new String[]{message.getArg()[0]}));
+                    sendMessage(new Message(Message.Type.TRUE, new String[]{message.getArg()[0]}));
                     readSongFromUser(message.getArg()[0]);
                     break;
                 default:
