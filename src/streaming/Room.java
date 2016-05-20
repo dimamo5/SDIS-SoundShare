@@ -72,12 +72,17 @@ public class Room implements Runnable{
     public void voteSkip(int user){
         skipList.add(user);
         if (skipList.size() >= MAX_NUM_SKIP_VOTES){
-            sendNewTrack(playlist.getNextTrack());
+            skipTrack();
         }
     }
 
-    public void sendNewTrack(Track track) {
+    public void skipTrack(){
         skipList.clear();
+        playlist.skipTrack();
+        sendNewTrack(playlist.getCurrentTrack());
+    }
+
+    public void sendNewTrack(Track track) {
         for (User user : clients)
             new Thread() {
                 @Override
@@ -98,14 +103,14 @@ public class Room implements Runnable{
 
     @Override
     public void run() {
-        System.out.print("Room started!");
+        System.out.println("Room started!");
 
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 musicSec += 0.5;
                 if (musicSec == playlist.getCurrentTrack().getFullTime()) {
-                    playlist.skipTrack();
+                    skipTrack();
                     musicSec=0;
                 } else if (musicSec / playlist.getCurrentTrack().getFullTime() >= 0.9) {
                     Track t = playlist.getNextTrack();
@@ -125,6 +130,7 @@ public class Room implements Runnable{
                 connectionSocket.setSendBufferSize(64000);
                 sem.acquire();
                 User c = new User(connectionSocket,this);
+                new Thread(c).start();
                 clients.add(c);
                 sendActualTrack(c);
                 sem.release();

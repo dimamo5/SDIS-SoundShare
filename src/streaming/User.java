@@ -18,6 +18,7 @@ public class User implements Runnable{
     private ObjectInputStream in;
     private Socket communicationSocket;
     private Socket streamingSocket;
+    private InputStream streamIn;
     private boolean connected = true;
     private Room room;
     private int userId = new Random().nextInt(2048)+1;
@@ -107,7 +108,14 @@ public class User implements Runnable{
         } catch (IOException e) {
             e.printStackTrace();
         }*/
+    }
 
+    private void sendMessage(Message message){
+        try {
+            out.writeObject(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean isConnected() {
@@ -124,6 +132,11 @@ public class User implements Runnable{
                 case VOTE_SKIP:
                     room.voteSkip(getUserId());
                     break;
+                case REQUEST:
+                    System.out.println(message);
+                    sendMessage(new Message(Message.Type.AYY_CAPTAIN, new String[]{message.getArg()[0]}));
+                    readSongFromUser(message.getArg()[0]);
+                    break;
                 default:
                     throw new MessageException("Message Type not valid");
             }
@@ -131,6 +144,23 @@ public class User implements Runnable{
             e.printStackTrace();
         }
 
+    }
+
+    public void readSongFromUser(String filename) {
+        try {
+            streamIn = streamingSocket.getInputStream();
+            // write the inputStream to a FileOutputStream
+            OutputStream outputStream = new FileOutputStream(new File(System.getProperty("user.dir") + "/resources/" + filename));
+
+            int read = 0;
+            byte[] bytes = new byte[Room.FRAMESIZE];
+
+            while ((read = streamIn.read(bytes)) != -1) {
+                outputStream.write(bytes, 0, read);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public int getUserId() {
@@ -151,7 +181,6 @@ public class User implements Runnable{
 
             try {
                 final Message message = (Message) in.readObject();
-
                 //ANTES ESTAVA ASSIM MAS O IDEA SUGERIU USAR LAMBDA. SE DER ERRO MUDAR PARA ISTO
                 /*new Thread(new Runnable() {
                     @Override

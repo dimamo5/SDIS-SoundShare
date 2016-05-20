@@ -61,10 +61,9 @@ public class Message implements Serializable {
 
     @Override
     public String toString() {
-
+        StringBuilder sb = new StringBuilder();
         switch(this.type) {
             case MUSIC:
-                StringBuilder sb = new StringBuilder();
                 sb.append(type.toString());
                 sb.append(" Currently playing music ");
                 sb.append(arg[0]);
@@ -85,9 +84,18 @@ public class Message implements Serializable {
             case VOTE_KICK:
                 break;
             case REQUEST:
-                break;
+                sb.append(type.toString());
+                sb.append(" Request for song ");
+                sb.append(arg[0]);
+                sb.append(" ");
+                sb.append(arg[1]);
+                return sb.toString();
             case AYY_CAPTAIN:
-                break;
+                sb.append(type.toString());
+                sb.append(" Request for song ");
+                sb.append(arg[0]);
+                sb.append(" accepted");
+                return sb.toString();
             case FUCK_NO:
                 break;
         }
