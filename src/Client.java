@@ -57,7 +57,7 @@ public class Client  implements Runnable {
                 }
             }
             this.streamingSocket = new Socket(serverAddress,streamingPort);
-            requestSong("mama.wma", false);
+            requestSong("batmobile.wav", false);
             streamIn = streamingSocket.getInputStream();
             this.play();
         } catch (IOException ex) {

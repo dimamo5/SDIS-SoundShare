@@ -172,9 +172,12 @@ public class User implements Runnable{
             while ((read = streamIn.read(bytes)) != -1) {
                 outputStream.write(bytes, 0, read);
             }
+            outputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
     }
 
     public int getUserId() {

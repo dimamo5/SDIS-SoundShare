@@ -20,6 +20,7 @@ public class Database {
 
     private String db_name = null;
     private Connection connection = null;
+    private static Database instance = null;
 
     private enum Query_types {INSERT, SELECT, DELETE, UPDATE}
 
@@ -28,6 +29,13 @@ public class Database {
     public Database(String db_name) {
         this.db_name = db_name;
         init_db(db_name);
+    }
+
+    public static Database getInstance() {
+        if(instance == null) {
+            instance = new Database("db");
+        }
+        return instance;
     }
 
     private void init_db(String db_name) {

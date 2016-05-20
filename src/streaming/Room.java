@@ -37,7 +37,7 @@ public class Room implements Runnable{
         //new Converter("resources/batmobile.wav","resources/test1.mp3").encodeMP3();
         //new Converter("resources/renegades.mp3","resources/test2.mp3").encodeMP3();
 
-        playlist.addRequestedTrack("test1.mp3", "Local");
+        playlist.addRequestedTrack("batmobile.mp3", "Local");
         playlist.addRequestedTrack("renegades.mp3", "Local");
     }
 
