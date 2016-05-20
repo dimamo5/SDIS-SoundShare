@@ -2,6 +2,9 @@ package streaming;
 
 import player.InfoMusic;
 import player.Track;
+import streaming.messages.Message;
+import streaming.messages.MessageException;
+import streaming.messages.RequestMessage;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -133,9 +136,20 @@ public class User implements Runnable{
                     room.voteSkip(getUserId());
                     break;
                 case REQUEST:
-                    System.out.println(message);
-                    sendMessage(new Message(Message.Type.TRUE, new String[]{message.getArg()[0]}));
-                    readSongFromUser(message.getArg()[0]);
+                    RequestMessage requestMessage = (RequestMessage) message;
+                    switch (requestMessage.getRequestType()){
+                        case SOUNDCLOUD:
+                            break;
+                        case STREAM_SONG:
+                            System.out.println(message);
+                            readSongFromUser(message.getArg()[0]);
+                            sendMessage(new Message(Message.Type.TRUE, message.getArg()));
+                            break;
+                        default:
+                            break;
+                    }
+
+
                     break;
                 default:
                     throw new MessageException("Message Type not valid");

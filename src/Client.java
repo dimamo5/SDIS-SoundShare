@@ -1,13 +1,17 @@
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.advanced.AdvancedPlayer;
 
-import streaming.Message;
+import streaming.messages.Message;
 import streaming.Room;
+import streaming.messages.RequestMessage;
 
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static streaming.Room.FRAMESIZE;
 
@@ -64,12 +68,8 @@ public class Client  implements Runnable {
 
     }
 
-    private void sendMessage(Message message){
-        try {
-            out.writeObject(message);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void sendMessage(Message message) throws IOException {
+        out.writeObject(message);
     }
 
     private Message getMessage(){
@@ -84,20 +84,26 @@ public class Client  implements Runnable {
     }
 
     public boolean requestSong(String url, boolean isSoundCloud){
+        DateFormat format = new SimpleDateFormat("hh:mm:ss");
+        String dateMsg = format.format(new Date());
         if (isSoundCloud) {
-            sendMessage(new Message(Message.Type.REQUEST, new String[]{url}));
-
-            Message result = getMessage();
-            if (result.getType().equals(Message.Type.TRUE))
+            try {
+                sendMessage(new RequestMessage(new String[]{url,dateMsg}, RequestMessage.RequestType.SOUNDCLOUD));
                 return true;
-            else
+            } catch (IOException e) {
                 return false;
+            }
         }
         else {
-            Message m = new Message(Message.Type.REQUEST, new String[]{url, "sent"});
+            Message m = new RequestMessage(new String[]{url, dateMsg}, RequestMessage.RequestType.STREAM_SONG);
             System.out.println(m.toString());
-            sendMessage(m);
-            return true;
+            try {
+                sendMessage(m);
+                sendSong(url);
+                return true;
+            } catch (IOException e) {
+                return false;
+            }
         }
     }
 
@@ -130,7 +136,11 @@ public class Client  implements Runnable {
     }
 
     public void skip(){
-        sendMessage(new Message(Message.Type.VOTE_SKIP,new String[]{}));
+        try {
+            sendMessage(new Message(Message.Type.VOTE_SKIP,new String[]{}));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void play(){
@@ -184,7 +194,7 @@ public class Client  implements Runnable {
                 break;
             case TRUE:
                 System.out.println(message.toString());
-                sendSong(message.getArg()[0]);
+                //sendSong(message.getArg()[0]);
                 break;
         }
     }

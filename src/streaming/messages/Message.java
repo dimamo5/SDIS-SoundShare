@@ -1,4 +1,4 @@
-package streaming;
+package streaming.messages;
 
 import player.Track;
 
