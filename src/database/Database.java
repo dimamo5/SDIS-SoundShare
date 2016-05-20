@@ -1,7 +1,6 @@
 package database;
 
 import java.security.MessageDigest;
-import java.security.SecureRandom;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -88,7 +87,7 @@ public class Database {
     */
     //TODO : Verificar se username já existe na base de dados
     private boolean insert_user(String username, String password) {
-        byte[] hashed = null;
+        String hashed = null;
         String sql = null;
 
         if ((hashed = get_sha256_hash(password)) == null) {
@@ -221,32 +220,33 @@ public class Database {
     }
 
 
-    private byte[] get_sha256_hash(String to_hash) {
+    private String get_sha256_hash(String to_hash) {
         byte[] digest = null;
 
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
             md.update(to_hash.getBytes("UTF-8"));  // Change this to "UTF-16" if needed
             digest = md.digest();
+            return String.format("%064x", new java.math.BigInteger(1, digest));
         } catch (Exception e) {
             System.err.println("get_sha256_hash Method Exception: " + e.getClass().getName() + ": " + e.getMessage());
             e.printStackTrace();
         }
 
-        return digest;
+        return null;
     }
 
 
     public static void main(String args[]) {
 
         Database db = Database.getInstance();
-        //db.insert_user("Manuel123456789", "lol");
+        db.insert_user("Manuel123456789", "lol");
 
-        String s=db.generateToken(2);
+        /*String s=db.generateToken(2);
         System.out.println(s);
         System.out.println("Encontrou:" + db.verifyToken(s));
         System.out.println("Eliminou:" + db.deleteToken(s));
-        System.out.println("Encontrou:" + db.verifyToken(s));
+        System.out.println("Encontrou:" + db.verifyToken(s));*/
 
 
         /*ArrayList<ArrayList<String>> users = db.select_user_by_credentials("Manuel123456789", new String(db.get_sha256_hash("lol")));
