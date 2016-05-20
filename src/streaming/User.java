@@ -2,10 +2,14 @@ package streaming;
 
 import player.InfoMusic;
 import player.Track;
+import streaming.messages.Message;
+import streaming.messages.MessageException;
+import streaming.messages.RequestMessage;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Random;
 
 import static streaming.Room.FRAMESIZE;
 
@@ -17,9 +21,13 @@ public class User implements Runnable{
     private ObjectInputStream in;
     private Socket communicationSocket;
     private Socket streamingSocket;
+    private InputStream streamIn;
     private boolean connected = true;
+    private Room room;
+    private int userId = new Random().nextInt(2048)+1;
 
-    public User(Socket socket){
+    public User(Socket socket, Room room){
+        this.room = room;
         this.communicationSocket = socket;
 
         // TODO: 19-05-2016 Verificar se ao criar o streaming socket desta maneira ele já atribuí um port para o client se ligar
@@ -103,7 +111,14 @@ public class User implements Runnable{
         } catch (IOException e) {
             e.printStackTrace();
         }*/
+    }
 
+    private void sendMessage(Message message){
+        try {
+            out.writeObject(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public boolean isConnected() {
@@ -115,7 +130,62 @@ public class User implements Runnable{
     }
 
     public void handleMessage(Message message){
+        try{
+            switch (message.getType()){
+                case VOTE_SKIP:
+                    room.voteSkip(getUserId());
+                    break;
+                case REQUEST:
+                    RequestMessage requestMessage = (RequestMessage) message;
+                    switch (requestMessage.getRequestType()){
+                        case SOUNDCLOUD:
+                            break;
+                        case STREAM_SONG:
+                            System.out.println(message);
+                            readSongFromUser(message.getArg()[0]);
+                            sendMessage(new Message(Message.Type.TRUE, message.getArg()));
+                            break;
+                        default:
+                            break;
+                    }
 
+
+                    break;
+                default:
+                    throw new MessageException("Message Type not valid");
+            }
+        }catch (MessageException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void readSongFromUser(String filename) {
+        try {
+            streamIn = streamingSocket.getInputStream();
+            // write the inputStream to a FileOutputStream
+            OutputStream outputStream = new FileOutputStream(new File(System.getProperty("user.dir") + "/resources/" + filename));
+
+            int read = 0;
+            byte[] bytes = new byte[Room.FRAMESIZE];
+
+            while ((read = streamIn.read(bytes)) != -1) {
+                outputStream.write(bytes, 0, read);
+            }
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     @Override
@@ -128,7 +198,6 @@ public class User implements Runnable{
 
             try {
                 final Message message = (Message) in.readObject();
-
                 //ANTES ESTAVA ASSIM MAS O IDEA SUGERIU USAR LAMBDA. SE DER ERRO MUDAR PARA ISTO
                 /*new Thread(new Runnable() {
                     @Override
