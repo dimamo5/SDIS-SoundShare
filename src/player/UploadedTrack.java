@@ -1,6 +1,8 @@
 package player;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 /**
  * Created by duarte on 14-05-2016.
@@ -16,6 +18,15 @@ public class UploadedTrack extends Track {
         this.filename = filename;
         this.file=new File(System.getProperty("user.dir") + "/resources/" + filename);
         this.info = new InfoMusic(file);
+        initializeStream();
+    }
+
+    private void initializeStream(){
+        try {
+            this.setStream(new FileInputStream(file));
+        } catch (FileNotFoundException e) {
+            System.err.println("File for UploadedTrack " + this.filename + "not found");
+        }
     }
 
     public InfoMusic getInfo() {

@@ -52,7 +52,7 @@ public class Playlist {
         }
     }
 
-    public void addRequestedSCTrack(SCTrack track){
+    public void addRequestedTrack(Track track){
             playlist.add(track);
             if(playlist_actual_pos ==-1){
                 playlist_actual_pos =0;
@@ -60,15 +60,9 @@ public class Playlist {
 
     }
 
-
     public void addRequestedUploadedTrack(String music, String clientNo) {
         UploadedTrack uploadedTrack = new UploadedTrack(music,clientNo);
-        if(uploadedTrack.getFile()!=null){
-            playlist.add(uploadedTrack);
-            if(playlist_actual_pos ==-1){
-                playlist_actual_pos =0;
-            }
-        }
+        addRequestedTrack(uploadedTrack);
 
     }
 

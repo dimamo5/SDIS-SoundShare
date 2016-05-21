@@ -28,6 +28,10 @@ public class SCComms {
 
     public SCComms() {
         File wrapperFile = new File("wrapper.ser");
+        if(!wrapperFile.exists()){
+            create_wrapper_instance();
+        }
+
         try {
             wrapper = ApiWrapper.fromFile(wrapperFile);
         } catch (IOException e) {
@@ -44,6 +48,13 @@ public class SCComms {
     public void create_wrapper_instance() {
 
         File WRAPPER_SER = new File("wrapper.ser");
+        if(!WRAPPER_SER.exists()){
+            try {
+                WRAPPER_SER.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         wrapper = new ApiWrapper("1bbc622f314334af39a7d712c1b0a9c4", "aa54aa4ca198d24e17513787227f3200", null, null);
 
         try {

@@ -1,10 +1,7 @@
 package player;
 
-import org.tritonus.share.midi.TMidiDevice;
-
 import java.io.File;
 import java.io.InputStream;
-import java.util.Date;
 
 /**
  * Created by Sonhs on 21/05/2016.
@@ -15,6 +12,7 @@ public abstract class Track {
 
     private String clientRequested;
     private boolean sent=false;
+    private InputStream stream;
 
     public Track(String clientRequested){
         this.clientRequested = clientRequested;
@@ -44,5 +42,11 @@ public abstract class Track {
         this.sent = sent;
     }
 
+    public InputStream getStream() {
+        return stream;
+    }
 
+    public void setStream(InputStream stream) {
+        this.stream = stream;
+    }
 }

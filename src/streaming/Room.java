@@ -1,15 +1,16 @@
 package streaming;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import player.*;
-import soundcloud.SCComms;
+import soundcloud.TrackGetter;
+import util.ServerSingleton;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.Semaphore;
+
 
 /**
  * Created by diogo on 12/05/2016.
@@ -28,7 +29,7 @@ public class Room implements Runnable{
     private double musicSec = 0;
     private Playlist playlist = new Playlist();
     private Set<Integer> skipList = new TreeSet<>();
-    private SCComms sccoms_instance = null;
+    private TrackGetter trackGetter = new TrackGetter(ServerSingleton.getInstance().getSoundCloudComms());
 
 
     public static void main(String[] args) {
@@ -43,14 +44,13 @@ public class Room implements Runnable{
         //playlist.addRequestedUploadedTrack("batmobile.mp3", "Local");
         playlist.addRequestedUploadedTrack("mermaid.mp3", "Local");
 
-
         try {
-            JSONObject track = (JSONObject) sccoms_instance.search_for_track("numb").get(0);
-            SCTrack scTrack = new SCTrack("Local", track);
-            playlist.addRequestedSCTrack(scTrack);
+            SCTrack scTrack = trackGetter.getTrackByName("numb","client01");
+            playlist.addRequestedTrack(scTrack);
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
 
     }
 
@@ -59,7 +59,6 @@ public class Room implements Runnable{
     }
 
     public Room(int port) {
-        this.sccoms_instance = new SCComms();
         this.fillPlayList();
 
         try {
@@ -97,45 +96,34 @@ public class Room implements Runnable{
     }
 
     public void sendNewTrack(Track track) {
-        if (track instanceof SCTrack) {
-            System.out.println("SEND NEW TRACK (SCTRACK)");
-
+        for (User user : clients)
             new Thread() {
                 @Override
                 public void run() {
-                    sendAndRead(track);
+                    user.sendFile(track, 0);
                 }
-            }.start();}
-        else {
-            for (User user : clients)
-                new Thread() {
-                    @Override
-                    public void run() {
-                        user.sendFile(track, 0, false);
-                    }
-                }.start();
-        }
+            }.start();
     }
 
     public void sendActualTrack(User u) {
         new Thread() {
             @Override
             public void run() {
-                // TODO: 21/05/2016 ficheiro
-                if (playlist.getCurrentTrack() instanceof SCTrack) {
-                    sendAndRead(playlist.getCurrentTrack());
-                    //u.sendFile(playlist.getCurrentTrack(), 0, true);
-                }
-                else u.sendFile(playlist.getCurrentTrack(), musicSec, false);
+                u.sendFile(playlist.getCurrentTrack(), musicSec);
             }
         }.start();
     }
 
-    public void sendAndRead(Track track) {
+    //ISTO AGORA JÁ NÃO É PRECISO
+    /*public void sendAndRead(Track track) {
+        if(! (track instanceof SCTrack)){
+            System.err.println("Trying to SEND 'N READ track that is not from Soundcloud");
+            return;
+        }
 
         System.out.println("SEND 'N READ");
 
-        InputStream is = sccoms_instance.getStreamData(sccoms_instance.get_stream_from_url(track.getStream_url()));
+        InputStream is = track.getStream();
 
         int bytesRead = 0;
         byte[] buf = new byte[FRAMESIZE];
@@ -152,7 +140,7 @@ public class Room implements Runnable{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
 
     @Override
