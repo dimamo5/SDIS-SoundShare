@@ -1,6 +1,8 @@
 package streaming;
 
+import jdk.internal.util.xml.impl.Input;
 import player.InfoMusic;
+import player.Track;
 import player.UploadedTrack;
 import streaming.messages.Message;
 import streaming.messages.MessageException;
@@ -53,36 +55,38 @@ public class User implements Runnable{
         }
     }
 
-    public void sendFile(UploadedTrack uploadedTrack, double sec) {
-        byte[] mybytearray = new byte[Room.FRAMESIZE];
+    public void sendFile(Track track, double sec, boolean isSoundcloud) {
+        if (!isSoundcloud) { //Local FILE
+            byte[] mybytearray = new byte[Room.FRAMESIZE];
 
-        File f= uploadedTrack.getFile();
-        InfoMusic info = new InfoMusic(f);
-        int songTime = info.getFullTime();
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream(f);
-        } catch (FileNotFoundException ex) {
-            System.err.println("File for UploadedTrack " + uploadedTrack + "not found");
-        }
+            File f = track.getFile();
+            InfoMusic info = new InfoMusic(f);
+            int songTime = info.getFullTime();
+            FileInputStream fis = null;
+            try {
+                fis = new FileInputStream(f);
+            } catch (FileNotFoundException ex) {
+                System.err.println("File for UploadedTrack " + track + "not found");
+            }
 
-        System.out.println("Enviar " + uploadedTrack.getTrackName()+ " - "+ uploadedTrack.getInfo().getAuthor() + " Duration: " + uploadedTrack.getFullTime());
+            System.out.println("Enviar " + track.getTrackName() + " - " + track.getInfo().getAuthor() + " Duration: " + track.getInfo().getFullTime());
 
-        try {
-            Message m = new Message();m.createMusicMessage(uploadedTrack,sec);
-            this.out.writeObject(m);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            try {
+                Message m = new Message();
+                m.createMusicMessage(track, sec);
+                this.out.writeObject(m);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-        int chunks = (int) f.length() / Room.FRAMESIZE;
-        BufferedInputStream bis = new BufferedInputStream(fis);
-        double bytesperSec = (f.length()-4) / songTime;
-        double frameToElapse = bytesperSec * sec / Room.FRAMESIZE;
-        double frameToElapseRounded=Math.round(frameToElapse);
+            int chunks = (int) f.length() / Room.FRAMESIZE;
+            BufferedInputStream bis = new BufferedInputStream(fis);
+            double bytesperSec = (f.length() - 4) / songTime;
+            double frameToElapse = bytesperSec * sec / Room.FRAMESIZE;
+            double frameToElapseRounded = Math.round(frameToElapse);
 
-        //TODO ver tolerancia
-        //long tolerance= (long) Math.abs((frameToElapse-frameToElapseRounded)/(bytesperSec/Server.FRAMESIZE)*1000);
+            //TODO ver tolerancia
+            //long tolerance= (long) Math.abs((frameToElapse-frameToElapseRounded)/(bytesperSec/Server.FRAMESIZE)*1000);
 
         /*try {
             Thread.sleep(tolerance);
@@ -90,26 +94,27 @@ public class User implements Runnable{
             e.printStackTrace();
         }*/
 
-        System.out.println("Tamanho ficheiro: " + f.length() + " Dividido em: " + f.length() / Room.FRAMESIZE +
-                " Bytes per sec: " + bytesperSec + " Frames passed: " + frameToElapse);
+            System.out.println("Tamanho ficheiro: " + f.length() + " Dividido em: " + f.length() / Room.FRAMESIZE +
+                    " Bytes per sec: " + bytesperSec + " Frames passed: " + frameToElapse);
 
 
-        for (int m = 0; m < chunks; m++) {
-            try {
-                bis.read(mybytearray, 0, Room.FRAMESIZE);
-            } catch (IOException e) {
-                e.printStackTrace();
+            for (int m = 0; m < chunks; m++) {
+                try {
+                    bis.read(mybytearray, 0, Room.FRAMESIZE);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (m >= frameToElapseRounded)
+                    this.send(mybytearray);
             }
-            if (m >= frameToElapseRounded)
-                this.send(mybytearray);
-        }
 
-        //TODO close socket somehow
+            //TODO close socket somehow
         /*try {
             this.streamingSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }*/
+        }
     }
 
     private void sendMessage(Message message){

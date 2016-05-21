@@ -59,7 +59,7 @@ public class SCComms {
         @param track_name user input to get searched
         @returns the search's result's list (can be empty if no valid result found) or null if any error ocurred
      */
-    private JSONArray search_for_track(String track_name) {
+    public JSONArray search_for_track(String track_name) {
         JSONArray result = null, streamable_tracks = null;
 
         String request = appendGetArgs("/tracks.json", new String[]{"q", track_name});
@@ -104,18 +104,15 @@ public class SCComms {
     }
 
     /*
-        Tries to obtain it's stream url location
-        @param track a JSONObject representing the track target
+        Tries to obtain stream's url location
+        @param stream_url a string with the stream url to get streamable url
         @return url_location or null if any error ocurred
      */
-    private String get_stream_url_location(JSONObject track) {
+    public String get_stream_url_location(String stream_url) {
 
-        String stream_url = null, stream_url_location = null;
+        String stream_url_location = null;
 
         try {
-            stream_url = track.getString("stream_url");
-            System.out.println(stream_url);
-
             HttpResponse req_resp = wrapper.get(Request.to(stream_url, "allow_redirects=false"));
 
             //check if status is 302
@@ -137,6 +134,24 @@ public class SCComms {
         }
 
         return stream_url_location;
+    }
+
+
+    public String get_stream_from_track(JSONObject track){
+        String stream_url = null;
+        try {
+            stream_url = track.getString("stream_url");
+            System.out.println(stream_url);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return get_stream_url_location(stream_url);
+    }
+
+    public String get_stream_from_url(String stream_url){
+        return get_stream_url_location(stream_url);
     }
 
 
@@ -172,7 +187,7 @@ public class SCComms {
         @param is the inpustream to be converted
         @retuns the string result of the conversion
      */
-    private static String get_string_from_input_stream(InputStream is) {
+    private String get_string_from_input_stream(InputStream is) {
         BufferedReader br = null;
         StringBuilder sb = new StringBuilder();
         String line;
@@ -224,6 +239,7 @@ public class SCComms {
             info.put("title",track.get("title"));
             info.put("duration", track.get("duration"));
             info.put("author", track.getJSONObject("user").get("username"));
+            info.put("stream",track.getString("stream_url"));
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -237,7 +253,7 @@ public class SCComms {
        @param stream_url the stream url
        @return InputStream data
      */
-    private InputStream getStreamData(String stream_url){
+    public InputStream getStreamData(String stream_url){
 
         InputStream in = null;
 

@@ -34,6 +34,11 @@ public class UploadedTrack extends Track {
         return file;
     }
 
+    @Override
+    public String getStream_url() {
+        return null;
+    }
+
     public void setFile(File file) {
         this.file = file;
     }

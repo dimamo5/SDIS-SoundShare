@@ -28,10 +28,10 @@ public class InfoMusic {
     }
 
     //sctrack
-    public InfoMusic(String title, String author, Long duration_in_ms){
+    public InfoMusic(String title, String author, int duration_in_ms){
         this.title = title;
         this.author = author;
-        splitToComponentTimes(duration_in_ms/1000); //to seconds
+        splitToComponentTimes((long)(duration_in_ms/1000)); //to seconds
     }
 
     public void splitToComponentTimes(Long duration)

@@ -1,7 +1,9 @@
 package streaming;
 
-import player.Playlist;
-import player.UploadedTrack;
+import org.json.JSONException;
+import org.json.JSONObject;
+import player.*;
+import soundcloud.SCComms;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -26,6 +28,8 @@ public class Room implements Runnable{
     private double musicSec = 0;
     private Playlist playlist = new Playlist();
     private Set<Integer> skipList = new TreeSet<>();
+    private SCComms sccoms_instance = null;
+
 
     public static void main(String[] args) {
         Room r = new Room(DEFAULTPORT);
@@ -34,10 +38,19 @@ public class Room implements Runnable{
 
     public void fillPlayList() {
         //new Converter("resources/batmobile.wav","resources/test1.mp3").encodeMP3();
-        //new Converter("resources/renegades.mp3","resources/test2.mp3").encodeMP3();
+        new Converter("resources/little_mermaid_choices.wav","resources/mermaid.mp3").encodeMP3();
 
-        playlist.addRequestedTrack("batmobile.mp3", "Local");
-        playlist.addRequestedTrack("renegades.mp3", "Local");
+        //playlist.addRequestedUploadedTrack("batmobile.mp3", "Local");
+        playlist.addRequestedUploadedTrack("mermaid.mp3", "Local");
+
+        try {
+            JSONObject track = (JSONObject) sccoms_instance.search_for_track("numb").get(0);
+            SCTrack scTrack = new SCTrack("Local", track);
+            playlist.addRequestedSCTrack(scTrack);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public Room() {
@@ -45,6 +58,7 @@ public class Room implements Runnable{
     }
 
     public Room(int port) {
+        this.sccoms_instance = new SCComms();
         this.fillPlayList();
 
         try {
@@ -81,24 +95,60 @@ public class Room implements Runnable{
         sendNewTrack(playlist.getCurrentTrack());
     }
 
-    public void sendNewTrack(UploadedTrack uploadedTrack) {
-        for (User user : clients)
+    public void sendNewTrack(Track track) {
+        if (track instanceof SCTrack) {
             new Thread() {
                 @Override
                 public void run() {
-                    user.sendFile(uploadedTrack, 0);
+                    sendAndRead(track);
                 }
-            }.start();
+            }.start();}
+        else {
+            for (User user : clients)
+                new Thread() {
+                    @Override
+                    public void run() {
+                        user.sendFile(track, 0, false);
+                    }
+                }.start();
+        }
     }
 
     public void sendActualTrack(User u) {
         new Thread() {
             @Override
             public void run() {
-                u.sendFile(playlist.getCurrentTrack(), musicSec);
+                // TODO: 21/05/2016 ficheiro
+                if (playlist.getCurrentTrack() instanceof SCTrack) {
+                    sendAndRead(playlist.getCurrentTrack());
+                    //u.sendFile(playlist.getCurrentTrack(), 0, true);
+                }
+                else u.sendFile(playlist.getCurrentTrack(), musicSec, false);
             }
         }.start();
     }
+
+    public void sendAndRead(Track track) {
+
+        InputStream is = sccoms_instance.getStreamData(sccoms_instance.get_stream_from_url(track.getStream_url()));
+
+        int bytesRead = 0;
+        byte[] buf = new byte[FRAMESIZE];
+        try {
+            while((bytesRead = is.read(buf)) != -1) {
+                sem.acquire();
+                for(User u:this.clients){
+                    u.send(buf);
+                }
+                sem.release();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     public void run() {
@@ -108,11 +158,11 @@ public class Room implements Runnable{
             @Override
             public void run() {
                 musicSec += 0.5;
-                if (musicSec == playlist.getCurrentTrack().getFullTime()) {
+                if (musicSec == playlist.getCurrentTrack().getInfo().getFullTime()) {
                     skipTrack();
                     musicSec=0;
-                } else if (musicSec / playlist.getCurrentTrack().getFullTime() >= 0.9) {
-                    UploadedTrack t = playlist.getNextTrack();
+                } else if (musicSec / playlist.getCurrentTrack().getInfo().getFullTime() >= 0.9) {
+                    Track t = playlist.getNextTrack();
                     if(t!=null && !t.isSent()) {
                         t.setSent(true);
                         sendNewTrack(playlist.getNextTrack());
