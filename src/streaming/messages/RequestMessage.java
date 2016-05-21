@@ -11,8 +11,8 @@ public class RequestMessage extends Message {
 
     private RequestType requestType;
 
-    public RequestMessage(String[] arg, RequestType requestType) {
-        super(Message.Type.REQUEST, arg);
+    public RequestMessage(String[] arg, String token, RequestType requestType) {
+        super(Message.Type.REQUEST, token, arg);
         this.requestType = requestType;
     }
 
