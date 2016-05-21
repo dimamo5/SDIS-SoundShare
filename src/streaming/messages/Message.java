@@ -21,21 +21,10 @@ public class Message implements Serializable {
     }
 
     private Type type;
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    private String token;
     private String[] arg;
 
-    public Message(Type type, String token, String[] arg) {
+    public Message(Type type, String arg[]) {
         this.type = type;
-        this.token = token;
         this.arg = arg;
     }
 
@@ -63,7 +52,6 @@ public class Message implements Serializable {
 
     public void createMusicMessage(Track track, double sec){
         this.type=Type.MUSIC;
-        this.token = "";
         this.arg=new String[4];
         this.arg[0]= track.getTrackName();
         this.arg[1]= track.getAuthor();
@@ -77,7 +65,6 @@ public class Message implements Serializable {
         switch(this.type) {
             case MUSIC:
                 sb.append(type.toString());
-                sb.append(" " + token);
                 sb.append(" Currently playing music ");
                 sb.append(arg[0]);
                 sb.append(" from ");
@@ -98,7 +85,6 @@ public class Message implements Serializable {
                 break;
             case REQUEST:
                 sb.append(type.toString());
-                sb.append(" " + token);
                 sb.append(" Request for song ");
                 sb.append(arg[0]);
                 sb.append(" ");
