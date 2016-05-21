@@ -13,7 +13,8 @@ import org.json.JSONTokener;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -102,9 +103,9 @@ public class SCComms {
     }
 
     /*
-        Checks if a track is streamable and tries to obtain it's stream url location
+        Tries to obtain it's stream url location
         @param track a JSONObject representing the track target
-        @return url_location or null if any error ocurred or if the track is not streamable
+        @return url_location or null if any error ocurred
      */
     private String get_stream_url_location(JSONObject track) {
 
@@ -120,7 +121,7 @@ public class SCComms {
             if (req_resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
 
                 InputStream instream = req_resp.getEntity().getContent();
-                String conv = getStringFromInputStream(instream);
+                String conv = get_string_from_input_stream(instream);
 
                 JSONObject response = new JSONObject(conv);
                 stream_url_location = response.getString("location");
@@ -170,7 +171,7 @@ public class SCComms {
         @param is the inpustream to be converted
         @retuns the string result of the conversion
      */
-    private static String getStringFromInputStream(InputStream is) {
+    private static String get_string_from_input_stream(InputStream is) {
         BufferedReader br = null;
         StringBuilder sb = new StringBuilder();
         String line;
@@ -214,6 +215,22 @@ public class SCComms {
         }
     }
 
+
+    public static Map get_info(JSONObject track) {
+        Map info = new HashMap<String,String>();
+
+        try {
+            info.put("title",track.get("title"));
+            info.put("duration", track.get("duration"));
+            info.put("author", track.getJSONObject("user").get("username"));
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return info;
+    }
+
     /*===================================================================================*/
 
 
@@ -221,8 +238,13 @@ public class SCComms {
 
         SCComms sc = new SCComms();
 
+        System.out.println(sc.get_info((JSONObject) sc.search_for_track("numb").get(0)).toString());
+
         //plays the first track from search's result list
-        sc.play(sc.get_stream_url_location((JSONObject) sc.search_for_track("numb").get(0)));
+        //sc.play(sc.get_stream_url_location((JSONObject) sc.search_for_track("numb").get(0)));
     }
+
+
+
 
 }

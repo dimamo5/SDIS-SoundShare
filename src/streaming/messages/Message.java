@@ -1,6 +1,6 @@
 package streaming.messages;
 
-import player.Track;
+import player.UploadedTrack;
 
 import java.io.Serializable;
 
@@ -50,12 +50,12 @@ public class Message implements Serializable {
         this.type = type;
     }
 
-    public void createMusicMessage(Track track, double sec){
+    public void createMusicMessage(UploadedTrack uploadedTrack, double sec){
         this.type=Type.MUSIC;
         this.arg=new String[4];
-        this.arg[0]= track.getTrackName();
-        this.arg[1]= track.getAuthor();
-        this.arg[2]=String.valueOf(track.getFullTime());
+        this.arg[0]= uploadedTrack.getTrackName();
+        this.arg[1]= uploadedTrack.getAuthor();
+        this.arg[2]=String.valueOf(uploadedTrack.getFullTime());
         this.arg[3]=String.valueOf(sec);
     }
 

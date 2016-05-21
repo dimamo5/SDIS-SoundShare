@@ -1,8 +1,7 @@
 package streaming;
 
-import player.Converter;
 import player.Playlist;
-import player.Track;
+import player.UploadedTrack;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -82,12 +81,12 @@ public class Room implements Runnable{
         sendNewTrack(playlist.getCurrentTrack());
     }
 
-    public void sendNewTrack(Track track) {
+    public void sendNewTrack(UploadedTrack uploadedTrack) {
         for (User user : clients)
             new Thread() {
                 @Override
                 public void run() {
-                    user.sendFile(track, 0);
+                    user.sendFile(uploadedTrack, 0);
                 }
             }.start();
     }
@@ -113,7 +112,7 @@ public class Room implements Runnable{
                     skipTrack();
                     musicSec=0;
                 } else if (musicSec / playlist.getCurrentTrack().getFullTime() >= 0.9) {
-                    Track t = playlist.getNextTrack();
+                    UploadedTrack t = playlist.getNextTrack();
                     if(t!=null && !t.isSent()) {
                         t.setSent(true);
                         sendNewTrack(playlist.getNextTrack());

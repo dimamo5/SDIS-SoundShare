@@ -1,7 +1,7 @@
 package streaming;
 
 import player.InfoMusic;
-import player.Track;
+import player.UploadedTrack;
 import streaming.messages.Message;
 import streaming.messages.MessageException;
 import streaming.messages.RequestMessage;
@@ -53,24 +53,23 @@ public class User implements Runnable{
         }
     }
 
-    public void sendFile(Track track, double sec) {
+    public void sendFile(UploadedTrack uploadedTrack, double sec) {
         byte[] mybytearray = new byte[Room.FRAMESIZE];
 
-        File f= track.getFile();
+        File f= uploadedTrack.getFile();
         InfoMusic info = new InfoMusic(f);
-        info.getMusicInfo();
         int songTime = info.getFullTime();
         FileInputStream fis = null;
         try {
             fis = new FileInputStream(f);
         } catch (FileNotFoundException ex) {
-            System.err.println("File for Track " + track + "not found");
+            System.err.println("File for UploadedTrack " + uploadedTrack + "not found");
         }
 
-        System.out.println("Enviar " + track.getTrackName()+ " - "+track.getAuthor() + " Duration: " + track.getFullTime());
+        System.out.println("Enviar " + uploadedTrack.getTrackName()+ " - "+ uploadedTrack.getTrack_info().getAuthor() + " Duration: " + uploadedTrack.getFullTime());
 
         try {
-            Message m = new Message();m.createMusicMessage(track,sec);
+            Message m = new Message();m.createMusicMessage(uploadedTrack,sec);
             this.out.writeObject(m);
         } catch (IOException e) {
             e.printStackTrace();

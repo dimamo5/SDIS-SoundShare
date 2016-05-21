@@ -8,28 +8,28 @@ import java.util.List;
  */
 public class Playlist {
     // TODO: 14-05-2016 Verificar se um ArrayList é efectivamente a melhor maneira de ordernarmos a música. Eu acho que é capaz de haver maneiras melhores by:Duarte
-    private ArrayList<Track> playlist = new ArrayList<>();
+    private ArrayList<UploadedTrack> playlist = new ArrayList<>();
     private int i = -1;
     private boolean repeat = false;
 
-    public Track getCurrentTrack(){
+    public UploadedTrack getCurrentTrack(){
         return playlist.get(i);
     }
 
-    public Track getNextTrack() {
+    public UploadedTrack getNextTrack() {
         if(i+1 >= playlist.size() && !isRepeat()){
             return null;
         }else{
             if(i >= playlist.size() && isRepeat()){
                 i = -1;
             }
-            Track nextTrack = playlist.get(i+1);
+            UploadedTrack nextUploadedTrack = playlist.get(i+1);
 
             if(i >= playlist.size() && isRepeat()) {
                 i = -1;
             }
 
-            return nextTrack;
+            return nextUploadedTrack;
         }
     }
 
@@ -50,9 +50,9 @@ public class Playlist {
     }
 
     public void  addRequestedTrack(String music, String clientNo) {
-        Track track = new Track(music,clientNo);
-        if(track.getFile()!=null){
-            playlist.add(track);
+        UploadedTrack uploadedTrack = new UploadedTrack(music,clientNo);
+        if(uploadedTrack.getFile()!=null){
+            playlist.add(uploadedTrack);
             if(i==-1){
                 i=0;
             }
@@ -60,7 +60,7 @@ public class Playlist {
 
     }
 
-    public Track getPreviousTrack() {
+    public UploadedTrack getPreviousTrack() {
         if(i == 0 && !isRepeat()){
             return null;
         }else{
@@ -70,9 +70,9 @@ public class Playlist {
             }
 
             i--;
-            Track previousTrack = playlist.get(i);
+            UploadedTrack previousUploadedTrack = playlist.get(i);
 
-            return previousTrack;
+            return previousUploadedTrack;
         }
     }
 
