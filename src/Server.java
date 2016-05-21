@@ -1,5 +1,6 @@
 import JSSE.JSSEServer;
 import database.Database;
+import soundcloud.SCComms;
 import streaming.Room;
 
 import javax.net.ssl.SSLServerSocket;
@@ -16,6 +17,7 @@ public class Server implements Runnable{
     private SSLServerSocket sslserversocket = null;
     private SSLSocket sslsocket = null;
     private Database db = null;
+    private SCComms SC_comms_instance = null;
 
     public static void main(String[] args){
         Server s = new Server();
@@ -27,7 +29,7 @@ public class Server implements Runnable{
 
     public Server() {
         db = Database.getInstance();
-
+        SC_comms_instance = new SCComms();
     }
 
     @Override

@@ -3,6 +3,7 @@ package player;
 import org.json.JSONObject;
 import soundcloud.SCComms;
 
+import java.io.InputStream;
 import java.util.Map;
 
 /**
@@ -12,6 +13,7 @@ public class SCTrack extends Track{
 
     private InfoMusic info;
     private JSONObject track;
+    private String stream_url;
 
     public SCTrack(String clientRequested, JSONObject track){
         super(clientRequested);
@@ -28,6 +30,7 @@ public class SCTrack extends Track{
 
         return info;
     }
+
 
     public InfoMusic getInfo() {
         return info;

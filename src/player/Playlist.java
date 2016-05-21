@@ -8,28 +8,28 @@ import java.util.List;
  */
 public class Playlist {
     // TODO: 14-05-2016 Verificar se um ArrayList é efectivamente a melhor maneira de ordernarmos a música. Eu acho que é capaz de haver maneiras melhores by:Duarte
-    private ArrayList<UploadedTrack> playlist = new ArrayList<>();
+    private ArrayList<Track> playlist = new ArrayList<>();
     private int i = -1;
     private boolean repeat = false;
 
-    public UploadedTrack getCurrentTrack(){
+    public Track getCurrentTrack(){
         return playlist.get(i);
     }
 
-    public UploadedTrack getNextTrack() {
+    public Track getNextTrack() {
         if(i+1 >= playlist.size() && !isRepeat()){
             return null;
         }else{
             if(i >= playlist.size() && isRepeat()){
                 i = -1;
             }
-            UploadedTrack nextUploadedTrack = playlist.get(i+1);
+            Track next_track = playlist.get(i+1);
 
             if(i >= playlist.size() && isRepeat()) {
                 i = -1;
             }
 
-            return nextUploadedTrack;
+            return next_track;
         }
     }
 
@@ -60,7 +60,7 @@ public class Playlist {
 
     }
 
-    public UploadedTrack getPreviousTrack() {
+    public Track getPreviousTrack() {
         if(i == 0 && !isRepeat()){
             return null;
         }else{
@@ -70,7 +70,7 @@ public class Playlist {
             }
 
             i--;
-            UploadedTrack previousUploadedTrack = playlist.get(i);
+            Track previousUploadedTrack = playlist.get(i);
 
             return previousUploadedTrack;
         }
@@ -96,7 +96,12 @@ public class Playlist {
         int i = 0;
         ArrayList<String> tracks = new ArrayList<>();
         for(i = 0; i < playlist.size(); i++){
-            tracks.add(playlist.get(i).getTrackName());
+            if(playlist.get(i) instanceof SCTrack){
+                tracks.add(((SCTrack) playlist.get(i)).getInfo().getTrackName());
+            }else{
+                tracks.add(((UploadedTrack) playlist.get(i)).getInfo().getTrackName());
+            }
+
         }
         return tracks;
     }

@@ -232,8 +232,6 @@ public class SCComms {
         return info;
     }
 
-
-
     /*
        Receives a stream url link location of a track and returns the respective InputStream
        @param stream_url the stream url
@@ -252,9 +250,7 @@ public class SCComms {
         return in;
     }
 
-
     /*===================================================================================*/
-
 
     public static void main(String args[]) throws JSONException {
 
@@ -265,8 +261,4 @@ public class SCComms {
         //plays the first track from search's result list
         //sc.play(sc.get_stream_url_location((JSONObject) sc.search_for_track("numb").get(0)));
     }
-
-
-
-
 }

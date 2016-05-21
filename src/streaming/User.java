@@ -66,7 +66,7 @@ public class User implements Runnable{
             System.err.println("File for UploadedTrack " + uploadedTrack + "not found");
         }
 
-        System.out.println("Enviar " + uploadedTrack.getTrackName()+ " - "+ uploadedTrack.getTrack_info().getAuthor() + " Duration: " + uploadedTrack.getFullTime());
+        System.out.println("Enviar " + uploadedTrack.getTrackName()+ " - "+ uploadedTrack.getInfo().getAuthor() + " Duration: " + uploadedTrack.getFullTime());
 
         try {
             Message m = new Message();m.createMusicMessage(uploadedTrack,sec);
