@@ -54,10 +54,10 @@ public class SCComms {
         }
     }
 
-    /*
-        Searchs for a track on SoundCloud
-        @param track_name user input to get searched
-        @returns the search's result's list (can be empty if no valid result found) or null if any error ocurred
+    /**
+     * Searchs for a track on SoundCloud
+     * @param track_name user input to get searched
+     * @returns the search's result's list (can be empty if no valid result found) or null if any error ocurred
      */
     public JSONArray search_for_track(String track_name) {
         JSONArray result = null, streamable_tracks = null;
@@ -272,9 +272,9 @@ public class SCComms {
 
         SCComms sc = new SCComms();
 
-        System.out.println(sc.get_info((JSONObject) sc.search_for_track("numb").get(0)).toString());
+        //System.out.println(sc.get_info((JSONObject) sc.search_for_track("numb").get(0)).toString());
 
         //plays the first track from search's result list
-        //sc.play(sc.get_stream_url_location((JSONObject) sc.search_for_track("numb").get(0)));
+        sc.play(sc.get_stream_from_track((JSONObject) sc.search_for_track("Black Friday").get(0)));
     }
 }

@@ -38,10 +38,11 @@ public class Room implements Runnable{
 
     public void fillPlayList() {
         //new Converter("resources/batmobile.wav","resources/test1.mp3").encodeMP3();
-        new Converter("resources/little_mermaid_choices.wav","resources/mermaid.mp3").encodeMP3();
+        //new Converter("resources/little_mermaid_choices.wav","resources/mermaid.mp3").encodeMP3();
 
         //playlist.addRequestedUploadedTrack("batmobile.mp3", "Local");
         playlist.addRequestedUploadedTrack("mermaid.mp3", "Local");
+
 
         try {
             JSONObject track = (JSONObject) sccoms_instance.search_for_track("numb").get(0);
@@ -97,6 +98,8 @@ public class Room implements Runnable{
 
     public void sendNewTrack(Track track) {
         if (track instanceof SCTrack) {
+            System.out.println("SEND NEW TRACK (SCTRACK)");
+
             new Thread() {
                 @Override
                 public void run() {
@@ -129,6 +132,8 @@ public class Room implements Runnable{
     }
 
     public void sendAndRead(Track track) {
+
+        System.out.println("SEND 'N READ");
 
         InputStream is = sccoms_instance.getStreamData(sccoms_instance.get_stream_from_url(track.getStream_url()));
 
