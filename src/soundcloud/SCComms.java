@@ -5,6 +5,7 @@ import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.entity.mime.content.InputStreamBody;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -230,6 +231,27 @@ public class SCComms {
 
         return info;
     }
+
+
+
+    /*
+       Receives a stream url link location of a track and returns the respective InputStream
+       @param stream_url the stream url
+       @return InputStream data
+     */
+    private InputStream getStreamData(String stream_url){
+
+        InputStream in = null;
+
+        try {
+           in =  new BufferedInputStream(new URL(stream_url).openStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return in;
+    }
+
 
     /*===================================================================================*/
 
