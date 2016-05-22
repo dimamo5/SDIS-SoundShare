@@ -1,30 +1,27 @@
 package player;
 
+import streaming.Room;
+import streaming.User;
+
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
- * Created by duarte on 14-05-2016.
+ * Created by Sonhs on 21/05/2016.
  */
-public class Track extends InfoMusic{
+public abstract class Track {
+
+    //private Date requestTimestamp = new Date();
+    protected InfoMusic info;
     private String clientRequested;
-    private Date requestTimestamp = new Date();
     private boolean sent=false;
+    private InputStream stream;
 
-    public Track(File file, String clientRequested) {
-        super(file);
+    public Track(String clientRequested){
         this.clientRequested = clientRequested;
-    }
-
-    public Track(String filename, String clientRequested) {
-        super(filename);
-        getMusicInfo();
-        this.clientRequested = clientRequested;
-    }
-
-    public String getTrackName() {
-        return getTitle();
     }
 
     public String getClientRequested() {
@@ -39,9 +36,55 @@ public class Track extends InfoMusic{
         return sent;
     }
 
+    abstract public String getTrackName();
+
+    public InfoMusic getInfo() {
+        return info;
+    }
+
+    public void setInfo(InfoMusic info) {
+        this.info = info;
+    }
+
+    abstract public String getStream_url();
+
+    abstract public void sendTrack(double sec, Room room);
+
+    protected void sendTrackFromStream(Room room, BufferedInputStream stream, double frameToElapseRounded) {
+        ArrayList<User> clients = room.getClients();
+        byte[] buf = new byte[Room.FRAMESIZE];
+        int i = 0;
+        try {
+            while(stream.read(buf,0,buf.length) != -1){
+                i++;
+                if (i >= frameToElapseRounded)
+                    try {
+                        room.clientsSemaphore.acquire();
+                        for(User client : clients){
+                            client.send(buf);
+                        }
+                        room.clientsSemaphore.release();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                buf = new byte[Room.FRAMESIZE];
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    abstract public long getBytesPerSec();
+
     public void setSent(boolean sent) {
         this.sent = sent;
     }
 
+    public InputStream getStream() {
+        return stream;
+    }
 
+    public void setStream(InputStream stream) {
+        this.stream = stream;
+    }
 }

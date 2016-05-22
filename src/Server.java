@@ -1,3 +1,5 @@
+import JSSE.JSSEServer;
+import database.Database;
 import streaming.Room;
 
 import java.util.ArrayList;
@@ -14,6 +16,24 @@ public class Server {
     }
 
     public Server() {
+        db = Database.getInstance();
+    }
+
+    @Override
+    public void run() {
+        while(true){
+                String[] st = readUser(port);
+        }
+    }
+
+    private void handleMessage(String[] st) {
+        switch (st[0]) {
+            case "CONNECT":
+                String token = db.select_user_by_credentials(st[1], st[2]);
+                break;
+            default:
+                break;
+        }
     }
 
     public void newRoom(){

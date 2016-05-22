@@ -29,6 +29,8 @@ public class Client  implements Runnable {
     public boolean connected=false;
     public AdvancedPlayer player;
 
+
+
     public static void main(String[] args){
         String serverAddress = args[0];
         int serverPort = new Integer(args[1]);
@@ -89,6 +91,7 @@ public class Client  implements Runnable {
         if (isSoundCloud) {
             try {
                 sendMessage(new RequestMessage(new String[]{url,dateMsg}, RequestMessage.RequestType.SOUNDCLOUD));
+
                 return true;
             } catch (IOException e) {
                 return false;
@@ -115,7 +118,7 @@ public class Client  implements Runnable {
         try {
             fis = new FileInputStream(f);
         } catch (FileNotFoundException ex) {
-            System.err.println("File for Track " + filename + "not found");
+            System.err.println("File for UploadedTrack " + filename + "not found");
         }
 
         int chunks = (int) f.length() / Room.FRAMESIZE;
