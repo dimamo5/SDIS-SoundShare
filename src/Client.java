@@ -144,6 +144,12 @@ public class Client  implements Runnable {
                 return false;
             }
         }
+        try {
+            bis.close();
+            fis.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return true;
     }
 

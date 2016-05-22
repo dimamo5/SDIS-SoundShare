@@ -32,6 +32,7 @@ public class InfoMusic {
     public InfoMusic(String title, String author, int duration_in_ms,long size_in_bytes){
         this.title = title;
         this.author = author;
+        this.fullTime = duration_in_ms/1000;
         splitToComponentTimes((long)(duration_in_ms/1000)); //to seconds
         this.size = size_in_bytes;
     }

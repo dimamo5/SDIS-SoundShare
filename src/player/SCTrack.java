@@ -37,6 +37,7 @@ public class SCTrack extends Track{
         info = new InfoMusic((String) info_track.get("title"),
                 (String) info_track.get("author"),
                 (int) info_track.get("duration"),(long) info_track.get("original_content_size"));
+        System.out.println("dur: " + info_track.get("duration"));
 
         return info;
     }

@@ -104,7 +104,9 @@ public class Room implements Runnable{
             new Thread() {
                 @Override
                 public void run() {
-                    playlist.getNextTrack().sendTrack(musicSec,room);
+                    Track t = playlist.getNextTrack();
+                    if (t != null)
+                        playlist.getNextTrack().sendTrack(musicSec,room);
                 }
             }.start();
     }
