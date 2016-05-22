@@ -1,17 +1,12 @@
 package player;
 
-import jdk.internal.util.xml.impl.Input;
 import org.json.JSONException;
 import org.json.JSONObject;
 import soundcloud.SCComms;
 import streaming.Room;
-import streaming.User;
 import util.ServerSingleton;
 
 import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Map;
 
 /**

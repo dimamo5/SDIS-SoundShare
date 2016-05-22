@@ -1,11 +1,8 @@
 package player;
 
 import streaming.Room;
-import streaming.User;
-import sun.nio.ch.ThreadPool;
 
 import java.io.*;
-import java.util.ArrayList;
 
 /**
  * Created by duarte on 14-05-2016.

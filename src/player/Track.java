@@ -1,10 +1,9 @@
 package player;
 
 import streaming.Room;
-import streaming.User;
+import streaming.ClientHandler;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -51,7 +50,7 @@ public abstract class Track {
     abstract public void sendTrack(double sec, Room room);
 
     protected void sendTrackFromStream(Room room, BufferedInputStream stream, double frameToElapseRounded) {
-        ArrayList<User> clients = room.getClients();
+        ArrayList<ClientHandler> clients = room.getClients();
         byte[] buf = new byte[Room.FRAMESIZE];
         int i = 0;
         try {
@@ -60,7 +59,7 @@ public abstract class Track {
                 if (i >= frameToElapseRounded)
                     try {
                         room.clientsSemaphore.acquire();
-                        for(User client : clients){
+                        for(ClientHandler client : clients){
                             client.send(buf);
                         }
                         room.clientsSemaphore.release();

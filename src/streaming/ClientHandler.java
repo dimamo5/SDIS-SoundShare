@@ -19,7 +19,7 @@ import static streaming.Room.FRAMESIZE;
 /**
  * Created by diogo on 12/05/2016.
  */
-public class User implements Runnable{
+public class ClientHandler implements Runnable{
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private Socket communicationSocket;
@@ -30,7 +30,7 @@ public class User implements Runnable{
     private int userId = new Random().nextInt(2048)+1;
     private Database db;
 
-    public User(Socket socket, Room room){
+    public ClientHandler(Socket socket, Room room){
         this.db = Database.getInstance();
         this.room = room;
         this.communicationSocket = socket;
@@ -42,7 +42,7 @@ public class User implements Runnable{
             this.out = new ObjectOutputStream(this.communicationSocket.getOutputStream());
             this.in = new ObjectInputStream(this.communicationSocket.getInputStream());
 
-            //Send message with the streaming port for the User to connect to in order to receive streaming data
+            //Send message with the streaming port for the ClientHandler to connect to in order to receive streaming data
             out.writeObject(new Message(Message.Type.STREAM, "", new String[]{serverSocketStreaming.getLocalPort()+""} ));
             this.streamingSocket = serverSocketStreaming.accept();
          } catch (IOException e) {

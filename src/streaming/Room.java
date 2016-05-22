@@ -26,7 +26,7 @@ public class Room implements Runnable{
 
     private ServerSocket socket;
     private int port = 0;
-    private ArrayList<User> clients = new ArrayList<User>();
+    private ArrayList<ClientHandler> clients = new ArrayList<ClientHandler>();
     public Semaphore clientsSemaphore = new Semaphore(1);
     private Timer timer = new Timer();
     private double musicSec = 0;
@@ -41,7 +41,7 @@ public class Room implements Runnable{
     }
 
     public void fillPlayList() {
-        //new Converter("resources/batmobile.wav","resources/test1.mp3").encodeMP3();
+        new Converter("resources/batmobile.wav","resources/batmobile.mp3").encodeMP3();
         //new Converter("resources/little_mermaid_choices.wav","resources/mermaid.mp3").encodeMP3();
 
         //playlist.addRequestedUploadedTrack("batmobile.mp3", "Local");
@@ -100,7 +100,7 @@ public class Room implements Runnable{
 
     public void sendNewTrack(Track track) {
         final Room room = this;
-        for (User user : clients)
+        for (ClientHandler clientHandler : clients)
             new Thread() {
                 @Override
                 public void run() {
@@ -111,7 +111,7 @@ public class Room implements Runnable{
             }.start();
     }
 
-    public void sendActualTrack(User u) {
+    public void sendActualTrack(ClientHandler u) {
         final Room room = this;
         new Thread() {
             @Override
@@ -122,21 +122,21 @@ public class Room implements Runnable{
     }
 
     public void sendNewTrackMessageToAllClients(Track track, double sec) {
-        for (User user:clients){
-            sendMusicMessage(user, track,sec);
+        for (ClientHandler clientHandler :clients){
+            sendMusicMessage(clientHandler, track,sec);
         }
     }
 
-    public void sendMusicMessage(User user, Track track, double sec){
+    public void sendMusicMessage(ClientHandler clientHandler, Track track, double sec){
         MusicMessage message = new MusicMessage(track, sec);
-        user.sendMessage(message);
+        clientHandler.sendMessage(message);
     }
 
-    public ArrayList<User> getClients() {
+    public ArrayList<ClientHandler> getClients() {
         return clients;
     }
 
-    public void setClients(ArrayList<User> clients) {
+    public void setClients(ArrayList<ClientHandler> clients) {
         this.clients = clients;
     }
 
@@ -171,7 +171,7 @@ public class Room implements Runnable{
                 Socket connectionSocket = socket.accept();
                 connectionSocket.setSendBufferSize(64000);
                 clientsSemaphore.acquire();
-                User c = new User(connectionSocket,this);
+                ClientHandler c = new ClientHandler(connectionSocket,this);
                 new Thread(c).start();
                 sendMusicMessage(c,playlist.getCurrentTrack(),musicSec);
                 clients.add(c);

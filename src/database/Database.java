@@ -10,8 +10,8 @@ import java.util.UUID;
    > ^ TODO: Discuss if this is the best approach
 */
 
-/* User's database
-   |            User            |
+/* ClientHandler's database
+   |            ClientHandler            |
    |____________________________|
    |username: char(15)          |
    |password: char(32) -> sha256|
@@ -60,7 +60,7 @@ public class Database {
     }
 
     /*
-    Creates User's table
+    Creates ClientHandler's table
      */
     private void create_table() {
         Statement stmt = null;
