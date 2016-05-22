@@ -59,6 +59,9 @@ public class RoomConnection implements Runnable {
             this.out = new ObjectOutputStream(communicationSocket.getOutputStream());
             this.in = new ObjectInputStream(communicationSocket.getInputStream());
 
+            //envio de mensagem com o token (PROTOCOLO)
+            this.out.writeObject(new Message(Message.Type.ONLY_TOKEN, token, null));
+
             int streamingPort = 0;
             //receive streaming port
             while(streamingPort == 0){

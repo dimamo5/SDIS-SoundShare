@@ -19,7 +19,8 @@ public class Message implements Serializable {
         VOTE_KICK,
         MUSIC,
         TRUE,
-        FALSE
+        FALSE,
+        ONLY_TOKEN //é usado
     }
 
     protected Type type;

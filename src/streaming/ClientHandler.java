@@ -63,13 +63,17 @@ public class ClientHandler implements Runnable{
 
             //message de recepçao de token
             boolean loggedIn = false;
+
             while(!loggedIn){
                 Message m = (Message) in.readObject();
-                if(m instanceof InfoMessage) {
+
+                if(m.getType() == Message.Type.ONLY_TOKEN) {
+                    loggedIn = true;
                     this.client_token = m.getToken();
+
+                    //get user from database
                     this.client_username = db.getUserByToken(this.client_token);
                     System.out.println("Client.RoomConnection: " + client_username + " " + client_token);
-                    loggedIn = true;
                 }
             }
 
