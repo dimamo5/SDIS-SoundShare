@@ -27,11 +27,9 @@ public class SCComms {
     private static ApiWrapper wrapper = null;
 
     public SCComms() {
-        File wrapperFile = new File("wrapper.ser");
-        if(!wrapperFile.exists()){
-            create_wrapper_instance();
-        }
 
+        ///create_wrapper_instance();
+        File wrapperFile = new File("wrapper.ser");
         try {
             wrapper = ApiWrapper.fromFile(wrapperFile);
         } catch (IOException e) {
@@ -47,14 +45,7 @@ public class SCComms {
     */
     public void create_wrapper_instance() {
 
-        File WRAPPER_SER = new File("wrapper.ser");
-        if(!WRAPPER_SER.exists()){
-            try {
-                WRAPPER_SER.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        File WRAPPER_SER = new File("wrapper2.ser");
         wrapper = new ApiWrapper("1bbc622f314334af39a7d712c1b0a9c4", "aa54aa4ca198d24e17513787227f3200", null, null);
 
         try {
@@ -250,6 +241,7 @@ public class SCComms {
             info.put("title",track.get("title"));
             info.put("duration", track.get("duration"));
             info.put("author", track.getJSONObject("user").get("username"));
+            info.put("original_content_size",track.getLong("original_content_size"));
             info.put("stream",track.getString("stream_url"));
 
         } catch (JSONException e) {

@@ -173,6 +173,7 @@ public class Room implements Runnable{
                 User c = new User(connectionSocket,this);
                 new Thread(c).start();
                 clients.add(c);
+                sendActualTrack(c);
                 clientsSemaphore.release();
                 sendMusicMessage(c,playlist.getCurrentTrack(),musicSec);
                 if (clients.size() == 1) {
