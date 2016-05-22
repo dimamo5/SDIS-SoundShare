@@ -27,6 +27,16 @@ public class Server implements Runnable{
 
     public Server() {
         db = Database.getInstance();
+
+        System.setProperty("javax.net.ssl.keyStore","keystore");
+        System.setProperty("javax.net.ssl.keyStorePassword","123456");
+
+        SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+        try {
+            sslserversocket = (SSLServerSocket) sslserversocketfactory.createServerSocket(this.port);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -61,13 +71,8 @@ public class Server implements Runnable{
     }
 
     public String[] readUser(int porta) {
-        System.setProperty("javax.net.ssl.keyStore","keystore");
-        System.setProperty("javax.net.ssl.keyStorePassword","123456");
-
-        SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
 
         try {
-            sslserversocket = (SSLServerSocket) sslserversocketfactory.createServerSocket(porta);
             System.out.println("waiting");
             sslsocket = (SSLSocket) sslserversocket.accept();
             sslsocket.startHandshake();
@@ -85,8 +90,8 @@ public class Server implements Runnable{
 
             OutputStream outputStream = sslsocket.getOutputStream();
             outputStream.write(msgSend.getBytes());
-            sslsocket.close();
-            sslserversocket.close();
+           // sslsocket.close();
+            //sslserversocket.close();
             return ret;
 
         } catch (SocketException exception) {

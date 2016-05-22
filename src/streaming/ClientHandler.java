@@ -4,6 +4,7 @@ import database.Database;
 import player.InfoMusic;
 import player.Track;
 import player.UploadedTrack;
+import streaming.messages.InfoMessage;
 import streaming.messages.Message;
 import streaming.messages.MessageException;
 import streaming.messages.RequestMessage;
@@ -61,10 +62,16 @@ public class ClientHandler implements Runnable{
             this.in = new ObjectInputStream(this.communicationSocket.getInputStream());
 
             //message de recepçao de token
-            Message m = (Message) in.readObject();
-            this.client_token = m.getToken();
-            this.client_username = db.getUserByToken(this.client_token);
-            System.out.println("Client: " + client_username + " " + client_token);
+            boolean loggedIn = false;
+            while(!loggedIn){
+                Message m = (Message) in.readObject();
+                if(m instanceof InfoMessage) {
+                    this.client_token = m.getToken();
+                    this.client_username = db.getUserByToken(this.client_token);
+                    System.out.println("Client.RoomConnection: " + client_username + " " + client_token);
+                    loggedIn = true;
+                }
+            }
 
             //Send message with the streaming port for the client to connect to in order to receive streaming data
             out.writeObject(new Message(Message.Type.STREAM, "", new String[]{roomStreamingSocket.getLocalPort()+""} ));
@@ -176,7 +183,6 @@ public class ClientHandler implements Runnable{
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
-
         }
 
         try {

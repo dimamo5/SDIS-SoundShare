@@ -1,3 +1,5 @@
+package Client;
+
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.advanced.AdvancedPlayer;
 
@@ -5,8 +7,6 @@ import streaming.messages.Message;
 import streaming.Room;
 import streaming.messages.RequestMessage;
 
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -20,7 +20,7 @@ import static streaming.Room.FRAMESIZE;
 /**
  * Created by diogo on 12/05/2016.
  */
-public class Client  implements Runnable {
+public class RoomConnection implements Runnable {
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private InputStream streamIn;
@@ -30,36 +30,37 @@ public class Client  implements Runnable {
     private boolean playing=false;
     public boolean connected=false;
     public AdvancedPlayer player;
-    private SSLSocketFactory sslsocketfactory = null;
-    private SSLSocket sslsocket = null;
-    private static String serverAddress;
-    private static int serverPort;
-    private final int sslPort = 9000;
-    private String token;
 
+    private InetAddress serverAddress;
+    String token;
+    private int roomPort;
 
 
     public static void main(String[] args){
-        serverAddress = args[0];
-        serverPort = new Integer(args[1]);
+        String serverAddress = args[0];
+        int roomPort = new Integer(args[1]);
+        String token = args[2];
 
         try {
-            Client client = new Client(InetAddress.getByName(serverAddress),serverPort);
+            RoomConnection client = new RoomConnection(InetAddress.getByName(serverAddress),roomPort, token);
             new Thread(client).start();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
     }
 
-    public Client(InetAddress serverAddress, int serverPort){
+    public RoomConnection(InetAddress serverAddress, int roomPort, String token){
         try {
-            connectToServer();
-            System.out.println("token: " + token);
-            communicationSocket = new Socket(serverAddress, serverPort);
+            this.token = token;
+            this.serverAddress = serverAddress;
+            this.roomPort = roomPort;
+
+            communicationSocket = new Socket(serverAddress, roomPort);
             this.out = new ObjectOutputStream(communicationSocket.getOutputStream());
             this.in = new ObjectInputStream(communicationSocket.getInputStream());
-            int streamingPort = 0;
 
+            int streamingPort = 0;
+            //receive streaming port
             while(streamingPort == 0){
                 Message message = (Message) in.readObject();
                 if(message.getType().equals(Message.Type.STREAM)){
@@ -164,7 +165,7 @@ public class Client  implements Runnable {
     }
 
     public void play(){
-        Client c= this;
+        RoomConnection c= this;
         new Thread() {
             @Override
             public void run() {
@@ -197,7 +198,6 @@ public class Client  implements Runnable {
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
-
         }
 
         try {
@@ -219,32 +219,6 @@ public class Client  implements Runnable {
         }
     }
 
-    public void connectToServer() {
-        try {
-            System.setProperty("javax.net.ssl.trustStore","keystore");
-            System.setProperty("javax.net.ssl.trustStorePassword","123456");
 
-            sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-            sslsocket = (SSLSocket) sslsocketfactory.createSocket(serverAddress, sslPort);
-            sslsocket.startHandshake();
-
-            OutputStream outputstream = sslsocket.getOutputStream();
-            String msg = "CONNECT " + "teste " + "lol";
-            outputstream.write(msg.getBytes());
-
-            InputStream inputStream = sslsocket.getInputStream();
-            byte[] b = new byte[64];
-            int bytesRead = inputStream.read(b);
-            parseToken(b, bytesRead);
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    }
-
-    public void parseToken(byte[] b, int bytesRead) {
-        token = new String(b, 0, bytesRead);
-        token = token.substring("CONNECT ".length(), token.length());
-    }
 }
 
