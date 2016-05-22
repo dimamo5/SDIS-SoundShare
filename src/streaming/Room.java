@@ -1,18 +1,14 @@
 package streaming;
 
-import org.json.JSONException;
-import player.*;
-import soundcloud.TrackGetter;
-import streaming.messages.Message;
-import streaming.messages.MusicMessage;
-import util.ServerSingleton;
+import player.Converter;
+import player.Playlist;
+import player.Track;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.Semaphore;
-
 
 /**
  * Created by diogo on 12/05/2016.
@@ -26,7 +22,7 @@ public class Room implements Runnable{
     private ServerSocket socket;
     private int port = 0;
     private ArrayList<User> clients = new ArrayList<User>();
-    public Semaphore clientsSemaphore = new Semaphore(1);
+    private Semaphore sem = new Semaphore(1);
     private Timer timer = new Timer();
     private double musicSec = 0;
     private Playlist playlist = new Playlist();
@@ -118,6 +114,9 @@ public class Room implements Runnable{
         }.start();
     }
 
+    @Override
+    public void run() {
+        System.out.println("Room started!");
 
 
     public void sendNewTrackMessageToAllClients(Track track, double sec) {

@@ -5,8 +5,6 @@ import streaming.messages.Message;
 import streaming.Room;
 import streaming.messages.RequestMessage;
 
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -30,18 +28,12 @@ public class Client  implements Runnable {
     private boolean playing=false;
     public boolean connected=false;
     public AdvancedPlayer player;
-    private SSLSocketFactory sslsocketfactory = null;
-    private SSLSocket sslsocket = null;
-    private static String serverAddress;
-    private static int serverPort;
-    private final int sslPort = 9000;
-    private String token;
 
 
 
     public static void main(String[] args){
-        serverAddress = args[0];
-        serverPort = new Integer(args[1]);
+        String serverAddress = args[0];
+        int serverPort = new Integer(args[1]);
 
         try {
             Client client = new Client(InetAddress.getByName(serverAddress),serverPort);
@@ -53,8 +45,6 @@ public class Client  implements Runnable {
 
     public Client(InetAddress serverAddress, int serverPort){
         try {
-            connectToServer();
-            System.out.println("token: " + token);
             communicationSocket = new Socket(serverAddress, serverPort);
             this.out = new ObjectOutputStream(communicationSocket.getOutputStream());
             this.in = new ObjectInputStream(communicationSocket.getInputStream());
@@ -69,7 +59,7 @@ public class Client  implements Runnable {
                 }
             }
             this.streamingSocket = new Socket(serverAddress,streamingPort);
-            //requestSong("batmobile.wav", false);
+            requestSong("mama.wma", false);
             streamIn = streamingSocket.getInputStream();
             this.play();
         } catch (IOException ex) {
@@ -212,32 +202,5 @@ public class Client  implements Runnable {
         }
     }
 
-    public void connectToServer() {
-        try {
-            System.setProperty("javax.net.ssl.trustStore","keystore");
-            System.setProperty("javax.net.ssl.trustStorePassword","123456");
-
-            sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-            sslsocket = (SSLSocket) sslsocketfactory.createSocket(serverAddress, sslPort);
-            sslsocket.startHandshake();
-
-            OutputStream outputstream = sslsocket.getOutputStream();
-            String msg = "CONNECT " + "teste " + "lol";
-            outputstream.write(msg.getBytes());
-
-            InputStream inputStream = sslsocket.getInputStream();
-            byte[] b = new byte[64];
-            int bytesRead = inputStream.read(b);
-            parseToken(b, bytesRead);
-
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    }
-
-    public void parseToken(byte[] b, int bytesRead) {
-        token = new String(b, 0, bytesRead);
-        token = token.substring("CONNECT ".length(), token.length());
-    }
 }
 
