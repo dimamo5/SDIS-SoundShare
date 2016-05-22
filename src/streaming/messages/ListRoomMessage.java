@@ -11,7 +11,7 @@ public class ListRoomMessage extends Message {
 
     public ListRoomMessage(Hashtable<Integer, Room> rooms) {
         super();
-        this.arg = new String[rooms.size()];
+        this.arg = new String[rooms.size() * 2];
         this.type=Type.LIST_ROOM;
         int i = 0;
 
@@ -23,6 +23,7 @@ public class ListRoomMessage extends Message {
 
             this.arg[i] = String.valueOf(r.getPort());
             this.arg[i + 1] = r.getPlaylist().getCurrentTrack().getInfo().getTitle();
+            i = i + 2;
         }
     }
 

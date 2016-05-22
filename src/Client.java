@@ -1,6 +1,8 @@
+import com.sun.corba.se.pept.encoding.InputObject;
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.advanced.AdvancedPlayer;
 
+import streaming.messages.ListRoomMessage;
 import streaming.messages.Message;
 import streaming.Room;
 import streaming.messages.RequestMessage;
@@ -236,6 +238,12 @@ public class Client  implements Runnable {
             byte[] b = new byte[64];
             int bytesRead = inputStream.read(b);
             parseToken(b, bytesRead);
+
+            ObjectInputStream ois = new ObjectInputStream(inputStream);
+            ListRoomMessage m = (ListRoomMessage) ois.readObject();
+            String s = m.toString();
+            System.out.println(s);
+            sslsocket.close();
 
         } catch (Exception exception) {
             exception.printStackTrace();

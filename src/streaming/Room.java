@@ -48,6 +48,7 @@ public class Room implements Runnable{
 
         //playlist.addRequestedUploadedTrack("batmobile.mp3", "Local");
         playlist.addRequestedUploadedTrack("batmobile.mp3", "Local");
+        playlist.addRequestedUploadedTrack("renegades.mp3", "Local");
 
         try {
             SCTrack scTrack = trackGetter.getTrackByName("numb","client01");

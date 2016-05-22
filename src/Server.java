@@ -87,10 +87,11 @@ public class Server implements Runnable{
             OutputStream outputStream = sslsocket.getOutputStream();
             outputStream.write(msgSend.getBytes());
 
-
              /* COMMS */
-
             ListRoomMessage m = new ListRoomMessage(rooms);
+            ObjectOutputStream oos = new ObjectOutputStream(outputStream);
+            oos.writeObject(m);
+            /* END COMMS */
 
             sslsocket.close();
             sslserversocket.close();
@@ -99,7 +100,7 @@ public class Server implements Runnable{
         } catch (SocketException exception) {
             if(exception.toString().equals("java.net.SocketException: Connection reset")){
                 System.out.println("End point(client) disconnected.");
-                try {
+                    try {
                     if(sslsocket != null) {
                         sslsocket.close(); //close this point
                     }
