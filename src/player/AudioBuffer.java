@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
+@Deprecated
 public class AudioBuffer extends InputStream{
 
     ArrayList<Byte> b = new ArrayList<>();
