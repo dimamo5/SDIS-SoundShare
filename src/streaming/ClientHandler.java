@@ -29,6 +29,24 @@ public class ClientHandler implements Runnable{
     private Room room;
     private int userId = new Random().nextInt(2048)+1;
     private Database db;
+    private String client_token;
+    private String client_username;
+
+    public String getClient_token() {
+        return client_token;
+    }
+
+    public void setClient_token(String client_token) {
+        this.client_token = client_token;
+    }
+
+    public String getClient_username() {
+        return client_username;
+    }
+
+    public void setClient_username(String client_username) {
+        this.client_username = client_username;
+    }
 
     public ClientHandler(Socket socket, Room room){
         this.db = Database.getInstance();
@@ -38,14 +56,20 @@ public class ClientHandler implements Runnable{
         // TODO: 19-05-2016 Verificar se ao criar o streaming socket desta maneira ele já atribuí um port para o client se ligar
 
         try {
-            ServerSocket serverSocketStreaming = new ServerSocket(0);
+            ServerSocket roomStreamingSocket = new ServerSocket(0);
             this.out = new ObjectOutputStream(this.communicationSocket.getOutputStream());
             this.in = new ObjectInputStream(this.communicationSocket.getInputStream());
 
-            //Send message with the streaming port for the ClientHandler to connect to in order to receive streaming data
-            out.writeObject(new Message(Message.Type.STREAM, "", new String[]{serverSocketStreaming.getLocalPort()+""} ));
-            this.streamingSocket = serverSocketStreaming.accept();
-         } catch (IOException e) {
+            //message de recepçao de token
+            Message m = (Message) in.readObject();
+            this.client_token = m.getToken();
+            this.client_username = db.getUserByToken(this.client_token);
+            System.out.println("Client: " + client_username + " " + client_token);
+
+            //Send message with the streaming port for the client to connect to in order to receive streaming data
+            out.writeObject(new Message(Message.Type.STREAM, "", new String[]{roomStreamingSocket.getLocalPort()+""} ));
+            this.streamingSocket = roomStreamingSocket.accept();
+         } catch (IOException | ClassNotFoundException e) {
              e.printStackTrace();
          }
     }

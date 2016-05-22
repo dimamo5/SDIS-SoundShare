@@ -23,6 +23,7 @@ public class Database {
     private Connection connection = null;
     private static Database instance = null;
 
+
     private enum Query_types {INSERT, SELECT, DELETE, UPDATE}
 
     ;
@@ -80,6 +81,14 @@ public class Database {
             System.exit(0);
         }
         System.out.println("Table created successfully");
+    }
+
+    public String getUserByToken(String client_token) {
+        String sql = "SELECT * FROM USERS WHERE ACCESSTOKEN =?";
+        String[] values = {client_token};
+        ArrayList result = (ArrayList) this.execute_sql(Query_types.SELECT.name(), sql, values);
+
+        return result.size()!=0 ? null : result.get(0).toString();
     }
 
     /*

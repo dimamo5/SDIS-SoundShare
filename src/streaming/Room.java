@@ -6,6 +6,7 @@ import player.Playlist;
 import player.SCTrack;
 import player.Track;
 import soundcloud.TrackGetter;
+import streaming.messages.InfoMessage;
 import streaming.messages.MusicMessage;
 import util.ServerSingleton;
 
@@ -26,7 +27,8 @@ public class Room implements Runnable{
 
     private ServerSocket socket;
     private int port = 0;
-    private ArrayList<ClientHandler> clients = new ArrayList<ClientHandler>();
+    private ArrayList<ClientHandler> clients = new ArrayList<>();
+    private Map<String,String> client_list = new HashMap<>();
     public Semaphore clientsSemaphore = new Semaphore(1);
     private Timer timer = new Timer();
     private double musicSec = 0;
@@ -127,9 +129,15 @@ public class Room implements Runnable{
         }
     }
 
-    public void sendMusicMessage(ClientHandler clientHandler, Track track, double sec){
+
+     public void sendRoomInfoMessage(ClientHandler user, String clients, String playlist){
+        InfoMessage message = new InfoMessage(clients,playlist);
+        user.sendMessage(message);
+    }
+
+    public void sendMusicMessage(ClientHandler user, Track track, double sec){
         MusicMessage message = new MusicMessage(track, sec);
-        clientHandler.sendMessage(message);
+        user.sendMessage(message);
     }
 
     public ArrayList<ClientHandler> getClients() {
@@ -160,6 +168,8 @@ public class Room implements Runnable{
         }, 500, 500);
     }
 
+    // TODO: 22/05/2016 ON USER DISCONNECT DELETE USER FROM CLIENT_LIST
+
     @Override
     public void run() {
         System.out.println("Room started!");
@@ -173,9 +183,36 @@ public class Room implements Runnable{
                 clientsSemaphore.acquire();
                 ClientHandler c = new ClientHandler(connectionSocket,this);
                 new Thread(c).start();
-                sendMusicMessage(c,playlist.getCurrentTrack(),musicSec);
+
+                String play_list, clients_list;
+                StringBuilder sb = new StringBuilder();
+                List l = this.playlist.getCurrentOrderedPlaylist();
+
+                for(int i=0; i < l.size(); i++) {
+                    sb.append(i+1);
+                    sb.append(": ");
+                    sb.append(l.get(i));
+                    sb.append("\n");
+                }
+                play_list = sb.toString();
+
+                sb = new StringBuilder(); int i = 0;
+                for(Map.Entry<String,String> entry : this.client_list.entrySet()) {
+                    i++;
+                    sb.append(i);
+                    sb.append(": ");
+                    sb.append(entry);
+                    sb.append("\n");
+                }
+                clients_list = sb.toString();
+
                 clients.add(c);
+                this.client_list.put(c.getClient_token(),c.getClient_username()); //regista utilizador
+
+                sendRoomInfoMessage(c,clients_list, play_list);
+                sendMusicMessage(c,this.playlist.getCurrentTrack(),musicSec);
                 sendActualTrack(c);
+
                 clientsSemaphore.release();
                 if (clients.size() == 1) {
                     musicSec = 0;

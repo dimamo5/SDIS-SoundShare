@@ -12,6 +12,7 @@ public class Message implements Serializable {
     public enum Type{
         DISCONNECT,
         CONNECT,
+        INFO_ROOM,
         STREAM,
         VOTE_SKIP,
         REQUEST,
@@ -22,6 +23,8 @@ public class Message implements Serializable {
     }
 
     protected Type type;
+    protected String token;
+    protected String[] arg;
 
     public String getToken() {
         return token;
@@ -30,9 +33,6 @@ public class Message implements Serializable {
     public void setToken(String token) {
         this.token = token;
     }
-
-    protected String token;
-    protected String[] arg;
 
     public Message(Type type, String token, String[] arg) {
         this.type = type;
@@ -94,6 +94,7 @@ public class Message implements Serializable {
                     sb.append(" "+argument);
                 }
                 return sb.toString();
+
             default:
                 break;
         }
