@@ -10,7 +10,7 @@ import java.util.Date;
 public class Track extends InfoMusic{
     private String clientRequested;
     private Date requestTimestamp = new Date();
-    private ArrayList<String> skipedRequests = new ArrayList<>();
+    private boolean sent=false;
 
     public Track(File file, String clientRequested) {
         super(file);
@@ -34,4 +34,14 @@ public class Track extends InfoMusic{
     public void setClientRequested(String clientRequested) {
         this.clientRequested = clientRequested;
     }
+
+    public boolean isSent() {
+        return sent;
+    }
+
+    public void setSent(boolean sent) {
+        this.sent = sent;
+    }
+
+
 }

@@ -7,37 +7,38 @@ import player.Track;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.Semaphore;
-import java.util.Timer;
 
 /**
  * Created by diogo on 12/05/2016.
  */
-public class Room {
-    private ServerSocket socket;
-    private int port = 0;
+public class Room implements Runnable{
     public static final int DEFAULTPORT = 5000;
     public static final int FRAMESIZE = 2048;
+    private static final int MAX_NUM_SKIP_VOTES = 5;
+
+
+    private ServerSocket socket;
+    private int port = 0;
     private ArrayList<User> clients = new ArrayList<User>();
     private Semaphore sem = new Semaphore(1);
     private Timer timer = new Timer();
     private double musicSec = 0;
     private Playlist playlist = new Playlist();
+    private Set<Integer> skipList = new TreeSet<>();
 
     public static void main(String[] args) {
         Room r = new Room(DEFAULTPORT);
+        new Thread(r).start();
     }
 
     public void fillPlayList() {
         //new Converter("resources/batmobile.wav","resources/test1.mp3").encodeMP3();
-        //new Converter("resources/mama.wma","resources/mama.mp3").encodeMP3();
+        //new Converter("resources/renegades.mp3","resources/test2.mp3").encodeMP3();
 
+        playlist.addRequestedTrack("test1.mp3", "Local");
         playlist.addRequestedTrack("renegades.mp3", "Local");
-        playlist.addRequestedTrack("renegades.mp3", "Local");
-        playlist.addRequestedTrack("Mine.mp3", "Local");
-        //playlist.addRequestedTrack("test2.mp3", "Local");
     }
 
     public Room() {
@@ -53,43 +54,6 @@ public class Room {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                musicSec += 0.5;
-                if (musicSec == playlist.getCurrentTrack().getFullTime()) {
-                    playlist.skipTrack();
-                    musicSec=0;
-                } else if (musicSec / playlist.getCurrentTrack().getFullTime() >= 0.9) {
-                    Track t = playlist.getNextTrack();
-                    if(t!=null)
-                        sendNewTrack(playlist.getNextTrack());
-                }
-            }
-        }, 500, 500);
-
-
-        while (true) {
-            try {
-                Socket connectionSocket = socket.accept();
-                connectionSocket.setSendBufferSize(64000);
-                sem.acquire();
-                User c = new User(connectionSocket);
-                clients.add(c);
-                sendActualTrack(c);
-                sem.release();
-                if (clients.size() == 1) {
-                    musicSec = 0;
-                }
-
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public int getPort() {
@@ -103,6 +67,19 @@ public class Room {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void voteSkip(int user){
+        skipList.add(user);
+        if (skipList.size() >= MAX_NUM_SKIP_VOTES){
+            skipTrack();
+        }
+    }
+
+    public void skipTrack(){
+        skipList.clear();
+        playlist.skipTrack();
+        sendNewTrack(playlist.getCurrentTrack());
     }
 
     public void sendNewTrack(Track track) {
@@ -124,4 +101,49 @@ public class Room {
         }.start();
     }
 
+    @Override
+    public void run() {
+        System.out.println("Room started!");
+
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                musicSec += 0.5;
+                if (musicSec == playlist.getCurrentTrack().getFullTime()) {
+                    skipTrack();
+                    musicSec=0;
+                } else if (musicSec / playlist.getCurrentTrack().getFullTime() >= 0.9) {
+                    Track t = playlist.getNextTrack();
+                    if(t!=null && !t.isSent()) {
+                        t.setSent(true);
+                        sendNewTrack(playlist.getNextTrack());
+                    }
+
+                }
+            }
+        }, 500, 500);
+
+
+        while (true) {
+            try {
+                Socket connectionSocket = socket.accept();
+                connectionSocket.setSendBufferSize(64000);
+                sem.acquire();
+                User c = new User(connectionSocket,this);
+                new Thread(c).start();
+                clients.add(c);
+                sendActualTrack(c);
+                sem.release();
+                if (clients.size() == 1) {
+                    musicSec = 0;
+                }
+
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
