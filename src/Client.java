@@ -216,6 +216,13 @@ public class Client  implements Runnable {
                 System.out.println(message.toString());
                 //sendSong(message.getArg()[0]);
                 break;
+            case SKIP:
+                try {
+                    streamIn.skip(streamIn.available());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
         }
     }
 

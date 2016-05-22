@@ -14,6 +14,7 @@ public class Message implements Serializable {
         CONNECT,
         STREAM,
         VOTE_SKIP,
+        SKIP,
         REQUEST,
         VOTE_KICK,
         MUSIC,

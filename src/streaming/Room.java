@@ -6,6 +6,7 @@ import player.Playlist;
 import player.SCTrack;
 import player.Track;
 import soundcloud.TrackGetter;
+import streaming.messages.Message;
 import streaming.messages.MusicMessage;
 import util.ServerSingleton;
 
@@ -88,14 +89,27 @@ public class Room implements Runnable{
     public void voteSkip(int user){
         skipList.add(user);
         if (skipList.size() >= MAX_NUM_SKIP_VOTES){
-            skipTrack();
+            try {
+                skipTrack();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public void skipTrack(){
+    public void skipTrack() throws InterruptedException {
         skipList.clear();
         playlist.skipTrack();
+        sendSkipMessage();
+        Thread.sleep(2000);
         sendNewTrack(playlist.getCurrentTrack());
+    }
+
+    public void sendSkipMessage(){
+        Message message = new Message(Message.Type.SKIP);
+        for(ClientHandler client : clients){
+            client.sendMessage(message);
+        }
     }
 
     public void sendNewTrack(Track track) {
@@ -145,8 +159,12 @@ public class Room implements Runnable{
             @Override
             public void run() {
                 musicSec += 0.5;
-                if (musicSec == playlist.getCurrentTrack().getInfo().getFullTime()) {
-                    skipTrack();
+                Track currentTrack = playlist.getCurrentTrack();
+                if (musicSec == currentTrack.getInfo().getFullTime()) {
+                    if(currentTrack != null && !currentTrack.isSent()){
+                        playlist.skipTrack();
+                        sendNewTrack(playlist.getCurrentTrack());
+                    }
                     musicSec=0;
                 } else if (musicSec / playlist.getCurrentTrack().getInfo().getFullTime() >= 0.9) {
                     Track t = playlist.getNextTrack();
