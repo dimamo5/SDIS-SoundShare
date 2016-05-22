@@ -17,6 +17,7 @@ public class Message implements Serializable {
         REQUEST,
         VOTE_KICK,
         MUSIC,
+        LIST_ROOM,
         TRUE,
         FALSE
     }

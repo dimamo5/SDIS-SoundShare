@@ -23,7 +23,6 @@ public class Room implements Runnable{
     public static final int FRAMESIZE = 2048;
     private static final int MAX_NUM_SKIP_VOTES = 5;
 
-
     private ServerSocket socket;
     private int port = 0;
     private ArrayList<ClientHandler> clients = new ArrayList<ClientHandler>();
@@ -34,6 +33,9 @@ public class Room implements Runnable{
     private Set<Integer> skipList = new TreeSet<>();
     private TrackGetter trackGetter = new TrackGetter(ServerSingleton.getInstance().getSoundCloudComms());
 
+    public Playlist getPlaylist() {
+        return playlist;
+    }
 
     public static void main(String[] args) {
         Room r = new Room(DEFAULTPORT);

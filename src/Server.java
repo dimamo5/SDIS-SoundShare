@@ -1,6 +1,7 @@
 import JSSE.JSSEServer;
 import database.Database;
 import streaming.Room;
+import streaming.messages.ListRoomMessage;
 
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
@@ -85,6 +86,12 @@ public class Server implements Runnable{
 
             OutputStream outputStream = sslsocket.getOutputStream();
             outputStream.write(msgSend.getBytes());
+
+
+             /* COMMS */
+
+            ListRoomMessage m = new ListRoomMessage(rooms);
+
             sslsocket.close();
             sslserversocket.close();
             return ret;
