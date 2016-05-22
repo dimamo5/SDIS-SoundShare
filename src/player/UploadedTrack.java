@@ -64,6 +64,7 @@ public class UploadedTrack extends Track {
     public void sendTrack(double sec, Room room) {
         byte[] buf = new byte[Room.FRAMESIZE];
 
+        setSent(true);
         File f = getFile();
         int songTime = info.getFullTime();
         BufferedInputStream stream = new BufferedInputStream(this.getStream());
@@ -79,8 +80,6 @@ public class UploadedTrack extends Track {
         System.out.println("Tamanho ficheiro: " + f.length() + " Bytes per sec: " + bytesperSec + " Frames passed: " + frameToElapse);
 
         sendTrackFromStream(room,stream,frameToElapseRounded);
-
-
     }
 
     @Override

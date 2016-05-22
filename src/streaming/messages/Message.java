@@ -21,7 +21,7 @@ public class Message implements Serializable {
         FALSE
     }
 
-    private Type type;
+    protected Type type;
 
     public String getToken() {
         return token;
@@ -31,8 +31,8 @@ public class Message implements Serializable {
         this.token = token;
     }
 
-    private String token;
-    private String[] arg;
+    protected String token;
+    protected String[] arg;
 
     public Message(Type type, String token, String[] arg) {
         this.type = type;

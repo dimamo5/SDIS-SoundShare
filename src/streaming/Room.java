@@ -1,8 +1,13 @@
 package streaming;
 
+import org.json.JSONException;
 import player.Converter;
 import player.Playlist;
+import player.SCTrack;
 import player.Track;
+import soundcloud.TrackGetter;
+import streaming.messages.MusicMessage;
+import util.ServerSingleton;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -22,7 +27,7 @@ public class Room implements Runnable{
     private ServerSocket socket;
     private int port = 0;
     private ArrayList<User> clients = new ArrayList<User>();
-    private Semaphore sem = new Semaphore(1);
+    public Semaphore clientsSemaphore = new Semaphore(1);
     private Timer timer = new Timer();
     private double musicSec = 0;
     private Playlist playlist = new Playlist();
@@ -40,7 +45,7 @@ public class Room implements Runnable{
         //new Converter("resources/little_mermaid_choices.wav","resources/mermaid.mp3").encodeMP3();
 
         //playlist.addRequestedUploadedTrack("batmobile.mp3", "Local");
-        playlist.addRequestedUploadedTrack("mermaid.mp3", "Local");
+        playlist.addRequestedUploadedTrack("batmobile.mp3", "Local");
 
         try {
             SCTrack scTrack = trackGetter.getTrackByName("numb","client01");
@@ -113,11 +118,6 @@ public class Room implements Runnable{
             }
         }.start();
     }
-
-    @Override
-    public void run() {
-        System.out.println("Room started!");
-
 
     public void sendNewTrackMessageToAllClients(Track track, double sec) {
         for (User user:clients){

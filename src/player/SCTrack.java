@@ -57,6 +57,7 @@ public class SCTrack extends Track{
     public void sendTrack(double sec, Room room){
         BufferedInputStream stream = new BufferedInputStream(this.getStream());
 
+        setSent(true);
         long bytesperSec = getBytesPerSec();
         double frameToElapse = bytesperSec * sec / Room.FRAMESIZE;
         double frameToElapseRounded = Math.round(frameToElapse);
