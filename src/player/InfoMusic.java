@@ -21,6 +21,7 @@ public class InfoMusic {
     private int minutes;
     private int seconds;
     private int fullTime;
+    private long size;
 
     //uploadedtrack
     public InfoMusic(File file) {
@@ -28,10 +29,11 @@ public class InfoMusic {
     }
 
     //sctrack
-    public InfoMusic(String title, String author, int duration_in_ms){
+    public InfoMusic(String title, String author, int duration_in_ms,long size_in_bytes){
         this.title = title;
         this.author = author;
         splitToComponentTimes((long)(duration_in_ms/1000)); //to seconds
+        this.size = size_in_bytes;
     }
 
     public void splitToComponentTimes(Long duration)
@@ -49,7 +51,7 @@ public class InfoMusic {
 
 
     public void getMusicInfoFromFile(File file) {
-
+        this.size = file.length();
         AudioFileFormat baseFileFormat = null;
         AudioFormat baseFormat = null;
         try {

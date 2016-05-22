@@ -3,6 +3,8 @@ package streaming;
 import org.json.JSONException;
 import player.*;
 import soundcloud.TrackGetter;
+import streaming.messages.Message;
+import streaming.messages.MusicMessage;
 import util.ServerSingleton;
 
 import java.io.*;
@@ -24,7 +26,7 @@ public class Room implements Runnable{
     private ServerSocket socket;
     private int port = 0;
     private ArrayList<User> clients = new ArrayList<User>();
-    private Semaphore sem = new Semaphore(1);
+    public Semaphore clientsSemaphore = new Semaphore(1);
     private Timer timer = new Timer();
     private double musicSec = 0;
     private Playlist playlist = new Playlist();
@@ -96,57 +98,48 @@ public class Room implements Runnable{
     }
 
     public void sendNewTrack(Track track) {
+        final Room room = this;
         for (User user : clients)
             new Thread() {
                 @Override
                 public void run() {
-                    user.sendFile(track, 0);
+                    playlist.getNextTrack().sendTrack(musicSec,room);
                 }
             }.start();
     }
 
     public void sendActualTrack(User u) {
+        final Room room = this;
         new Thread() {
             @Override
             public void run() {
-                u.sendFile(playlist.getCurrentTrack(), musicSec);
+                playlist.getCurrentTrack().sendTrack(musicSec,room);
             }
         }.start();
     }
 
-    //ISTO AGORA JÁ NÃO É PRECISO
-    /*public void sendAndRead(Track track) {
-        if(! (track instanceof SCTrack)){
-            System.err.println("Trying to SEND 'N READ track that is not from Soundcloud");
-            return;
+
+
+    public void sendNewTrackMessageToAllClients(Track track, double sec) {
+        for (User user:clients){
+            sendMusicMessage(user, track,sec);
         }
+    }
 
-        System.out.println("SEND 'N READ");
+    public void sendMusicMessage(User user, Track track, double sec){
+        MusicMessage message = new MusicMessage(track, sec);
+        user.sendMessage(message);
+    }
 
-        InputStream is = track.getStream();
+    public ArrayList<User> getClients() {
+        return clients;
+    }
 
-        int bytesRead = 0;
-        byte[] buf = new byte[FRAMESIZE];
-        try {
-            while((bytesRead = is.read(buf)) != -1) {
-                sem.acquire();
-                for(User u:this.clients){
-                    u.send(buf);
-                }
-                sem.release();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }*/
+    public void setClients(ArrayList<User> clients) {
+        this.clients = clients;
+    }
 
-
-    @Override
-    public void run() {
-        System.out.println("Room started!");
-
+    public void startTimer(){
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -164,18 +157,24 @@ public class Room implements Runnable{
                 }
             }
         }, 500, 500);
+    }
 
+    @Override
+    public void run() {
+        System.out.println("Room started!");
+
+        startTimer();
 
         while (true) {
             try {
                 Socket connectionSocket = socket.accept();
                 connectionSocket.setSendBufferSize(64000);
-                sem.acquire();
+                clientsSemaphore.acquire();
                 User c = new User(connectionSocket,this);
                 new Thread(c).start();
                 clients.add(c);
-                sendActualTrack(c);
-                sem.release();
+                clientsSemaphore.release();
+                sendMusicMessage(c,playlist.getCurrentTrack(),musicSec);
                 if (clients.size() == 1) {
                     musicSec = 0;
                 }
