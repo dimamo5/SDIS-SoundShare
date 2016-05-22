@@ -1,6 +1,6 @@
 package streaming;
 
-import jdk.internal.util.xml.impl.Input;
+import database.Database;
 import player.InfoMusic;
 import player.Track;
 import player.UploadedTrack;
@@ -8,6 +8,7 @@ import streaming.messages.Message;
 import streaming.messages.MessageException;
 import streaming.messages.RequestMessage;
 
+import javax.xml.crypto.Data;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -27,8 +28,10 @@ public class User implements Runnable{
     private boolean connected = true;
     private Room room;
     private int userId = new Random().nextInt(2048)+1;
+    private Database db;
 
     public User(Socket socket, Room room){
+        this.db = Database.getInstance();
         this.room = room;
         this.communicationSocket = socket;
 
@@ -40,7 +43,7 @@ public class User implements Runnable{
             this.in = new ObjectInputStream(this.communicationSocket.getInputStream());
 
             //Send message with the streaming port for the User to connect to in order to receive streaming data
-            out.writeObject(new Message(Message.Type.STREAM, new String[]{serverSocketStreaming.getLocalPort()+""} ));
+            out.writeObject(new Message(Message.Type.STREAM, "", new String[]{serverSocketStreaming.getLocalPort()+""} ));
             this.streamingSocket = serverSocketStreaming.accept();
          } catch (IOException e) {
              e.printStackTrace();
@@ -75,23 +78,24 @@ public class User implements Runnable{
         try{
             switch (message.getType()){
                 case VOTE_SKIP:
-                    room.voteSkip(getUserId());
+                    if (db.verifyToken(message.getToken()))
+                        room.voteSkip(getUserId());
                     break;
                 case REQUEST:
-                    RequestMessage requestMessage = (RequestMessage) message;
-                    switch (requestMessage.getRequestType()){
-                        case SOUNDCLOUD:
-                            break;
-                        case STREAM_SONG:
-                            System.out.println(message);
-                            readSongFromUser(message.getArg()[0]);
-                            sendMessage(new Message(Message.Type.TRUE, message.getArg()));
-                            break;
-                        default:
-                            break;
+                    if (db.verifyToken(message.getToken())) {
+                        RequestMessage requestMessage = (RequestMessage) message;
+                        switch (requestMessage.getRequestType()) {
+                            case SOUNDCLOUD:
+                                break;
+                            case STREAM_SONG:
+                                System.out.println(message);
+                                readSongFromUser(message.getArg()[0]);
+                                sendMessage(new Message(Message.Type.TRUE, "", message.getArg()));
+                                break;
+                            default:
+                                break;
+                        }
                     }
-
-
                     break;
                 default:
                     throw new MessageException("Message Type not valid");
@@ -114,9 +118,12 @@ public class User implements Runnable{
             while ((read = streamIn.read(bytes)) != -1) {
                 outputStream.write(bytes, 0, read);
             }
+            outputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
     }
 
     public int getUserId() {

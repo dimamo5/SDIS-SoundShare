@@ -21,11 +21,22 @@ public class Message implements Serializable {
         FALSE
     }
 
-    protected Type type;
-    protected String[] arg;
+    private Type type;
 
-    public Message(Type type, String arg[]) {
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    private String token;
+    private String[] arg;
+
+    public Message(Type type, String token, String[] arg) {
         this.type = type;
+        this.token = token;
         this.arg = arg;
     }
 
@@ -70,6 +81,7 @@ public class Message implements Serializable {
                 break;
             case REQUEST:
                 sb.append(type.toString());
+                sb.append(" " + token);
                 sb.append(" Request for song ");
                 sb.append(arg[0]);
                 sb.append(" ");
