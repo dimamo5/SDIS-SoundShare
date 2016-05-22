@@ -16,6 +16,7 @@ import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Scanner;
 
 import static streaming.Room.FRAMESIZE;
 
@@ -38,7 +39,7 @@ public class Client  implements Runnable {
     private static int serverPort;
     private final int sslPort = 9000;
     private String token;
-
+    private Scanner reader;
 
 
     public static void main(String[] args){
@@ -53,11 +54,11 @@ public class Client  implements Runnable {
         }
     }
 
-    public Client(InetAddress serverAddress, int serverPort){
+    public Client(InetAddress serverAddress, int roomPort){
         try {
             connectToServer();
-            System.out.println("token: " + token);
-            communicationSocket = new Socket(serverAddress, serverPort);
+            communicationSocket = new Socket(serverAddress, roomPort);
+
             this.out = new ObjectOutputStream(communicationSocket.getOutputStream());
             this.in = new ObjectInputStream(communicationSocket.getInputStream());
             int streamingPort = 0;
@@ -71,7 +72,7 @@ public class Client  implements Runnable {
                 }
             }
             this.streamingSocket = new Socket(serverAddress,streamingPort);
-            requestSong("mama.wma", false);
+            //requestSong("mama.wma", false);
             streamIn = streamingSocket.getInputStream();
             this.play();
         } catch (IOException ex) {
@@ -232,7 +233,13 @@ public class Client  implements Runnable {
             sslsocket.startHandshake();
 
             OutputStream outputstream = sslsocket.getOutputStream();
-            String msg = "CONNECT " + "teste " + "lol";
+            reader = new Scanner(System.in);
+            System.out.print("Name: ");
+            String name = reader.next();
+            System.out.print("Pass: ");
+            String pass = reader.next();
+
+            String msg = "CONNECT " + name + " " + pass;
             outputstream.write(msg.getBytes());
 
             InputStream inputStream = sslsocket.getInputStream();
@@ -244,8 +251,12 @@ public class Client  implements Runnable {
             ListRoomMessage m = (ListRoomMessage) ois.readObject();
             String s = m.toString();
             System.out.println(s);
-            sslsocket.close();
 
+            System.out.print("Choose a room by its port: ");
+
+            serverPort = reader.nextInt();
+            reader.close();
+            sslsocket.close();
         } catch (Exception exception) {
             exception.printStackTrace();
         }
