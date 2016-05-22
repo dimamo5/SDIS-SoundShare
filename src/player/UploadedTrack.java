@@ -1,8 +1,11 @@
 package player;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import streaming.Room;
+import streaming.User;
+import sun.nio.ch.ThreadPool;
+
+import java.io.*;
+import java.util.ArrayList;
 
 /**
  * Created by duarte on 14-05-2016.
@@ -11,7 +14,6 @@ public class UploadedTrack extends Track {
 
     private File file;
     private String filename=null;
-    private InfoMusic info;
 
     public UploadedTrack(String filename, String clientRequested) {
         super(clientRequested);
@@ -27,14 +29,6 @@ public class UploadedTrack extends Track {
         } catch (FileNotFoundException e) {
             System.err.println("File for UploadedTrack " + this.filename + "not found");
         }
-    }
-
-    public InfoMusic getInfo() {
-        return info;
-    }
-
-    public void setInfo(InfoMusic info) {
-        this.info = info;
     }
 
     public String getFilename() {
@@ -55,15 +49,42 @@ public class UploadedTrack extends Track {
     }
 
     public String getTrackName() {
-        return info.getTrackName();
+        return getInfo().getTrackName();
     }
 
     public double getFullTime() {
-        return info.getFullTime();
+        return getInfo().getFullTime();
     }
 
 
     public String getAuthor() {
-        return info.getAuthor();
+        return getInfo().getAuthor();
+    }
+
+    public void sendTrack(double sec, Room room) {
+        byte[] buf = new byte[Room.FRAMESIZE];
+
+        File f = getFile();
+        int songTime = info.getFullTime();
+        BufferedInputStream stream = new BufferedInputStream(this.getStream());
+
+        System.out.println("Enviar " + this.getTrackName() + " - " + this.getInfo().getAuthor() + " Duration: " + this.getInfo().getFullTime());
+
+        room.sendNewTrackMessageToAllClients(this, sec);
+
+        double bytesperSec = getBytesPerSec();
+        double frameToElapse = bytesperSec * sec / Room.FRAMESIZE;
+        double frameToElapseRounded = Math.round(frameToElapse);
+
+        System.out.println("Tamanho ficheiro: " + f.length() + " Bytes per sec: " + bytesperSec + " Frames passed: " + frameToElapse);
+
+        sendTrackFromStream(room,stream,frameToElapseRounded);
+
+
+    }
+
+    @Override
+    public long getBytesPerSec() {
+        return (file.length() - 4) / info.getFullTime();
     }
 }

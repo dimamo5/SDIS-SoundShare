@@ -1,11 +1,17 @@
 package player;
 
+import jdk.internal.util.xml.impl.Input;
 import org.json.JSONException;
 import org.json.JSONObject;
 import soundcloud.SCComms;
+import streaming.Room;
+import streaming.User;
 import util.ServerSingleton;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -13,9 +19,9 @@ import java.util.Map;
  */
 public class SCTrack extends Track{
 
-    private InfoMusic info;
     private JSONObject track;
     private String stream_url;
+    protected final static int stream_kbps = 128;
 
     public SCTrack(String clientRequested, JSONObject track) throws JSONException {
         super(clientRequested);
@@ -30,18 +36,9 @@ public class SCTrack extends Track{
         Map info_track = SCComms.get_info(track);
         info = new InfoMusic((String) info_track.get("title"),
                 (String) info_track.get("author"),
-                (int) info_track.get("duration"));
+                (int) info_track.get("duration"),(long) info_track.get("original_content_size"));
 
         return info;
-    }
-
-
-    public InfoMusic getInfo() {
-        return info;
-    }
-
-    public void setInfo(InfoMusic info) {
-        this.info = info;
     }
 
     public JSONObject getTrack() {
@@ -54,6 +51,24 @@ public class SCTrack extends Track{
 
     public String getStream_url() {
         return stream_url;
+    }
+
+    @Override
+    public void sendTrack(double sec, Room room){
+        BufferedInputStream stream = new BufferedInputStream(this.getStream());
+
+        long bytesperSec = getBytesPerSec();
+        double frameToElapse = bytesperSec * sec / Room.FRAMESIZE;
+        double frameToElapseRounded = Math.round(frameToElapse);
+        System.out.println("Enviar " + this.getTrackName() + " - " + this.getInfo().getAuthor() + " Duration: " + this.getInfo().getFullTime());
+
+        room.sendNewTrackMessageToAllClients(this, sec);
+        sendTrackFromStream(room, stream, frameToElapseRounded);
+    }
+
+    @Override
+    public long getBytesPerSec() {
+        return getStream_kbps();
     }
 
     public void setStream_url(String stream_url) {
@@ -72,8 +87,8 @@ public class SCTrack extends Track{
         return info.getTrackName();
     }
 
-    public File getFile() {
-        return null;
+    public static int getStream_kbps() {
+        return stream_kbps;
     }
 
 }
