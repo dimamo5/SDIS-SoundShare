@@ -49,6 +49,8 @@ public class Room implements Runnable{
         //playlist.addRequestedUploadedTrack("batmobile.mp3", "Local");
         playlist.addRequestedUploadedTrack("batmobile.mp3", "Local");
         playlist.addRequestedUploadedTrack("renegades.mp3", "Local");
+        //playlist.addRequestedUploadedTrack("renegades.mp3", "Local");
+        //playlist.addRequestedUploadedTrack("renegades.mp3", "Local");
 
         try {
             SCTrack scTrack = trackGetter.getTrackByName("numb","client01");
@@ -98,7 +100,7 @@ public class Room implements Runnable{
     public void skipTrack(){
         skipList.clear();
         playlist.skipTrack();
-        sendNewTrack(playlist.getCurrentTrack());
+        //sendNewTrack(playlist.getCurrentTrack());
     }
 
     public void sendNewTrack(Track track) {
@@ -119,6 +121,7 @@ public class Room implements Runnable{
         new Thread() {
             @Override
             public void run() {
+                System.out.println("send actual track");
                 playlist.getCurrentTrack().sendTrack(musicSec,room);
             }
         }.start();
@@ -148,7 +151,7 @@ public class Room implements Runnable{
             @Override
             public void run() {
                 musicSec += 0.5;
-                if (musicSec == playlist.getCurrentTrack().getInfo().getFullTime()) {
+                if (musicSec == playlist.getCurrentTrack().getInfo().getFullTime() && playlist.getNextTrack().isSent() != false) {
                     skipTrack();
                     musicSec=0;
                 } else if (musicSec / playlist.getCurrentTrack().getInfo().getFullTime() >= 0.9) {
@@ -157,7 +160,6 @@ public class Room implements Runnable{
                         t.setSent(true);
                         sendNewTrack(playlist.getNextTrack());
                     }
-
                 }
             }
         }, 500, 500);

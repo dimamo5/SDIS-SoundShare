@@ -192,6 +192,7 @@ public class Client  implements Runnable {
             try {
                 final Message message = (Message) in.readObject();
                 new Thread(() -> {
+                    System.out.println("msg nova");
                     handleMessage(message);
                 }).start();
             } catch (IOException e) {
