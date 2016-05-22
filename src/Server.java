@@ -27,7 +27,6 @@ public class Server implements Runnable{
 
     public Server() {
         db = Database.getInstance();
-
     }
 
     @Override

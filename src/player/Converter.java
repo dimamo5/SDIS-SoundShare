@@ -5,11 +5,7 @@ import it.sauronsoftware.jave.Encoder;
 import it.sauronsoftware.jave.EncoderException;
 import it.sauronsoftware.jave.EncodingAttributes;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Created by m_bot on 12/05/2016.
@@ -35,7 +31,6 @@ public class Converter {
             Encoder enc = new Encoder();
             EncodingAttributes att = new EncodingAttributes();
             InfoMusic inf = new InfoMusic(fileConvert);
-            inf.getMusicInfo();
             att.setDuration((float)inf.getFullTime());
             AudioAttributes audioAttributes = new AudioAttributes();
 

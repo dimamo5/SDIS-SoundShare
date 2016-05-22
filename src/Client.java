@@ -37,6 +37,8 @@ public class Client  implements Runnable {
     private final int sslPort = 9000;
     private String token;
 
+
+
     public static void main(String[] args){
         serverAddress = args[0];
         serverPort = new Integer(args[1]);
@@ -125,7 +127,7 @@ public class Client  implements Runnable {
         try {
             fis = new FileInputStream(f);
         } catch (FileNotFoundException ex) {
-            System.err.println("File for Track " + filename + "not found");
+            System.err.println("File for UploadedTrack " + filename + "not found");
         }
 
         int chunks = (int) f.length() / Room.FRAMESIZE;

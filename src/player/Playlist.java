@@ -1,5 +1,8 @@
 package player;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,70 +12,73 @@ import java.util.List;
 public class Playlist {
     // TODO: 14-05-2016 Verificar se um ArrayList é efectivamente a melhor maneira de ordernarmos a música. Eu acho que é capaz de haver maneiras melhores by:Duarte
     private ArrayList<Track> playlist = new ArrayList<>();
-    private int i = -1;
+    private int playlist_actual_pos = -1;
     private boolean repeat = false;
 
     public Track getCurrentTrack(){
-        return playlist.get(i);
+        return playlist.get(playlist_actual_pos);
     }
 
     public Track getNextTrack() {
-        if(i+1 >= playlist.size() && !isRepeat()){
+        if(playlist_actual_pos +1 >= playlist.size() && !isRepeat()){
             return null;
         }else{
-            if(i >= playlist.size() && isRepeat()){
-                i = -1;
+            if(playlist_actual_pos >= playlist.size() && isRepeat()){
+                playlist_actual_pos = -1;
             }
-            Track nextTrack = playlist.get(i+1);
+            Track next_track = playlist.get(playlist_actual_pos +1);
 
-            if(i >= playlist.size() && isRepeat()) {
-                i = -1;
+            if(playlist_actual_pos >= playlist.size() && isRepeat()) {
+                playlist_actual_pos = -1;
             }
 
-            return nextTrack;
+            return next_track;
         }
     }
 
     public boolean skipTrack(){
-        if(i+1 >= playlist.size() && !isRepeat()){
+        if(playlist_actual_pos +1 >= playlist.size() && !isRepeat()){
             return false;
         }else{
-            if(i >= playlist.size() && isRepeat()){
-                i = -1;
+            if(playlist_actual_pos >= playlist.size() && isRepeat()){
+                playlist_actual_pos = -1;
             }
-            i++;
+            playlist_actual_pos++;
 
-            if(i >= playlist.size() && isRepeat()) {
-                i = -1;
+            if(playlist_actual_pos >= playlist.size() && isRepeat()) {
+                playlist_actual_pos = -1;
             }
             return true;
         }
     }
 
-    public void  addRequestedTrack(String music, String clientNo) {
-        Track track = new Track(music,clientNo);
-        if(track.getFile()!=null){
+    public void addRequestedTrack(Track track){
             playlist.add(track);
-            if(i==-1){
-                i=0;
+            if(playlist_actual_pos ==-1){
+                playlist_actual_pos =0;
             }
-        }
+
+    }
+
+    public void addRequestedUploadedTrack(String music, String clientNo) {
+        UploadedTrack uploadedTrack = new UploadedTrack(music,clientNo);
+        addRequestedTrack(uploadedTrack);
 
     }
 
     public Track getPreviousTrack() {
-        if(i == 0 && !isRepeat()){
+        if(playlist_actual_pos == 0 && !isRepeat()){
             return null;
         }else{
 
-            if(i==0 && isRepeat()){
-                i = playlist.size();
+            if(playlist_actual_pos ==0 && isRepeat()){
+                playlist_actual_pos = playlist.size();
             }
 
-            i--;
-            Track previousTrack = playlist.get(i);
+            playlist_actual_pos--;
+            Track previousUploadedTrack = playlist.get(playlist_actual_pos);
 
-            return previousTrack;
+            return previousUploadedTrack;
         }
     }
 
@@ -96,7 +102,12 @@ public class Playlist {
         int i = 0;
         ArrayList<String> tracks = new ArrayList<>();
         for(i = 0; i < playlist.size(); i++){
-            tracks.add(playlist.get(i).getTrackName());
+            if(playlist.get(i) instanceof SCTrack){
+                tracks.add(((SCTrack) playlist.get(i)).getInfo().getTrackName());
+            }else{
+                tracks.add(((UploadedTrack) playlist.get(i)).getInfo().getTrackName());
+            }
+
         }
         return tracks;
     }

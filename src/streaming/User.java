@@ -3,6 +3,7 @@ package streaming;
 import database.Database;
 import player.InfoMusic;
 import player.Track;
+import player.UploadedTrack;
 import streaming.messages.Message;
 import streaming.messages.MessageException;
 import streaming.messages.RequestMessage;
@@ -57,67 +58,7 @@ public class User implements Runnable{
         }
     }
 
-    public void sendFile(Track track, double sec) {
-        byte[] mybytearray = new byte[Room.FRAMESIZE];
-
-        File f= track.getFile();
-        InfoMusic info = new InfoMusic(f);
-        info.getMusicInfo();
-        int songTime = info.getFullTime();
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream(f);
-        } catch (FileNotFoundException ex) {
-            System.err.println("File for Track " + track + "not found");
-        }
-
-        System.out.println("Enviar " + track.getTrackName()+ " - "+track.getAuthor() + " Duration: " + track.getFullTime());
-
-        try {
-            Message m = new Message();m.createMusicMessage(track,sec);
-            this.out.writeObject(m);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        int chunks = (int) f.length() / Room.FRAMESIZE;
-        BufferedInputStream bis = new BufferedInputStream(fis);
-        double bytesperSec = (f.length()-4) / songTime;
-        double frameToElapse = bytesperSec * sec / Room.FRAMESIZE;
-        double frameToElapseRounded=Math.round(frameToElapse);
-
-        //TODO ver tolerancia
-        //long tolerance= (long) Math.abs((frameToElapse-frameToElapseRounded)/(bytesperSec/Server.FRAMESIZE)*1000);
-
-        /*try {
-            Thread.sleep(tolerance);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }*/
-
-        System.out.println("Tamanho ficheiro: " + f.length() + " Dividido em: " + f.length() / Room.FRAMESIZE +
-                " Bytes per sec: " + bytesperSec + " Frames passed: " + frameToElapse);
-
-
-        for (int m = 0; m < chunks; m++) {
-            try {
-                bis.read(mybytearray, 0, Room.FRAMESIZE);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (m >= frameToElapseRounded)
-                this.send(mybytearray);
-        }
-
-        //TODO close socket somehow
-        /*try {
-            this.streamingSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-    }
-
-    private void sendMessage(Message message){
+    public void sendMessage(Message message){
         try {
             out.writeObject(message);
         } catch (IOException e) {
@@ -203,14 +144,6 @@ public class User implements Runnable{
 
             try {
                 final Message message = (Message) in.readObject();
-                //ANTES ESTAVA ASSIM MAS O IDEA SUGERIU USAR LAMBDA. SE DER ERRO MUDAR PARA ISTO
-                /*new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        handleMessage(message);
-                    }
-                }).start();*/
-
                 new Thread(() -> {
                     handleMessage(message);
                 }).start();

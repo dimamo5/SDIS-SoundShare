@@ -15,32 +15,31 @@ import java.util.Map;
  */
 public class InfoMusic {
 
-    private String filename=null;
     private String title;
     private String author;
     private int hours;
     private int minutes;
     private int seconds;
     private int fullTime;
-    private File file;
+    private long size;
 
-    public InfoMusic(String filename) {
-        this.filename = filename;
-        this.file=new File(System.getProperty("user.dir") + "/resources/" + filename);
-    }
-
-    public File getFile() {
-        return file;
-    }
-
+    //uploadedtrack
     public InfoMusic(File file) {
-        this.file=file;
+        this.getMusicInfoFromFile(file);
     }
 
-    public void splitToComponentTimes(Long biggy)
+    //sctrack
+    public InfoMusic(String title, String author, int duration_in_ms,long size_in_bytes){
+        this.title = title;
+        this.author = author;
+        splitToComponentTimes((long)(duration_in_ms/1000)); //to seconds
+        this.size = size_in_bytes;
+    }
+
+    public void splitToComponentTimes(Long duration)
     {
-        int hours = (int) (biggy / 3600);
-        int remainder = (int) (biggy - hours * 3600);
+        int hours = (int) (duration / 3600);
+        int remainder = (int) (duration - hours * 3600);
         int mins = remainder / 60;
         remainder = remainder - mins * 60;
         int secs = remainder;
@@ -50,8 +49,9 @@ public class InfoMusic {
         this.seconds = secs;
     }
 
-    public void getMusicInfo() {
-        File file = this.file;
+
+    public void getMusicInfoFromFile(File file) {
+        this.size = file.length();
         AudioFileFormat baseFileFormat = null;
         AudioFormat baseFormat = null;
         try {
@@ -79,9 +79,6 @@ public class InfoMusic {
         }
     }
 
-    public String getFilename() {
-        return filename;
-    }
 
     public String getTitle() {
         if (title == null)
@@ -110,4 +107,9 @@ public class InfoMusic {
     public int getFullTime() {
         return fullTime;
     }
+
+    public String getTrackName() {
+        return getTitle();
+    }
+
 }
