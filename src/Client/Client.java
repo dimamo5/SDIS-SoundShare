@@ -17,11 +17,10 @@ public class Client {
     private RoomConnection rooom_connection;
 
     public SCComms soundCloudComms = new SCComms();
+    private boolean stopLoop = false;
 
 
-    private Client() {
-
-    }
+    private Client() {}
 
     public static void main(String[] args) {
 
@@ -50,11 +49,33 @@ public class Client {
 
         this.rooom_connection = new RoomConnection(address,room_port,token);
 
-        // TODO: 23/05/2016 handle this
-        /*readCommands(){
+        userInputLoop();
 
-        }*/
     }
+
+    public void userInputLoop(){
+
+        Scanner input = new Scanner(System.in);
+
+        while(!stopLoop){
+            System.out.print("Command: ");
+            handleCommands(input.next());
+        }
+
+    }
+
+    public void handleCommands(String command){
+        // TODO: 23/05/2016 use of enums
+        switch(command){
+            case "disconnect":
+                //handleDisconnectRoom();
+                break;
+            default:
+                System.out.println("Command not found\n");
+                break;
+        }
+    }
+
 
     public int choosePortFromList(String list){
 
