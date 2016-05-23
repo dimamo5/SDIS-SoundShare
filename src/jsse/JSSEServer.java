@@ -1,4 +1,4 @@
-package jsse2;
+package jsse;
 
 import javax.net.ssl.*;
 import java.io.*;
