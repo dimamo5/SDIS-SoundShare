@@ -94,7 +94,7 @@ public class Server implements Runnable{
 
         } catch (SocketException exception) {
             if(exception.toString().equals("java.net.SocketException: Connection reset")){
-                System.out.println("End point(Client) disconnected.");
+                System.out.println("End point(client) disconnected.");
                 try {
                     if(sslsocket != null) {
                         sslsocket.close(); //close this point
