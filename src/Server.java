@@ -1,4 +1,3 @@
-import JSSE.JSSEServer;
 import database.Database;
 import streaming.Room;
 
@@ -7,12 +6,11 @@ import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 import java.io.*;
 import java.net.SocketException;
-import java.util.ArrayList;
 import java.util.Hashtable;
 
 public class Server implements Runnable{
     private Hashtable<Integer, Room> rooms = new Hashtable<>();
-    private final int port = 9000;
+    private final int ssl_port = 9000;
     private SSLServerSocket sslserversocket = null;
     private SSLSocket sslsocket = null;
     private Database db = null;
@@ -33,7 +31,7 @@ public class Server implements Runnable{
 
         SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
         try {
-            sslserversocket = (SSLServerSocket) sslserversocketfactory.createServerSocket(this.port);
+            sslserversocket = (SSLServerSocket) sslserversocketfactory.createServerSocket(this.ssl_port);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -42,7 +40,7 @@ public class Server implements Runnable{
     @Override
     public void run() {
         while(true){
-                String[] st = readUser(port);
+                String[] st = readUser(ssl_port);
         }
     }
 

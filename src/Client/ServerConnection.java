@@ -21,6 +21,24 @@ public class ServerConnection {
     private final int sslPort = 9000;
     private String token = null;
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    private String room_list;
+
+    public String getRoom_list() {
+        return room_list;
+    }
+
+    public void setRoom_list(String room_list) {
+        this.room_list = room_list;
+    }
+
     public ServerConnection(String serverAddress, int serverPort) {
         this.serverAddress = serverAddress;
         this.serverPort = serverPort;
@@ -63,7 +81,7 @@ public class ServerConnection {
 
             // TODO: 23/05/2016 merge related (below) -> uncomment after merge  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             //ListRoomMessage m = (ListRoomMessage) ois.readObject();
-            //String s = m.toString();
+            //this.room_list = m.toString();
             //System.out.println(s);
 
             sslsocket.close();

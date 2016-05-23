@@ -35,7 +35,6 @@ public class RoomConnection implements Runnable {
     String token;
     private int roomPort;
 
-
     public static void main(String[] args){
         String serverAddress = args[0];
         int roomPort = new Integer(args[1]);
