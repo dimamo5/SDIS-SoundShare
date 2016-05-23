@@ -1,4 +1,4 @@
-package jsse;
+package jsse2;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
