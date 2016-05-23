@@ -1,4 +1,4 @@
-package client;
+package Client;
 
 import javafx.util.Pair;
 

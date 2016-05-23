@@ -1,9 +1,8 @@
-package JSSE;
+package jsse;
 
 import javax.net.ssl.*;
 import java.io.*;
 import java.net.SocketException;
-import java.security.KeyStore;
 
 /**
  * Created by Sonhs on 19/05/2016.
@@ -44,7 +43,7 @@ public class JSSEServer {
             }
         } catch (SocketException exception) {
             if(exception.toString().equals("java.net.SocketException: Connection reset")){
-                System.out.println("End point(client) disconnected.");
+                System.out.println("End point(Client) disconnected.");
                 try {
                    if(sslsocket != null) {
                        sslsocket.close(); //close this point

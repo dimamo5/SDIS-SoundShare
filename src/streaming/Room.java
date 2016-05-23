@@ -8,7 +8,7 @@ import player.Track;
 import soundcloud.TrackGetter;
 import streaming.messages.InfoMessage;
 import streaming.messages.MusicMessage;
-import client.Client;
+import Client.Client;
 
 import java.io.*;
 import java.net.ServerSocket;

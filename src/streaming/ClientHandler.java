@@ -54,7 +54,7 @@ public class ClientHandler implements Runnable{
         this.room = room;
         this.communicationSocket = socket;
 
-        // TODO: 19-05-2016 Verificar se ao criar o streaming socket desta maneira ele já atribuí um port para o client se ligar
+        // TODO: 19-05-2016 Verificar se ao criar o streaming socket desta maneira ele já atribuí um port para o Client se ligar
 
         try {
             ServerSocket roomStreamingSocket = new ServerSocket(0);
@@ -73,11 +73,11 @@ public class ClientHandler implements Runnable{
 
                     //get user from database
                     this.client_username = db.getUserByToken(this.client_token);
-                    System.out.println("client.RoomConnection: " + client_username + " " + client_token);
+                    System.out.println("Client.RoomConnection: " + client_username + " " + client_token);
                 }
             }
 
-            //Send message with the streaming port for the client to connect to in order to receive streaming data
+            //Send message with the streaming port for the Client to connect to in order to receive streaming data
             out.writeObject(new Message(Message.Type.STREAM, "", new String[]{roomStreamingSocket.getLocalPort()+""} ));
             this.streamingSocket = roomStreamingSocket.accept();
          } catch (IOException | ClassNotFoundException e) {

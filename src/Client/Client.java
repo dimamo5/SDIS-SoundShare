@@ -50,6 +50,7 @@ public class Client {
         this.rooom_connection = new RoomConnection(address,room_port,token);
 
         userInputLoop();
+        System.out.println("cenas");
 
     }
 
@@ -61,8 +62,14 @@ public class Client {
             System.out.print("Command: ");
             handleCommands(input.next());
         }
-
+        System.out.println("totest");
+        func();
     }
+
+    public void func(){
+        return;
+    }
+
 
     public void handleCommands(String command){
         // TODO: 23/05/2016 use of enums
