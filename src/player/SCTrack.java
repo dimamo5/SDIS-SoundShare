@@ -4,7 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import soundcloud.SCComms;
 import streaming.Room;
-import client2.Client;
+import client.Client;
 
 import java.io.BufferedInputStream;
 import java.util.Map;

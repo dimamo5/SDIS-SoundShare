@@ -73,7 +73,7 @@ public class ClientHandler implements Runnable{
 
                     //get user from database
                     this.client_username = db.getUserByToken(this.client_token);
-                    System.out.println("client2.RoomConnection: " + client_username + " " + client_token);
+                    System.out.println("client.RoomConnection: " + client_username + " " + client_token);
                 }
             }
 

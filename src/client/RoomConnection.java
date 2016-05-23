@@ -1,4 +1,4 @@
-package client2;
+package client;
 
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.advanced.AdvancedPlayer;
