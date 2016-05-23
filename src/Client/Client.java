@@ -57,7 +57,7 @@ public class Client {
 
         Scanner input = new Scanner(System.in);
 
-        while(!stopLoop){
+        while(!stopLoop) {
             System.out.print("Command: ");
             handleCommands(input.next());
         }
