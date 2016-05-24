@@ -16,6 +16,7 @@ public class Message implements Serializable {
         STREAM,
         VOTE_SKIP,
         REQUEST,
+        TOKEN,
         VOTE_KICK,
         MUSIC,
         TRUE,
@@ -42,6 +43,11 @@ public class Message implements Serializable {
     }
 
     public Message(){};
+
+    public Message(Type type, String[] arg){
+        this.type = type;
+        this.arg = arg;
+    }
 
     public Message(Type type) {
         this.type = type;

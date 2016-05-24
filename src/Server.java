@@ -1,5 +1,6 @@
 import database.Database;
 import streaming.Room;
+import util.Singleton;
 
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
@@ -24,7 +25,7 @@ public class Server implements Runnable{
     }
 
     public Server() {
-        db = Database.getInstance();
+        db = Singleton.getInstance().getDatabase();
 
         System.setProperty("javax.net.ssl.keyStore","keystore");
         System.setProperty("javax.net.ssl.keyStorePassword","123456");

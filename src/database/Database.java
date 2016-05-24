@@ -1,5 +1,6 @@
 package database;
 
+import javax.xml.crypto.Data;
 import java.security.MessageDigest;
 import java.sql.*;
 import java.util.ArrayList;
@@ -21,23 +22,17 @@ public class Database {
 
     private String db_name = null;
     private Connection connection = null;
-    private static Database instance = null;
 
 
     private enum Query_types {INSERT, SELECT, DELETE, UPDATE}
 
-    ;
+    public Database(){
+        this("soundshare");
+    }
 
     public Database(String db_name) {
         this.db_name = db_name;
         init_db(db_name);
-    }
-
-    public static Database getInstance() {
-        if (instance == null) {
-            instance = new Database("soundshare");
-        }
-        return instance;
     }
 
     private void init_db(String db_name) {
@@ -259,7 +254,7 @@ public class Database {
 
     public static void main(String args[]) {
 
-        Database db = Database.getInstance();
+        Database db = new Database();
         db.insert_user("teste", "lol");
 
         /*String s=db.generateToken(2);

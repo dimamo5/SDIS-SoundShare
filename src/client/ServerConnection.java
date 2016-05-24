@@ -1,12 +1,12 @@
 package client;
 
-import javafx.util.Pair;
+
+import auth.Credential;
+import streaming.messages.Message;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Scanner;
 
 /**
@@ -43,41 +43,26 @@ public class ServerConnection {
         this.serverAddress = serverAddress;
         this.serverPort = serverPort;
 
-        Pair<String,String> credentials = receiveInputCredentials();
-        connectToServer(credentials);
-    }
-
-    public Pair<String,String> receiveInputCredentials(){
-
-        Scanner reader = new Scanner(System.in);
-        System.out.print("Name: ");
-        String name = reader.next();
-        System.out.print("Pass: ");
-        String pass = reader.next();
-        return new Pair<>(name,pass);
-
-    }
-
-    public void connectToServer(Pair<String,String> credentials) {
+        System.setProperty("javax.net.ssl.trustStore","keystore");
+        System.setProperty("javax.net.ssl.trustStorePassword","123456");
         try {
-            System.setProperty("javax.net.ssl.trustStore","keystore");
-            System.setProperty("javax.net.ssl.trustStorePassword","123456");
-
             sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
             sslsocket = (SSLSocket) sslsocketfactory.createSocket(serverAddress, sslPort);
             sslsocket.startHandshake();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-            OutputStream outputstream = sslsocket.getOutputStream();
 
-            String msg = "CONNECT " + credentials.getKey() + " " + credentials.getValue();
-            outputstream.write(msg.getBytes());
+    public boolean connectToServer(Credential credentials) {
+        try {
+            sendConnectMessage(credentials);
 
-            InputStream inputStream = sslsocket.getInputStream();
-            byte[] b = new byte[64];
-            int bytesRead = inputStream.read(b);
-            parseToken(b, bytesRead);
-
-            ObjectInputStream ois = new ObjectInputStream(inputStream);
+            if(!receiveToken()){
+                return false;
+            }
+            ObjectInputStream ois = new ObjectInputStream(sslsocket.getInputStream());
 
             // TODO: 23/05/2016 merge related (below) -> uncomment after merge  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             //ListRoomMessage m = (ListRoomMessage) ois.readObject();
@@ -85,13 +70,32 @@ public class ServerConnection {
             //System.out.println(s);
 
             sslsocket.close();
+            return true;
         } catch (Exception exception) {
             exception.printStackTrace();
         }
+        return false;
     }
 
-    public void parseToken(byte[] b, int bytesRead) {
-        token = new String(b, 0, bytesRead);
-        token = token.substring("CONNECT ".length(), token.length());
+    private boolean receiveToken() throws IOException {
+        try {
+            ObjectInputStream inputStream = new ObjectInputStream(sslsocket.getInputStream());
+            Message message = (Message) inputStream.readObject();
+            if(!message.getType().equals(Message.Type.TOKEN))
+                return false;
+            this.token = message.getArg()[0];
+            return true;
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    private void sendConnectMessage(Credential credentials) throws IOException {
+        ObjectOutputStream outputstream = new ObjectOutputStream(sslsocket.getOutputStream());
+
+        Message connectMessage = new Message(Message.Type.CONNECT,new String[]{credentials.getUsername(),credentials.getPassword()});
+        outputstream.writeObject(connectMessage);
     }
 }

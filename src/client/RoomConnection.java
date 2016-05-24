@@ -32,7 +32,6 @@ public class RoomConnection implements Runnable {
     public AdvancedPlayer player;
 
     private InetAddress serverAddress;
-    String token;
     private int roomPort;
 
     public static void main(String[] args){
@@ -50,7 +49,6 @@ public class RoomConnection implements Runnable {
 
     public RoomConnection(InetAddress serverAddress, int roomPort, String token){
         try {
-            this.token = token;
             this.serverAddress = serverAddress;
             this.roomPort = roomPort;
 
@@ -103,14 +101,14 @@ public class RoomConnection implements Runnable {
         String dateMsg = format.format(new Date());
         if (isSoundCloud) {
             try {
-                sendMessage(new RequestMessage(new String[]{url,dateMsg}, token, RequestMessage.RequestType.SOUNDCLOUD));
+                sendMessage(new RequestMessage(new String[]{url,dateMsg}, Client.getInstance().getToken(), RequestMessage.RequestType.SOUNDCLOUD));
                 return true;
             } catch (IOException e) {
                 return false;
             }
         }
         else {
-            Message m = new RequestMessage(new String[]{url, dateMsg}, token, RequestMessage.RequestType.STREAM_SONG);
+            Message m = new RequestMessage(new String[]{url, dateMsg}, Client.getInstance().getToken(), RequestMessage.RequestType.STREAM_SONG);
             System.out.println(m.toString());
             try {
                 sendMessage(m);
@@ -160,7 +158,7 @@ public class RoomConnection implements Runnable {
 
     public void skip(){
         try {
-            sendMessage(new Message(Message.Type.VOTE_SKIP, token, new String[]{}));
+            sendMessage(new Message(Message.Type.VOTE_SKIP, Client.getInstance().getToken(), new String[]{}));
         } catch (IOException e) {
             e.printStackTrace();
         }

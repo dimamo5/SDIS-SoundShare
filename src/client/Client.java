@@ -1,23 +1,27 @@
 package client;
 
-import soundcloud.SCComms;
+import auth.Credential;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Scanner;
 
 /**
  * Created by duarte on 21-05-2016.
  */
-public class Client {
+public class Client{
 
     private static Client ourInstance = new Client();
 
     private ServerConnection sv_connection;
-    private RoomConnection rooom_connection;
+    private RoomConnection roomConnection;
+    private CLInterface clInterface = new CLInterface();
+    private String token = null;
 
-    public SCComms soundCloudComms = new SCComms();
     private boolean stopLoop = false;
+
+    public static Client getInstance() {
+        return ourInstance;
+    }
 
 
     private Client() {}
@@ -28,17 +32,17 @@ public class Client {
         int sv_port = new Integer(args[1]);
 
         Client cli = Client.getInstance();
-        cli.run(address,sv_port);
+        cli.start(address,sv_port);
     }
 
-    private void run(String sv_address, int sv_port){
-
+    private void start(String sv_address, int sv_port){
         this.sv_connection = new ServerConnection(sv_address,sv_port);
+        login();
 
         //recebe input (porta) do user
-        int room_port = choosePortFromList(this.sv_connection.getRoom_list());
+        int room_port = this.clInterface.choosePortFromList(this.sv_connection.getRoom_list());
 
-        String token = this.sv_connection.getToken();
+        String token = getToken();
         InetAddress address = null;
 
         try {
@@ -47,67 +51,48 @@ public class Client {
             e.printStackTrace();
         }
 
-        this.rooom_connection = new RoomConnection(address,room_port,token);
+        this.roomConnection = new RoomConnection(address,room_port,token);
 
-        userInputLoop();
-        System.out.println("cenas");
-
+        new Thread(this.clInterface).start();
     }
 
-    public void userInputLoop(){
-
-        Scanner input = new Scanner(System.in);
-
-        while(!stopLoop) {
-            System.out.print("Command: ");
-            handleCommands(input.next());
-        }
-        System.out.println("totest");
-        func();
-    }
-
-    public void func(){
-        return;
-    }
-
-
-    public void handleCommands(String command){
-        // TODO: 23/05/2016 use of enums
-        switch(command){
-            case "disconnect":
-                //handleDisconnectRoom();
-                break;
-            default:
-                System.out.println("Command not found\n");
-                break;
+    private void login() {
+        Credential credentials = getClInterface().receiveInputCredentials();
+        while(!getSv_connection().connectToServer(credentials)){
+            Client.getInstance().getClInterface().println("Invalid Login!");
+            credentials = Client.getInstance().getClInterface().receiveInputCredentials();
         }
     }
 
-
-    public int choosePortFromList(String list){
-
-        System.out.println("Room list:\n"+list + "\n");
-
-        System.out.print("Select room port: ");
-        Scanner reader = new Scanner(System.in);
-        int port = reader.nextInt();
-        reader.close();
-
-        return port;
+    public RoomConnection getRoomConnection() {
+        return roomConnection;
     }
 
-
-
-    public static Client getInstance() {
-        return ourInstance;
-    }
-    public SCComms getSoundCloudComms() {
-        return soundCloudComms;
+    public void setRoomConnection(RoomConnection roomConnection) {
+        this.roomConnection = roomConnection;
     }
 
-    public void setSoundCloudComms(SCComms soundCloudComms) {
-        this.soundCloudComms = soundCloudComms;
+    public CLInterface getClInterface() {
+        return clInterface;
     }
 
+    public void setClInterface(CLInterface clInterface) {
+        this.clInterface = clInterface;
+    }
 
+    public ServerConnection getSv_connection() {
+        return sv_connection;
+    }
+
+    public void setSv_connection(ServerConnection sv_connection) {
+        this.sv_connection = sv_connection;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 }

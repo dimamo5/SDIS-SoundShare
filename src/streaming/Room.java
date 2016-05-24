@@ -8,7 +8,7 @@ import player.Track;
 import soundcloud.TrackGetter;
 import streaming.messages.InfoMessage;
 import streaming.messages.MusicMessage;
-import client.Client;
+import util.Singleton;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -35,7 +35,7 @@ public class Room implements Runnable{
     private Playlist playlist = new Playlist();
     private Set<Integer> skipList = new TreeSet<>();
 
-    private TrackGetter trackGetter = new TrackGetter(Client.getInstance().getSoundCloudComms());
+    private TrackGetter trackGetter = new TrackGetter(Singleton.getInstance().getSoundCloudComms());
 
 
     public static void main(String[] args) {
