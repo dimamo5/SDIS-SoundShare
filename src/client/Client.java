@@ -85,6 +85,22 @@ public class Client{
                 case LOGOUT:
                     logout();
                     break;
+                case CONNECT_ROOM:
+                    if (this.roomConnection == null)
+                        try {
+                            this.roomConnection = new RoomConnection(InetAddress.getByName(this.sv_connection.getServerAddress()), Integer.parseInt(command.getArgs()[0]));
+                        } catch (UnknownHostException e) {
+                            e.printStackTrace();
+                        } // O CC DISSE QUE ESTAVA BEM
+                    else this.clInterface.println("Trying to connect to a room when you are already connected");
+                    break;
+                case DISCONNECT_ROOM:
+                    if (this.roomConnection != null) {
+                        this.roomConnection.dcFromRoom();
+                        this.roomConnection = null;
+                    }
+                    else this.clInterface.println("Trying to disconnect from a room when you are already disconnected");
+                    break;
                 default:
                     throw new CommandException("Error executing the command");
 

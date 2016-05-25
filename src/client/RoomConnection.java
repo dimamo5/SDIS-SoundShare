@@ -34,6 +34,17 @@ public class RoomConnection implements Runnable {
     private InetAddress serverAddress;
     private int roomPort;
 
+    public boolean dcFromRoom() {
+        try {
+            communicationSocket.close();
+            streamingSocket.close();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public static void main(String[] args){
         String serverAddress = args[0];
         int roomPort = new Integer(args[1]);

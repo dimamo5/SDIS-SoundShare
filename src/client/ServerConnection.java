@@ -96,6 +96,22 @@ public class ServerConnection {
         }
     }
 
+    public String getServerAddress() {
+        return serverAddress;
+    }
+
+    public void setServerAddress(String serverAddress) {
+        this.serverAddress = serverAddress;
+    }
+
+    public int getServerPort() {
+        return serverPort;
+    }
+
+    public void setServerPort(int serverPort) {
+        this.serverPort = serverPort;
+    }
+
     private void sendConnectMessage(Credential credentials) throws IOException {
         Message connectMessage = new Message(Message.Type.CONNECT,new String[]{credentials.getUsername(),credentials.getPassword()});
         outputstream.writeObject(connectMessage);
