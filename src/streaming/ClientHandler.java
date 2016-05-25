@@ -1,5 +1,6 @@
 package streaming;
 
+import auth.Token;
 import database.Database;
 import server.Singleton;
 import streaming.messages.Message;
@@ -26,14 +27,14 @@ public class ClientHandler implements Runnable{
     private Room room;
     private int userId = new Random().nextInt(2048)+1;
     private Database db;
-    private String client_token;
+    private Token client_token;
     private String client_username;
 
-    public String getClient_token() {
+    public Token getClient_token() {
         return client_token;
     }
 
-    public void setClient_token(String client_token) {
+    public void setClient_token(Token client_token) {
         this.client_token = client_token;
     }
 
@@ -68,13 +69,13 @@ public class ClientHandler implements Runnable{
                     this.client_token = m.getToken();
 
                     //get user from database
-                    this.client_username = db.getUserByToken(this.client_token);
+                    this.client_username = db.getUserByToken(this.client_token.getToken());
                     System.out.println("client.RoomConnection: " + client_username + " " + client_token);
                 }
             }
 
             //Send message with the streaming port for the client to connect to in order to receive streaming data
-            out.writeObject(new Message(Message.Type.STREAM, "", new String[]{roomStreamingSocket.getLocalPort()+""} ));
+            out.writeObject(new Message(Message.Type.STREAM, null, new String[]{roomStreamingSocket.getLocalPort()+""} ));
             this.streamingSocket = roomStreamingSocket.accept();
          } catch (IOException | ClassNotFoundException e) {
              e.printStackTrace();
@@ -109,11 +110,11 @@ public class ClientHandler implements Runnable{
         try{
             switch (message.getType()){
                 case VOTE_SKIP:
-                    if (db.verifyToken(message.getToken()))
+                    if (db.verifyToken(message.getToken().getToken()))
                         room.voteSkip(getUserId());
                     break;
                 case REQUEST:
-                    if (db.verifyToken(message.getToken())) {
+                    if (db.verifyToken(message.getToken().getToken())) {
                         RequestMessage requestMessage = (RequestMessage) message;
                         switch (requestMessage.getRequestType()) {
                             case SOUNDCLOUD:
@@ -121,7 +122,7 @@ public class ClientHandler implements Runnable{
                             case STREAM_SONG:
                                 System.out.println(message);
                                 readSongFromUser(message.getArgs()[0]);
-                                sendMessage(new Message(Message.Type.TRUE, "", message.getArgs()));
+                                sendMessage(new Message(Message.Type.TRUE, null, message.getArgs()));
                                 break;
                             default:
                                 break;
