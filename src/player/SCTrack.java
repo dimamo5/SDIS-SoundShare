@@ -4,7 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import soundcloud.SCComms;
 import streaming.Room;
-import util.ServerSingleton;
+import server.Singleton;
 
 import java.io.BufferedInputStream;
 import java.util.Map;
@@ -23,7 +23,7 @@ public class SCTrack extends Track{
         this.track = track;
         stream_url = track.getString("stream_url");
         info = getMusicInfo(track);
-        this.setStream(ServerSingleton.getInstance().getSoundCloudComms().getStreamData(ServerSingleton.getInstance().getSoundCloudComms().get_stream_from_url(stream_url)));
+        this.setStream(Singleton.getInstance().getSoundCloudComms().getStreamData(Singleton.getInstance().getSoundCloudComms().get_stream_from_url(stream_url)));
     }
 
     private InfoMusic getMusicInfo(JSONObject track) {

@@ -1,14 +1,12 @@
 package streaming;
 
+import auth.Token;
 import database.Database;
-import player.InfoMusic;
-import player.Track;
-import player.UploadedTrack;
+import server.Singleton;
 import streaming.messages.Message;
 import streaming.messages.MessageException;
 import streaming.messages.RequestMessage;
 
-import javax.xml.crypto.Data;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -29,23 +27,57 @@ public class ClientHandler implements Runnable{
     private Room room;
     private int userId = new Random().nextInt(2048)+1;
     private Database db;
+    private Token client_token;
+    private String client_username;
+
+    public Token getClient_token() {
+        return client_token;
+    }
+
+    public void setClient_token(Token client_token) {
+        this.client_token = client_token;
+    }
+
+    public String getClient_username() {
+        return client_username;
+    }
+
+    public void setClient_username(String client_username) {
+        this.client_username = client_username;
+    }
 
     public ClientHandler(Socket socket, Room room){
-        this.db = Database.getInstance();
+        this.db = Singleton.getInstance().getDatabase();
         this.room = room;
         this.communicationSocket = socket;
 
         // TODO: 19-05-2016 Verificar se ao criar o streaming socket desta maneira ele já atribuí um port para o client se ligar
 
         try {
-            ServerSocket serverSocketStreaming = new ServerSocket(0);
+            ServerSocket roomStreamingSocket = new ServerSocket(0);
             this.out = new ObjectOutputStream(this.communicationSocket.getOutputStream());
             this.in = new ObjectInputStream(this.communicationSocket.getInputStream());
 
-            //Send message with the streaming port for the ClientHandler to connect to in order to receive streaming data
-            out.writeObject(new Message(Message.Type.STREAM, "", new String[]{serverSocketStreaming.getLocalPort()+""} ));
-            this.streamingSocket = serverSocketStreaming.accept();
-         } catch (IOException e) {
+            //message de recepçao de token
+            boolean loggedIn = false;
+
+            while(!loggedIn){
+                Message m = (Message) in.readObject();
+
+                if(m.getType() == Message.Type.ONLY_TOKEN) {
+                    loggedIn = true;
+                    this.client_token = m.getToken();
+
+                    //get user from database
+                    this.client_username = db.getUserByToken(this.client_token.getToken());
+                    System.out.println("client.RoomConnection: " + client_username + " " + client_token);
+                }
+            }
+
+            //Send message with the streaming port for the client to connect to in order to receive streaming data
+            out.writeObject(new Message(Message.Type.STREAM, null, new String[]{roomStreamingSocket.getLocalPort()+""} ));
+            this.streamingSocket = roomStreamingSocket.accept();
+         } catch (IOException | ClassNotFoundException e) {
              e.printStackTrace();
          }
     }
@@ -78,19 +110,19 @@ public class ClientHandler implements Runnable{
         try{
             switch (message.getType()){
                 case VOTE_SKIP:
-                    if (db.verifyToken(message.getToken()))
+                    if (db.verifyToken(message.getToken().getToken()))
                         room.voteSkip(getUserId());
                     break;
                 case REQUEST:
-                    if (db.verifyToken(message.getToken())) {
+                    if (db.verifyToken(message.getToken().getToken())) {
                         RequestMessage requestMessage = (RequestMessage) message;
                         switch (requestMessage.getRequestType()) {
                             case SOUNDCLOUD:
                                 break;
                             case STREAM_SONG:
                                 System.out.println(message);
-                                readSongFromUser(message.getArg()[0]);
-                                sendMessage(new Message(Message.Type.TRUE, "", message.getArg()));
+                                readSongFromUser(message.getArgs()[0]);
+                                sendMessage(new Message(Message.Type.TRUE, null, message.getArgs()));
                                 break;
                             default:
                                 break;
@@ -152,7 +184,6 @@ public class ClientHandler implements Runnable{
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
-
         }
 
         try {

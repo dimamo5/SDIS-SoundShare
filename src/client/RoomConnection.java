@@ -1,14 +1,12 @@
-import com.sun.corba.se.pept.encoding.InputObject;
+package client;
+
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.advanced.AdvancedPlayer;
 
-import streaming.messages.ListRoomMessage;
 import streaming.messages.Message;
 import streaming.Room;
 import streaming.messages.RequestMessage;
 
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -16,14 +14,13 @@ import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Scanner;
 
 import static streaming.Room.FRAMESIZE;
 
 /**
  * Created by diogo on 12/05/2016.
  */
-public class Client  implements Runnable {
+public class RoomConnection implements Runnable {
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private InputStream streamIn;
@@ -33,46 +30,57 @@ public class Client  implements Runnable {
     private boolean playing=false;
     public boolean connected=false;
     public AdvancedPlayer player;
-    private SSLSocketFactory sslsocketfactory = null;
-    private SSLSocket sslsocket = null;
-    private static String serverAddress;
-    private static int serverPort;
-    private final int sslPort = 9000;
-    private String token;
-    private Scanner reader;
 
+    private InetAddress serverAddress;
+    private int roomPort;
+
+    public boolean dcFromRoom() {
+        try {
+            communicationSocket.close();
+            streamingSocket.close();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     public static void main(String[] args){
-        serverAddress = args[0];
-        serverPort = new Integer(args[1]);
+        String serverAddress = args[0];
+        int roomPort = new Integer(args[1]);
 
         try {
-            Client client = new Client(InetAddress.getByName(serverAddress),serverPort);
+            RoomConnection client = new RoomConnection(InetAddress.getByName(serverAddress),roomPort);
             new Thread(client).start();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
     }
 
-    public Client(InetAddress serverAddress, int roomPort){
+    public RoomConnection(InetAddress serverAddress, int roomPort){
         try {
-            connectToServer();
-            communicationSocket = new Socket(serverAddress, roomPort);
+            this.serverAddress = serverAddress;
+            this.roomPort = roomPort;
 
+            communicationSocket = new Socket(serverAddress, roomPort);
             this.out = new ObjectOutputStream(communicationSocket.getOutputStream());
             this.in = new ObjectInputStream(communicationSocket.getInputStream());
-            int streamingPort = 0;
 
+            //envio de mensagem com o token (PROTOCOLO)
+            this.out.writeObject(new Message(Message.Type.ONLY_TOKEN, Client.getInstance().getToken(), null));
+
+            int streamingPort = 0;
+            //receive streaming port
             while(streamingPort == 0){
                 Message message = (Message) in.readObject();
                 if(message.getType().equals(Message.Type.STREAM)){
-                    streamingPort = new Integer(message.getArg()[0]);
+                    streamingPort = new Integer(message.getArgs()[0]);
                     System.out.println("Streaming Port: "+streamingPort);
                     this.connected=true;
                 }
             }
             this.streamingSocket = new Socket(serverAddress,streamingPort);
-            //requestSong("mama.wma", false);
+            requestSong("mama.wma", false);
             streamIn = streamingSocket.getInputStream();
             this.play();
         } catch (IOException ex) {
@@ -103,14 +111,14 @@ public class Client  implements Runnable {
         String dateMsg = format.format(new Date());
         if (isSoundCloud) {
             try {
-                sendMessage(new RequestMessage(new String[]{url,dateMsg}, token, RequestMessage.RequestType.SOUNDCLOUD));
+                sendMessage(new RequestMessage(RequestMessage.RequestType.SOUNDCLOUD, Client.getInstance().getToken(), new String[]{url,dateMsg}));
                 return true;
             } catch (IOException e) {
                 return false;
             }
         }
         else {
-            Message m = new RequestMessage(new String[]{url, dateMsg}, token, RequestMessage.RequestType.STREAM_SONG);
+            Message m = new RequestMessage(RequestMessage.RequestType.STREAM_SONG,Client.getInstance().getToken(), new String[]{url, dateMsg});
             System.out.println(m.toString());
             try {
                 sendMessage(m);
@@ -160,14 +168,14 @@ public class Client  implements Runnable {
 
     public void skip(){
         try {
-            sendMessage(new Message(Message.Type.VOTE_SKIP, token, new String[]{}));
+            sendMessage(new Message(Message.Type.VOTE_SKIP, Client.getInstance().getToken(), new String[]{}));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void play(){
-        Client c= this;
+        RoomConnection c= this;
         new Thread() {
             @Override
             public void run() {
@@ -193,7 +201,6 @@ public class Client  implements Runnable {
             try {
                 final Message message = (Message) in.readObject();
                 new Thread(() -> {
-                    System.out.println("msg nova");
                     handleMessage(message);
                 }).start();
             } catch (IOException e) {
@@ -201,7 +208,6 @@ public class Client  implements Runnable {
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
-
         }
 
         try {
@@ -218,53 +224,11 @@ public class Client  implements Runnable {
                 break;
             case TRUE:
                 System.out.println(message.toString());
-                //sendSong(message.getArg()[0]);
+                //sendSong(message.getArgs()[0]);
                 break;
         }
     }
 
-    public void connectToServer() {
-        try {
-            System.setProperty("javax.net.ssl.trustStore","keystore");
-            System.setProperty("javax.net.ssl.trustStorePassword","123456");
 
-            sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-            sslsocket = (SSLSocket) sslsocketfactory.createSocket(serverAddress, sslPort);
-            sslsocket.startHandshake();
-
-            OutputStream outputstream = sslsocket.getOutputStream();
-            reader = new Scanner(System.in);
-            System.out.print("Name: ");
-            String name = reader.next();
-            System.out.print("Pass: ");
-            String pass = reader.next();
-
-            String msg = "CONNECT " + name + " " + pass;
-            outputstream.write(msg.getBytes());
-
-            InputStream inputStream = sslsocket.getInputStream();
-            byte[] b = new byte[64];
-            int bytesRead = inputStream.read(b);
-            parseToken(b, bytesRead);
-
-            ObjectInputStream ois = new ObjectInputStream(inputStream);
-            ListRoomMessage m = (ListRoomMessage) ois.readObject();
-            String s = m.toString();
-            System.out.println(s);
-
-            System.out.print("Choose a room by its port: ");
-
-            serverPort = reader.nextInt();
-            reader.close();
-            sslsocket.close();
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    }
-
-    public void parseToken(byte[] b, int bytesRead) {
-        token = new String(b, 0, bytesRead);
-        token = token.substring("CONNECT ".length(), token.length());
-    }
 }
 
