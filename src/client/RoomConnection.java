@@ -37,17 +37,16 @@ public class RoomConnection implements Runnable {
     public static void main(String[] args){
         String serverAddress = args[0];
         int roomPort = new Integer(args[1]);
-        String token = args[2];
 
         try {
-            RoomConnection client = new RoomConnection(InetAddress.getByName(serverAddress),roomPort, token);
+            RoomConnection client = new RoomConnection(InetAddress.getByName(serverAddress),roomPort);
             new Thread(client).start();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
     }
 
-    public RoomConnection(InetAddress serverAddress, int roomPort, String token){
+    public RoomConnection(InetAddress serverAddress, int roomPort){
         try {
             this.serverAddress = serverAddress;
             this.roomPort = roomPort;
@@ -57,14 +56,14 @@ public class RoomConnection implements Runnable {
             this.in = new ObjectInputStream(communicationSocket.getInputStream());
 
             //envio de mensagem com o token (PROTOCOLO)
-            this.out.writeObject(new Message(Message.Type.ONLY_TOKEN, token, null));
+            this.out.writeObject(new Message(Message.Type.ONLY_TOKEN, Client.getInstance().getToken(), null));
 
             int streamingPort = 0;
             //receive streaming port
             while(streamingPort == 0){
                 Message message = (Message) in.readObject();
                 if(message.getType().equals(Message.Type.STREAM)){
-                    streamingPort = new Integer(message.getArg()[0]);
+                    streamingPort = new Integer(message.getArgs()[0]);
                     System.out.println("Streaming Port: "+streamingPort);
                     this.connected=true;
                 }
@@ -101,14 +100,14 @@ public class RoomConnection implements Runnable {
         String dateMsg = format.format(new Date());
         if (isSoundCloud) {
             try {
-                sendMessage(new RequestMessage(new String[]{url,dateMsg}, Client.getInstance().getToken(), RequestMessage.RequestType.SOUNDCLOUD));
+                sendMessage(new RequestMessage(RequestMessage.RequestType.SOUNDCLOUD, Client.getInstance().getToken(), new String[]{url,dateMsg}));
                 return true;
             } catch (IOException e) {
                 return false;
             }
         }
         else {
-            Message m = new RequestMessage(new String[]{url, dateMsg}, Client.getInstance().getToken(), RequestMessage.RequestType.STREAM_SONG);
+            Message m = new RequestMessage(RequestMessage.RequestType.STREAM_SONG,Client.getInstance().getToken(), new String[]{url, dateMsg});
             System.out.println(m.toString());
             try {
                 sendMessage(m);
@@ -214,7 +213,7 @@ public class RoomConnection implements Runnable {
                 break;
             case TRUE:
                 System.out.println(message.toString());
-                //sendSong(message.getArg()[0]);
+                //sendSong(message.getArgs()[0]);
                 break;
         }
     }

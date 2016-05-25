@@ -1,4 +1,4 @@
-package util;
+package server;
 
 import database.Database;
 import soundcloud.SCComms;

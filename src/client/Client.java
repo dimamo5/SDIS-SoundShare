@@ -1,6 +1,7 @@
 package client;
 
 import auth.Credential;
+import auth.Token;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -15,7 +16,7 @@ public class Client{
     private ServerConnection sv_connection;
     private RoomConnection roomConnection;
     private CLInterface clInterface = new CLInterface();
-    private String token = null;
+    private Token token;
 
     private boolean stopLoop = false;
 
@@ -42,7 +43,6 @@ public class Client{
         //recebe input (porta) do user
         int room_port = this.clInterface.choosePortFromList(this.sv_connection.getRoom_list());
 
-        String token = getToken();
         InetAddress address = null;
 
         try {
@@ -88,11 +88,11 @@ public class Client{
         this.sv_connection = sv_connection;
     }
 
-    public String getToken() {
+    public Token getToken() {
         return token;
     }
 
-    public void setToken(String token) {
+    public void setToken(Token token) {
         this.token = token;
     }
 }

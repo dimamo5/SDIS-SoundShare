@@ -1,15 +1,11 @@
 package streaming;
 
 import database.Database;
-import player.InfoMusic;
-import player.Track;
-import player.UploadedTrack;
-import streaming.messages.InfoMessage;
+import server.Singleton;
 import streaming.messages.Message;
 import streaming.messages.MessageException;
 import streaming.messages.RequestMessage;
 
-import javax.xml.crypto.Data;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -50,7 +46,7 @@ public class ClientHandler implements Runnable{
     }
 
     public ClientHandler(Socket socket, Room room){
-        this.db = Database.getInstance();
+        this.db = Singleton.getInstance().getDatabase();
         this.room = room;
         this.communicationSocket = socket;
 
@@ -124,8 +120,8 @@ public class ClientHandler implements Runnable{
                                 break;
                             case STREAM_SONG:
                                 System.out.println(message);
-                                readSongFromUser(message.getArg()[0]);
-                                sendMessage(new Message(Message.Type.TRUE, "", message.getArg()));
+                                readSongFromUser(message.getArgs()[0]);
+                                sendMessage(new Message(Message.Type.TRUE, "", message.getArgs()));
                                 break;
                             default:
                                 break;

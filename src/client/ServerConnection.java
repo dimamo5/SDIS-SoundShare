@@ -2,32 +2,23 @@ package client;
 
 
 import auth.Credential;
+import auth.Token;
 import streaming.messages.Message;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
-import java.util.Scanner;
 
 /**
  * Created by Sonhs on 22/05/2016.
  */
 public class ServerConnection {
 
-    private SSLSocketFactory sslsocketfactory = null;
-    private SSLSocket sslsocket = null;
+    private SSLSocketFactory sslsocketfactory;
+    private SSLSocket sslsocket;
     private  String serverAddress;
     private int serverPort;
     private final int sslPort = 9000;
-    private String token = null;
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
 
     private String room_list;
 
@@ -83,7 +74,7 @@ public class ServerConnection {
             Message message = (Message) inputStream.readObject();
             if(!message.getType().equals(Message.Type.TOKEN))
                 return false;
-            this.token = message.getArg()[0];
+            Client.getInstance().setToken(new Token(message.getArgs()[0]));
             return true;
 
         } catch (ClassNotFoundException e) {

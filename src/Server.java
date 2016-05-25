@@ -1,7 +1,8 @@
 import database.Database;
+import server.ServerClient;
 import streaming.Room;
 import streaming.messages.Message;
-import util.Singleton;
+import server.Singleton;
 
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
@@ -14,7 +15,6 @@ public class Server implements Runnable{
     private Hashtable<Integer, Room> rooms = new Hashtable<>();
     private final int ssl_port = 9000;
     private SSLServerSocket sslserversocket = null;
-    private SSLSocket sslsocket = null;
     private Database db = null;
 
     public static void main(String[] args){
@@ -42,18 +42,14 @@ public class Server implements Runnable{
     @Override
     public void run() {
         while(true){
-            Message message = readUser(ssl_port);
-            handleMessage(message);
-        }
-    }
+            try {
+                final SSLSocket sslSocket = (SSLSocket) sslserversocket.accept();
+                ServerClient serverClient = new ServerClient(sslSocket);
+                new Thread(serverClient).start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-    private void handleMessage(Message message) {
-        switch (message.getType()) {
-            case CONNECT:
-                String token = db.select_user_by_credentials(message.getArg()[0], message.getArg()[1]);
-                break;
-            default:
-                break;
         }
     }
 
@@ -70,47 +66,4 @@ public class Server implements Runnable{
     public void removeRoom(int port){
         this.rooms.remove(port);
     }
-
-    public Message readUser(int porta) {
-
-        try {
-            sslsocket = (SSLSocket) sslserversocket.accept();
-            sslsocket.startHandshake();
-            ObjectInputStream inputstream = new ObjectInputStream(sslsocket.getInputStream());
-
-            Message message = (Message) inputstream.readObject();
-
-            String token = db.select_user_by_credentials(message.getArg()[0], message.getArg()[1]);
-
-            Message connectMessage = new Message(Message.Type.TOKEN, new String[]{token});
-
-            ObjectOutputStream outputStream = new ObjectOutputStream(sslsocket.getOutputStream());
-            outputStream.writeObject(connectMessage);
-           // sslsocket.close();
-            //sslserversocket.close();
-            return message;
-
-        } catch (SocketException exception) {
-            if(exception.toString().equals("java.net.SocketException: Connection reset")){
-                System.out.println("End point(client) disconnected.");
-                try {
-                    if(sslsocket != null) {
-                        sslsocket.close(); //close this point
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-            exception.printStackTrace();
-            return null;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
 }
