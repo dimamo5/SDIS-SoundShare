@@ -2,7 +2,6 @@ package client;
 
 
 import auth.Credential;
-import auth.Token;
 import streaming.messages.Message;
 
 import javax.net.ssl.SSLSocket;
@@ -58,7 +57,6 @@ public class ServerConnection {
                 return false;
             }
 
-
             // TODO: 23/05/2016 merge related (below) -> uncomment after merge  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             //ListRoomMessage m = (ListRoomMessage) ois.readObject();
             //this.room_list = m.toString();
@@ -73,9 +71,11 @@ public class ServerConnection {
     private boolean receiveToken() throws IOException {
         try {
             Message message = (Message) inputStream.readObject();
+
             if(!message.getType().equals(Message.Type.TOKEN))
                 return false;
-            Client.getInstance().setToken(new Token(message.getArgs()[0]));
+
+            Client.getInstance().setToken(message.getToken());
             return true;
 
         } catch (ClassNotFoundException e) {
@@ -94,6 +94,18 @@ public class ServerConnection {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+
+    public Message receiveMessage(){
+        try {
+            return (Message) this.inputStream.readObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public String getServerAddress() {

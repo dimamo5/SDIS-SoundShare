@@ -1,12 +1,13 @@
 package client.commands;
 
-import streaming.messages.Message;
-
 /**
  * Created by duarte on 24-05-2016.
  */
 public class Command {
-    public enum Type{
+    public enum Type {
+        CONNECT_ROOM,
+        DISCONNECT_ROOM,
+        CREATE_ROOM,
         SKIP,
         REQUEST,
         LOGOUT
@@ -21,38 +22,51 @@ public class Command {
 
     public void parseCommand(String command) throws CommandException {
         String[] args = command.split("\\s+");
-        Type type = parseType(args[0]);
-        parseArgs(type,args);
-        this.type = type;
-        this.args = new String[args.length-1];
-        System.arraycopy(args,1,this.args,0,args.length);
+
+        this.type = parseType(args[0]);
+        this.args = new String[args.length - 1];
+        System.arraycopy(args, 1, this.args, 0, args.length);
+
+        parseArgs(type);
     }
 
-    private boolean parseArgs(Type type, String[] args) throws CommandException {
-        switch (type){
+    private boolean parseArgs(Type type) throws CommandException {
+        //// TODO: 25/05/2016  verificação semantica nos argumentos Ex: A porta nao pode ser "ABC" tem de ser [0-9]+
+        switch (type) {
             case SKIP:
-                if(args.length !=1){
-                    throw new CommandException("Number of arguments expected: 0. Given: "+(args.length-1));
-                }
-                return true;
+                return validate_args_length(1);
+
             case REQUEST:
-                if(args.length != 2){
-                    throw new CommandException("Number of arguments expected: 1. Given: "+(args.length-1));
-                }
-                return true;
+                return validate_args_length(2);
+
             case LOGOUT:
-                if(args.length !=1){
-                    throw new CommandException("Number of arguments expected: 0. Given: "+(args.length-1));
-                }
-                return true;
+                return validate_args_length(1);
+
+            case CONNECT_ROOM:
+                return validate_args_length(2);
+
+            case DISCONNECT_ROOM:
+                return validate_args_length(1);
+
+            case CREATE_ROOM:
+                return validate_args_length(1);
+
             default:
                 throw new CommandException("Invalid command type");
         }
     }
 
+    public boolean validate_args_length(int no_args_expected) throws CommandException {
+        if (args.length != no_args_expected) {
+            throw new CommandException("Number of arguments expected: " + no_args_expected + ". Given: " + (args.length - 1));
+        }
+        return true;
+    }
+
+
     public Type parseType(String type) throws CommandException {
-        for(Type enumType : Command.Type.values()){
-            if(type.equalsIgnoreCase(enumType.toString()))
+        for (Type enumType : Command.Type.values()) {
+            if (type.equalsIgnoreCase(enumType.toString()))
                 return enumType;
         }
         throw new CommandException("Invalid command type!");

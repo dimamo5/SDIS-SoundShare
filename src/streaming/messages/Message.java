@@ -21,6 +21,7 @@ public class Message implements Serializable {
         TRUE,
         FALSE,
         GET_ROOM_LIST,
+        NEW_ROOM,
         ONLY_TOKEN //é usado
     }
 
@@ -96,6 +97,10 @@ public class Message implements Serializable {
                 sb.append(args[1]);
                 return sb.toString();
             case FALSE:
+                break;
+            case TOKEN:
+
+                break;
             case TRUE:
                 sb.append(type.toString());
                 for(String argument : args){
