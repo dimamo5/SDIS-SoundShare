@@ -1,5 +1,6 @@
 package server;
 
+import auth.Token;
 import streaming.messages.Message;
 
 import javax.net.ssl.SSLSocket;
@@ -19,6 +20,7 @@ public class ServerClientHandler implements Runnable{
 
     public ServerClientHandler(SSLSocket socket) {
         this.socket = socket;
+        initStreams();
     }
 
     private void initStreams(){
@@ -42,14 +44,16 @@ public class ServerClientHandler implements Runnable{
     private void handleMessage(Message message) {
         switch (message.getType()) {
             case CONNECT:
-                String token = Singleton.getInstance().getDatabase().select_user_by_credentials(message.getArgs()[0], message.getArgs()[1]);
+                String stringToken = Singleton.getInstance().getDatabase().select_user_by_credentials(message.getArgs()[0], message.getArgs()[1]);
 
-                if(token == null){
+                if(stringToken.equals("ERROR")){
                     sendMessage(new Message(Message.Type.FALSE));
                     return;
                 }
+
+                Token token = new Token(stringToken);
                 sendMessage(new Message(Message.Type.TOKEN,token));
-                loggedIn = false;
+                loggedIn = true;
                 break;
             case DISCONNECT:
                 loggedIn = false;
@@ -67,10 +71,9 @@ public class ServerClientHandler implements Runnable{
         try {
 
             socket.startHandshake();
-            ObjectInputStream inputstream = new ObjectInputStream(socket.getInputStream());
 
             while(true){
-                Message message = (Message) inputstream.readObject();
+                Message message = (Message) in.readObject();
                 handleMessage(message);
             }
 

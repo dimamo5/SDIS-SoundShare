@@ -21,6 +21,8 @@ public class ServerConnection {
     private final int sslPort = 9000;
 
     private String room_list;
+    private ObjectOutputStream outputstream;
+    private ObjectInputStream inputStream;
 
     public String getRoom_list() {
         return room_list;
@@ -40,6 +42,8 @@ public class ServerConnection {
             sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
             sslsocket = (SSLSocket) sslsocketfactory.createSocket(serverAddress, sslPort);
             sslsocket.startHandshake();
+            this.outputstream = new ObjectOutputStream(sslsocket.getOutputStream());
+            this.inputStream = new ObjectInputStream(sslsocket.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -53,14 +57,12 @@ public class ServerConnection {
             if(!receiveToken()){
                 return false;
             }
-            ObjectInputStream ois = new ObjectInputStream(sslsocket.getInputStream());
+
 
             // TODO: 23/05/2016 merge related (below) -> uncomment after merge  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             //ListRoomMessage m = (ListRoomMessage) ois.readObject();
             //this.room_list = m.toString();
             //System.out.println(s);
-
-            sslsocket.close();
             return true;
         } catch (Exception exception) {
             exception.printStackTrace();
@@ -70,7 +72,6 @@ public class ServerConnection {
 
     private boolean receiveToken() throws IOException {
         try {
-            ObjectInputStream inputStream = new ObjectInputStream(sslsocket.getInputStream());
             Message message = (Message) inputStream.readObject();
             if(!message.getType().equals(Message.Type.TOKEN))
                 return false;
@@ -84,7 +85,7 @@ public class ServerConnection {
     }
 
     private void sendConnectMessage(Credential credentials) throws IOException {
-        ObjectOutputStream outputstream = new ObjectOutputStream(sslsocket.getOutputStream());
+
 
         Message connectMessage = new Message(Message.Type.CONNECT,new String[]{credentials.getUsername(),credentials.getPassword()});
         outputstream.writeObject(connectMessage);
