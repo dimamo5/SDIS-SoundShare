@@ -99,7 +99,7 @@ public class Client{
                 case LOGOUT:
                     logout();
                     break;
-                case NEW_ROOM:
+                case CREATE_ROOM:
                     getSv_connection().sendMessage(new Message(Message.Type.NEW_ROOM,getToken()));
                     Message message = this.getSv_connection().receiveMessage();
                     if(message.getType().equals(Message.Type.NEW_ROOM)){

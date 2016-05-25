@@ -51,7 +51,7 @@ public class ServerConnection {
 
     public boolean connectToServer(Credential credentials) {
         try {
-            sendConnectServerMessage(credentials);
+            sendConnectMessage(credentials);
 
             if(!receiveToken()){
                 return false;
@@ -96,7 +96,6 @@ public class ServerConnection {
         }
     }
 
-    private void sendConnectServerMessage(Credential credentials) throws IOException {
 
     public Message receiveMessage(){
         try {
