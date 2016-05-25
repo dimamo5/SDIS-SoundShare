@@ -208,7 +208,7 @@ public class Room implements Runnable{
                 clients_list = sb.toString();
 
                 clients.add(c);
-                this.client_list.put(c.getClient_token(),c.getClient_username()); //regista utilizador
+                this.client_list.put(c.getClient_token().getToken(),c.getClient_username()); //regista utilizador
 
                 sendRoomInfoMessage(c,clients_list, play_list);
                 sendMusicMessage(c,this.playlist.getCurrentTrack(),musicSec);
