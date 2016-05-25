@@ -96,6 +96,10 @@ public class Message implements Serializable {
                 sb.append(args[1]);
                 return sb.toString();
             case FALSE:
+                break;
+            case TOKEN:
+
+                break;
             case TRUE:
                 sb.append(type.toString());
                 for(String argument : args){

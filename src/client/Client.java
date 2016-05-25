@@ -44,27 +44,36 @@ public class Client{
 
         login();
 
+        String list = this.sv_connection.getRoom_list();
+
+        if(list != null)
+            System.out.println("Room list:\n"+ list+"\n");
+        else
+            System.out.println("Room list: (Empty)");
+
+
+
         //recebe input (porta) do user
-        int room_port = this.clInterface.choosePortFromList(this.sv_connection.getRoom_list());
-
+        /*int room_port = this.clInterface.choosePortFromList(this.sv_connection.getRoom_list());
         InetAddress address = null;
-
         try {
              address = InetAddress.getByName(sv_address);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
 
-        this.roomConnection = new RoomConnection(address,room_port);
+        this.roomConnection = new RoomConnection(address,room_port);*/
 
         new Thread(this.clInterface).start();
     }
 
     private void login() {
-        Credential credentials = getClInterface().receiveInputCredentials();
-        while(!getSv_connection().connectToServer(credentials)){
+        Credential credentials_CLI = getClInterface().receiveInputCredentials();
+
+        //loop while not successfully connected
+        while(!getSv_connection().connectToServer(credentials_CLI)){
             Client.getInstance().getClInterface().println("Invalid Login!");
-            credentials = Client.getInstance().getClInterface().receiveInputCredentials();
+            credentials_CLI = Client.getInstance().getClInterface().receiveInputCredentials();
         }
     }
 
@@ -73,6 +82,7 @@ public class Client{
         setToken(null);
     }
 
+
     public void executeCommand(Command command){
         try {
             switch (command.getType()){
@@ -80,14 +90,16 @@ public class Client{
                     this.roomConnection.skip();
                     break;
                 case REQUEST:
-                    //this.roomConnection.requestSong()
+                    if(this.roomConnection != null)
+                        this.roomConnection.requestSong(command.getArgs()[0], Boolean.parseBoolean(command.getArgs()[1]));
+                    else
+                        this.clInterface.println("You have to be connected to a room in order to request a song!");
                     break;
                 case LOGOUT:
                     logout();
                     break;
                 default:
                     throw new CommandException("Error executing the command");
-
             }
         } catch (CommandException e) {
             e.printStackTrace();

@@ -2,7 +2,6 @@ package client;
 
 
 import auth.Credential;
-import auth.Token;
 import streaming.messages.Message;
 
 import javax.net.ssl.SSLSocket;
@@ -52,12 +51,11 @@ public class ServerConnection {
 
     public boolean connectToServer(Credential credentials) {
         try {
-            sendConnectMessage(credentials);
+            sendConnectServerMessage(credentials);
 
             if(!receiveToken()){
                 return false;
             }
-
 
             // TODO: 23/05/2016 merge related (below) -> uncomment after merge  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             //ListRoomMessage m = (ListRoomMessage) ois.readObject();
@@ -73,9 +71,11 @@ public class ServerConnection {
     private boolean receiveToken() throws IOException {
         try {
             Message message = (Message) inputStream.readObject();
+
             if(!message.getType().equals(Message.Type.TOKEN))
                 return false;
-            Client.getInstance().setToken(new Token(message.getArgs()[0]));
+
+            Client.getInstance().setToken(message.getToken());
             return true;
 
         } catch (ClassNotFoundException e) {
@@ -96,7 +96,8 @@ public class ServerConnection {
         }
     }
 
-    private void sendConnectMessage(Credential credentials) throws IOException {
+    private void sendConnectServerMessage(Credential credentials) throws IOException {
+
         Message connectMessage = new Message(Message.Type.CONNECT,new String[]{credentials.getUsername(),credentials.getPassword()});
         outputstream.writeObject(connectMessage);
     }

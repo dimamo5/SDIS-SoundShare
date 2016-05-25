@@ -28,9 +28,6 @@ public class CLInterface implements Runnable {
     }
 
     public int choosePortFromList(String list){
-
-        System.out.println("Room list:\n"+list + "\n");
-
         System.out.print("Select room port: ");
         Scanner reader = new Scanner(System.in);
         int port = reader.nextInt();
