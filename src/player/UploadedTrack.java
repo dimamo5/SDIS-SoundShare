@@ -76,7 +76,7 @@ public class UploadedTrack extends Track {
 
         System.out.println("Tamanho ficheiro: " + f.length() + " Bytes per sec: " + bytesperSec + " Frames passed: " + frameToElapse);
 
-        sendTrackFromStream(room,stream,frameToElapseRounded);
+        sendTrackFromStream(room,stream,frameToElapseRounded, false);
     }
 
     @Override

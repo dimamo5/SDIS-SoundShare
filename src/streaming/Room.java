@@ -48,7 +48,6 @@ public class Room implements Runnable{
 
         //playlist.addRequestedUploadedTrack("batmobile.mp3", "Local");
         playlist.addRequestedUploadedTrack("batmobile.mp3", "Local");
-        playlist.addRequestedUploadedTrack("renegades.mp3", "Local");
         //playlist.addRequestedUploadedTrack("renegades.mp3", "Local");
         //playlist.addRequestedUploadedTrack("renegades.mp3", "Local");
 

@@ -60,7 +60,7 @@ public class SCTrack extends Track{
         System.out.println("Enviar " + this.getTrackName() + " - " + this.getInfo().getAuthor() + " Duration: " + this.getInfo().getFullTime());
 
         room.sendNewTrackMessageToAllClients(this, sec);
-        sendTrackFromStream(room, stream, frameToElapseRounded);
+        sendTrackFromStream(room, stream, frameToElapseRounded, true);
     }
 
     @Override
