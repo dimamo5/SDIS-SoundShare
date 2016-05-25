@@ -1,12 +1,15 @@
 package client.commands;
 
+import streaming.messages.Message;
+
 /**
  * Created by duarte on 24-05-2016.
  */
 public class Command {
     public enum Type{
         SKIP,
-        REQUEST
+        REQUEST,
+        LOGOUT
     }
 
     protected Type type;
@@ -37,19 +40,22 @@ public class Command {
                     throw new CommandException("Number of arguments expected: 1. Given: "+(args.length-1));
                 }
                 return true;
+            case LOGOUT:
+                if(args.length !=1){
+                    throw new CommandException("Number of arguments expected: 0. Given: "+(args.length-1));
+                }
+                return true;
             default:
                 throw new CommandException("Invalid command type");
         }
     }
 
     public Type parseType(String type) throws CommandException {
-        if(type.equalsIgnoreCase(Type.SKIP.toString())){
-            return Type.SKIP;
-        }else if(type.equalsIgnoreCase(Type.REQUEST.toString())){
-            return Type.REQUEST;
-        }else{
-            throw new CommandException("Invalid command type!");
+        for(Type enumType : Command.Type.values()){
+            if(type.equalsIgnoreCase(enumType.toString()))
+                return enumType;
         }
+        throw new CommandException("Invalid command type!");
     }
 
     public Type getType() {
