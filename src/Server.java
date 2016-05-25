@@ -1,5 +1,6 @@
 import database.Database;
 import streaming.Room;
+import streaming.messages.Message;
 import util.Singleton;
 
 import javax.net.ssl.SSLServerSocket;
@@ -41,14 +42,15 @@ public class Server implements Runnable{
     @Override
     public void run() {
         while(true){
-                String[] st = readUser(ssl_port);
+            Message message = readUser(ssl_port);
+            handleMessage(message);
         }
     }
 
-    private void handleMessage(String[] st) {
-        switch (st[0]) {
-            case "CONNECT":
-                String token = db.select_user_by_credentials(st[1], st[2]);
+    private void handleMessage(Message message) {
+        switch (message.getType()) {
+            case CONNECT:
+                String token = db.select_user_by_credentials(message.getArg()[0], message.getArg()[1]);
                 break;
             default:
                 break;
@@ -69,29 +71,24 @@ public class Server implements Runnable{
         this.rooms.remove(port);
     }
 
-    public String[] readUser(int porta) {
+    public Message readUser(int porta) {
 
         try {
-            System.out.println("waiting");
             sslsocket = (SSLSocket) sslserversocket.accept();
             sslsocket.startHandshake();
-            System.out.println("hand");
-            InputStream inputstream = sslsocket.getInputStream();
-            byte[] msg = new byte[128];
+            ObjectInputStream inputstream = new ObjectInputStream(sslsocket.getInputStream());
 
-            int bytesRead = inputstream.read(msg);
-            String[] ret = parseMessage(msg);
-            ret[2] = ret[2].trim();
+            Message message = (Message) inputstream.readObject();
 
-            String token = db.select_user_by_credentials(ret[1], ret[2]);
+            String token = db.select_user_by_credentials(message.getArg()[0], message.getArg()[1]);
 
-            String msgSend = "CONNECT " + token;
+            Message connectMessage = new Message(Message.Type.TOKEN, new String[]{token});
 
-            OutputStream outputStream = sslsocket.getOutputStream();
-            outputStream.write(msgSend.getBytes());
+            ObjectOutputStream outputStream = new ObjectOutputStream(sslsocket.getOutputStream());
+            outputStream.writeObject(connectMessage);
            // sslsocket.close();
             //sslserversocket.close();
-            return ret;
+            return message;
 
         } catch (SocketException exception) {
             if(exception.toString().equals("java.net.SocketException: Connection reset")){
@@ -102,43 +99,18 @@ public class Server implements Runnable{
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                    return new String[1];
+                    return null;
                 }
             }
             exception.printStackTrace();
-            return new String[1];
-        }
-        catch (IOException e) {
+            return null;
+        } catch (IOException e) {
             e.printStackTrace();
-            return new String[1];
+            return null;
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
+        return null;
     }
 
-    private String[] parseMessage(byte[] msg) {
-        StringBuilder sb = new StringBuilder();
-        String[] ret = new String[3];
-        int contador = 0;
-        StringBuilder temp = new StringBuilder("");
-
-        for(int i = 0; i < msg.length; i++) {
-            sb.append((char)msg[i]);
-        }
-
-        for (int i = 0; i < msg.length - 1; i++) {
-            if (sb.substring(i, i + 1).equals(" ")) {
-                i++;
-                ret[contador] = temp.toString();
-                temp = new StringBuilder("");
-                contador++;
-            }
-            if (msg.length - 2 == i) {
-                temp.append(sb.substring(i, i+1));
-                ret[contador] = temp.toString();
-                contador++;
-                break;
-            }
-            else temp.append(sb.substring(i, i + 1));
-        }
-        return ret;
-    }
 }
