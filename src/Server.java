@@ -1,14 +1,12 @@
 import database.Database;
-import server.ServerClient;
+import server.ServerClientHandler;
 import streaming.Room;
-import streaming.messages.Message;
 import server.Singleton;
 
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 import java.io.*;
-import java.net.SocketException;
 import java.util.Hashtable;
 
 public class Server implements Runnable{
@@ -44,7 +42,7 @@ public class Server implements Runnable{
         while(true){
             try {
                 final SSLSocket sslSocket = (SSLSocket) sslserversocket.accept();
-                ServerClient serverClient = new ServerClient(sslSocket);
+                ServerClientHandler serverClient = new ServerClientHandler(sslSocket);
                 new Thread(serverClient).start();
             } catch (IOException e) {
                 e.printStackTrace();
