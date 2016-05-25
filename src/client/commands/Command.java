@@ -1,5 +1,7 @@
 package client.commands;
 
+import org.apache.commons.lang3.math.NumberUtils;
+
 /**
  * Created by duarte on 24-05-2016.
  */
@@ -31,34 +33,38 @@ public class Command {
     }
 
     private boolean parseArgs(Type type) throws CommandException {
-        //// TODO: 25/05/2016  verificação semantica nos argumentos Ex: A porta nao pode ser "ABC" tem de ser [0-9]+
         switch (type) {
             case SKIP:
-                return validate_args_length(1);
+                return validateArgsLength(1);
 
             case REQUEST:
-                return validate_args_length(2);
+                return validateArgsLength(2);
 
             case LOGOUT:
-                return validate_args_length(1);
+                return validateArgsLength(1);
 
             case CONNECT_ROOM:
-                return validate_args_length(2);
-
+                if(!validateArgsLength(2))
+                    return false;
+                if (!NumberUtils.isNumber(getArgs()[1]))
+                    throw new CommandException("Argument number 1, port, must be an integer");
+                else{
+                    return true;
+                }
             case DISCONNECT_ROOM:
-                return validate_args_length(1);
+                return validateArgsLength(1);
 
             case CREATE_ROOM:
-                return validate_args_length(1);
+                return validateArgsLength(1);
 
             default:
                 throw new CommandException("Invalid command type");
         }
     }
 
-    public boolean validate_args_length(int no_args_expected) throws CommandException {
-        if (args.length != no_args_expected) {
-            throw new CommandException("Number of arguments expected: " + no_args_expected + ". Given: " + (args.length - 1));
+    public boolean validateArgsLength(int numArgsExpected) throws CommandException {
+        if (args.length != numArgsExpected) {
+            throw new CommandException("Number of arguments expected: " + numArgsExpected + ". Given: " + (args.length - 1));
         }
         return true;
     }
