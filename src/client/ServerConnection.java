@@ -98,6 +98,18 @@ public class ServerConnection {
 
     private void sendConnectServerMessage(Credential credentials) throws IOException {
 
+    public Message receiveMessage(){
+        try {
+            return (Message) this.inputStream.readObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void sendConnectMessage(Credential credentials) throws IOException {
         Message connectMessage = new Message(Message.Type.CONNECT,new String[]{credentials.getUsername(),credentials.getPassword()});
         outputstream.writeObject(connectMessage);
     }

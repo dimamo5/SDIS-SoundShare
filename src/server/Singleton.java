@@ -10,6 +10,7 @@ public class Singleton {
     private static Singleton ourInstance = new Singleton();
     private SCComms soundCloudComms = new SCComms();
     private Database database= new Database();
+    private Server server = new Server();
 
     public static Singleton getInstance() {
         return ourInstance;
@@ -29,6 +30,14 @@ public class Singleton {
 
     public void setDatabase(Database database) {
         this.database = database;
+    }
+
+    public Server getServer() {
+        return server;
+    }
+
+    public void setServer(Server server) {
+        this.server = server;
     }
 
     private Singleton() {

@@ -1,7 +1,7 @@
+package server;
+
 import database.Database;
-import server.ServerClientHandler;
 import streaming.Room;
-import server.Singleton;
 
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
@@ -32,9 +32,12 @@ public class Server implements Runnable{
         SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
         try {
             sslserversocket = (SSLServerSocket) sslserversocketfactory.createServerSocket(this.ssl_port);
+            Singleton.getInstance().setServer(this);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
     }
 
     @Override
@@ -51,14 +54,15 @@ public class Server implements Runnable{
         }
     }
 
-    public void newRoom(){
-        newRoom(0);
+    public int newRoom(){
+        return newRoom(0);
     }
 
-    public void newRoom(int port){
+    public int newRoom(int port){
         Room r = new Room(port);
         new Thread(r).start();
         this.rooms.put(r.getPort(),r);
+        return r.getPort();
     }
 
     public void removeRoom(int port){

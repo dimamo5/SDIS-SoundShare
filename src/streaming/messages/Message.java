@@ -21,6 +21,7 @@ public class Message implements Serializable {
         TRUE,
         FALSE,
         GET_ROOM_LIST,
+        NEW_ROOM,
         ONLY_TOKEN //é usado
     }
 
