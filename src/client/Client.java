@@ -16,7 +16,7 @@ public class Client{
 
     private static Client ourInstance = new Client();
 
-    private ServerConnection sv_connection;
+    private ServerConnection serverConnection;
     private RoomConnection roomConnection;
     private CLInterface clInterface = new CLInterface();
     private Token token;
@@ -41,11 +41,11 @@ public class Client{
 
     private void start(String sv_address, int sv_port){
 
-        this.sv_connection = new ServerConnection(sv_address,sv_port);
+        this.serverConnection = new ServerConnection(sv_address,sv_port);
 
         login();
 
-        String list = this.sv_connection.getRoom_list();
+        String list = this.serverConnection.getRoom_list();
 
         if(list != null)
             System.out.println("Room list:\n"+ list+"\n");
@@ -55,7 +55,7 @@ public class Client{
 
 
         //recebe input (porta) do user
-        /*int room_port = this.clInterface.choosePortFromList(this.sv_connection.getRoom_list());
+        /*int room_port = this.clInterface.choosePortFromList(this.serverConnection.getRoom_list());
         InetAddress address = null;
         try {
              address = InetAddress.getByName(sv_address);
@@ -72,14 +72,14 @@ public class Client{
         Credential credentials_CLI = getClInterface().receiveInputCredentials();
 
         //loop while not successfully connected
-        while(!getSv_connection().connectToServer(credentials_CLI)){
+        while(!getServerConnection().connectToServer(credentials_CLI)){
             Client.getInstance().getClInterface().println("Invalid Login!");
             credentials_CLI = Client.getInstance().getClInterface().receiveInputCredentials();
         }
     }
 
     private void logout(){
-        getSv_connection().logout();
+        getServerConnection().logout();
         setToken(null);
     }
 
@@ -100,8 +100,8 @@ public class Client{
                     logout();
                     break;
                 case CREATE_ROOM:
-                    getSv_connection().sendMessage(new Message(Message.Type.NEW_ROOM,getToken()));
-                    Message message = this.getSv_connection().receiveMessage();
+                    getServerConnection().sendMessage(new Message(Message.Type.NEW_ROOM,getToken()));
+                    Message message = this.getServerConnection().receiveMessage();
                     if(message.getType().equals(Message.Type.NEW_ROOM)){
                         getClInterface().println("New room created in port: "+message.getArgs()[0]);
                     }
@@ -109,7 +109,7 @@ public class Client{
                 case CONNECT_ROOM:
                     if (this.roomConnection == null)
                         try {
-                            this.roomConnection = new RoomConnection(InetAddress.getByName(this.sv_connection.getServerAddress()), Integer.parseInt(command.getArgs()[0]));
+                            this.roomConnection = new RoomConnection(InetAddress.getByName(this.serverConnection.getServerAddress()), Integer.parseInt(command.getArgs()[0]));
                         } catch (UnknownHostException e) {
                             e.printStackTrace();
                         }
@@ -121,6 +121,11 @@ public class Client{
                         this.roomConnection = null;
                     }
                     else this.clInterface.println("Trying to disconnect from a room when you are already disconnected");
+                    break;
+                case ROOM_LIST:
+                    getServerConnection().sendMessage(new Message(Message.Type.ROOM_LIST,token));
+                    Message roomList = getServerConnection().receiveMessage();
+                    getClInterface().println(roomList.toString());
                     break;
                 default:
                     throw new CommandException("Error executing the command");
@@ -146,12 +151,12 @@ public class Client{
         this.clInterface = clInterface;
     }
 
-    public ServerConnection getSv_connection() {
-        return sv_connection;
+    public ServerConnection getServerConnection() {
+        return serverConnection;
     }
 
-    public void setSv_connection(ServerConnection sv_connection) {
-        this.sv_connection = sv_connection;
+    public void setServerConnection(ServerConnection serverConnection) {
+        this.serverConnection = serverConnection;
     }
 
     public Token getToken() {

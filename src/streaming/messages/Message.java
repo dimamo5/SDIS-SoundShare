@@ -18,10 +18,9 @@ public class Message implements Serializable {
         TOKEN,
         VOTE_KICK,
         MUSIC,
-        LIST_ROOM,
         TRUE,
         FALSE,
-        GET_ROOM_LIST,
+        ROOM_LIST,
         NEW_ROOM,
         ONLY_TOKEN //é usado
     }

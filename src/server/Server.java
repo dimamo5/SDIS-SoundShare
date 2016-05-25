@@ -65,6 +65,14 @@ public class Server implements Runnable{
         return r.getPort();
     }
 
+    public Hashtable<Integer, Room> getRooms() {
+        return rooms;
+    }
+
+    public void setRooms(Hashtable<Integer, Room> rooms) {
+        this.rooms = rooms;
+    }
+
     public void removeRoom(int port){
         this.rooms.remove(port);
     }

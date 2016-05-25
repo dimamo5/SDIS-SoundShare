@@ -1,5 +1,6 @@
 package streaming.messages;
 
+import auth.Token;
 import streaming.Room;
 
 import java.util.*;
@@ -10,9 +11,8 @@ import java.util.*;
 public class ListRoomMessage extends Message {
 
     public ListRoomMessage(Hashtable<Integer, Room> rooms) {
-        super();
-        this.arg = new String[rooms.size() * 2];
-        this.type=Type.LIST_ROOM;
+        super(Type.ROOM_LIST);
+        this.args = new String[rooms.size() * 2];
         int i = 0;
 
         Iterator it = rooms.entrySet().iterator();
@@ -21,8 +21,8 @@ public class ListRoomMessage extends Message {
             System.out.println(pair.getKey() + " = " + pair.getValue());
             Room r = (Room) pair.getValue();
 
-            this.arg[i] = String.valueOf(r.getPort());
-            this.arg[i + 1] = r.getPlaylist().getCurrentTrack().getInfo().getTitle();
+            this.args[i] = String.valueOf(r.getPort());
+            this.args[i + 1] = r.getPlaylist().getCurrentTrack().getInfo().getTitle();
             i = i + 2;
         }
     }
@@ -32,10 +32,10 @@ public class ListRoomMessage extends Message {
         StringBuilder sb = new StringBuilder();
         sb.append(type.toString());
         sb.append(" Rooms available: ");
-        for (int i = 0; i < arg.length; i = i + 2)  {
-            sb.append(arg[i]);
+        for (int i = 0; i < args.length; i = i + 2)  {
+            sb.append(args[i]);
             sb.append(" ");
-            sb.append(arg[i + 1]);
+            sb.append(args[i + 1]);
             sb.append(" ");
         }
         return sb.toString();

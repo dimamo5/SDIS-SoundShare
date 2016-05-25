@@ -12,7 +12,8 @@ public class Command {
         CREATE_ROOM,
         SKIP,
         REQUEST,
-        LOGOUT
+        LOGOUT,
+        ROOM_LIST
     }
 
     protected Type type;
@@ -36,13 +37,10 @@ public class Command {
         switch (type) {
             case SKIP:
                 return validateArgsLength(1);
-
             case REQUEST:
                 return validateArgsLength(2);
-
             case LOGOUT:
                 return validateArgsLength(1);
-
             case CONNECT_ROOM:
                 if(!validateArgsLength(2))
                     return false;
@@ -53,10 +51,10 @@ public class Command {
                 }
             case DISCONNECT_ROOM:
                 return validateArgsLength(1);
-
             case CREATE_ROOM:
                 return validateArgsLength(1);
-
+            case ROOM_LIST:
+                return validateArgsLength(1);
             default:
                 throw new CommandException("Invalid command type");
         }

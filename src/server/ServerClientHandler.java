@@ -1,6 +1,8 @@
 package server;
 
 import auth.Token;
+import streaming.Room;
+import streaming.messages.ListRoomMessage;
 import streaming.messages.Message;
 
 import javax.net.ssl.SSLSocket;
@@ -8,6 +10,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.SocketException;
+import java.util.Hashtable;
 
 /**
  * Created by duarte on 25-05-2016.
@@ -58,8 +61,10 @@ public class ServerClientHandler implements Runnable{
             case DISCONNECT:
                 loggedIn = false;
                 break;
-            case GET_ROOM_LIST:
-
+            case ROOM_LIST:
+                Hashtable<Integer, Room> roomList =  Singleton.getInstance().getServer().getRooms();
+                Message roomListMessage = new ListRoomMessage(roomList);
+                sendMessage(roomListMessage);
                 break;
             case NEW_ROOM:
                 int newRoom = Singleton.getInstance().getServer().newRoom();
