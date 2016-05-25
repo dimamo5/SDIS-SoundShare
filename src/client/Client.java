@@ -2,6 +2,8 @@ package client;
 
 import auth.Credential;
 import auth.Token;
+import client.commands.Command;
+import client.commands.CommandException;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -61,6 +63,24 @@ public class Client{
         while(!getSv_connection().connectToServer(credentials)){
             Client.getInstance().getClInterface().println("Invalid Login!");
             credentials = Client.getInstance().getClInterface().receiveInputCredentials();
+        }
+    }
+
+    public void executeCommand(Command command){
+        try {
+            switch (command.getType()){
+                case SKIP:
+                    this.roomConnection.skip();
+                    break;
+                case REQUEST:
+                    //this.roomConnection.requestSong()
+                    break;
+                default:
+                    throw new CommandException("Error executing the command");
+
+            }
+        } catch (CommandException e) {
+            e.printStackTrace();
         }
     }
 

@@ -41,6 +41,7 @@ public class CLInterface implements Runnable {
 
     public void handleCommands(String input) throws CommandException {
         Command command = new Command(input);
+        Client.getInstance().executeCommand(command);
     }
 
     @Override
