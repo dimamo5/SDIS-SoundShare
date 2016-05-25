@@ -51,7 +51,7 @@ public class Client{
             e.printStackTrace();
         }
 
-        this.roomConnection = new RoomConnection(address,room_port,token);
+        this.roomConnection = new RoomConnection(address,room_port);
 
         new Thread(this.clInterface).start();
     }
