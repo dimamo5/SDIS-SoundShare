@@ -4,6 +4,7 @@ import auth.Credential;
 import auth.Token;
 import client.commands.Command;
 import client.commands.CommandException;
+import streaming.messages.Message;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -85,6 +86,12 @@ public class Client{
                 case LOGOUT:
                     logout();
                     break;
+                case NEW_ROOM:
+                    getSv_connection().sendMessage(new Message(Message.Type.NEW_ROOM,getToken()));
+                    Message message = this.getSv_connection().receiveMessage();
+                    if(message.getType().equals(Message.Type.NEW_ROOM)){
+                        getClInterface().println("New room created in port: "+message.getArgs()[0]);
+                    }
                 default:
                     throw new CommandException("Error executing the command");
 

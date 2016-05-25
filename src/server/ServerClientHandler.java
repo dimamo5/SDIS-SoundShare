@@ -61,6 +61,10 @@ public class ServerClientHandler implements Runnable{
             case GET_ROOM_LIST:
 
                 break;
+            case NEW_ROOM:
+                int newRoom = Singleton.getInstance().getServer().newRoom();
+                sendMessage(new Message(Message.Type.NEW_ROOM,newRoom+""));
+                break;
             default:
                 break;
         }

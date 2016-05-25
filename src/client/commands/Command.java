@@ -9,7 +9,8 @@ public class Command {
     public enum Type{
         SKIP,
         REQUEST,
-        LOGOUT
+        LOGOUT,
+        NEW_ROOM
     }
 
     protected Type type;
@@ -41,6 +42,11 @@ public class Command {
                 }
                 return true;
             case LOGOUT:
+                if(args.length !=1){
+                    throw new CommandException("Number of arguments expected: 0. Given: "+(args.length-1));
+                }
+                return true;
+            case NEW_ROOM:
                 if(args.length !=1){
                     throw new CommandException("Number of arguments expected: 0. Given: "+(args.length-1));
                 }
