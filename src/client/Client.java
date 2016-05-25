@@ -68,6 +68,11 @@ public class Client{
         }
     }
 
+    private void logout(){
+        getSv_connection().logout();
+        setToken(null);
+    }
+
     public void executeCommand(Command command){
         try {
             switch (command.getType()){
@@ -76,6 +81,9 @@ public class Client{
                     break;
                 case REQUEST:
                     //this.roomConnection.requestSong()
+                    break;
+                case LOGOUT:
+                    logout();
                     break;
                 default:
                     throw new CommandException("Error executing the command");

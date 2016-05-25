@@ -84,9 +84,19 @@ public class ServerConnection {
         return false;
     }
 
+    public void logout(){
+        sendMessage(new Message(Message.Type.DISCONNECT,Client.getInstance().getToken()));
+    }
+
+    public void sendMessage(Message message){
+        try {
+            this.outputstream.writeObject(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void sendConnectMessage(Credential credentials) throws IOException {
-
-
         Message connectMessage = new Message(Message.Type.CONNECT,new String[]{credentials.getUsername(),credentials.getPassword()});
         outputstream.writeObject(connectMessage);
     }
