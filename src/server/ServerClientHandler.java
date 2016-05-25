@@ -11,13 +11,13 @@ import java.net.SocketException;
 /**
  * Created by duarte on 25-05-2016.
  */
-public class ServerClient implements Runnable{
+public class ServerClientHandler implements Runnable{
     protected SSLSocket socket;
     protected ObjectInputStream in;
     protected ObjectOutputStream out;
     protected boolean loggedIn = false;
 
-    public ServerClient(SSLSocket socket) {
+    public ServerClientHandler(SSLSocket socket) {
         this.socket = socket;
     }
 

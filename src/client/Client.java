@@ -39,7 +39,9 @@ public class Client{
     }
 
     private void start(String sv_address, int sv_port){
+
         this.sv_connection = new ServerConnection(sv_address,sv_port);
+
         login();
 
         //recebe input (porta) do user
