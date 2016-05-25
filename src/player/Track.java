@@ -3,9 +3,7 @@ package player;
 import streaming.Room;
 import streaming.ClientHandler;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 
 /**
@@ -18,6 +16,7 @@ public abstract class Track {
     private String clientRequested;
     private boolean sent=false;
     private InputStream stream;
+    private File f;
 
     public Track(String clientRequested){
         this.clientRequested = clientRequested;
@@ -49,13 +48,27 @@ public abstract class Track {
 
     abstract public void sendTrack(double sec, Room room);
 
-    protected void sendTrackFromStream(Room room, BufferedInputStream stream, double frameToElapseRounded) {
+    protected void sendTrackFromStream(Room room, BufferedInputStream stream, double frameToElapseRounded, boolean isSoundCloud) {
         ArrayList<ClientHandler> clients = room.getClients();
         byte[] buf = new byte[Room.FRAMESIZE];
+
+        OutputStream outputStream = null;
+        if (isSoundCloud) {
+            f = new File(System.getProperty("user.dir") + "/resources/soundcloud/" + info.getTrackName() + ".mp3");
+            try {
+                outputStream = new FileOutputStream(f);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
         int i = 0;
         try {
             while(stream.read(buf,0,buf.length) != -1){
                 i++;
+                if (isSoundCloud) {
+                    outputStream.write(buf, 0, buf.length);
+                }
                 if (i >= frameToElapseRounded)
                     try {
                         room.clientsSemaphore.acquire();
@@ -68,6 +81,8 @@ public abstract class Track {
                     }
                 buf = new byte[Room.FRAMESIZE];
             }
+            if (isSoundCloud)
+                outputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
