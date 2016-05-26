@@ -6,7 +6,7 @@ import auth.Token;
  * Created by duarte on 20-05-2016.
  */
 public class RequestMessage extends Message {
-    public enum RequestType{
+    public enum RequestType {
         SOUNDCLOUD,
         STREAM_SONG
     }

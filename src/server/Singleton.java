@@ -9,7 +9,7 @@ import soundcloud.SCComms;
 public class Singleton {
     private static Singleton ourInstance = new Singleton();
     private SCComms soundCloudComms = new SCComms();
-    private Database database= new Database();
+    private Database database = new Database();
     private Server server = new Server();
 
     public static Singleton getInstance() {

@@ -28,8 +28,8 @@ public class RoomConnection implements Runnable {
     private OutputStream streamOut;
     private Socket communicationSocket;
     private Socket streamingSocket;
-    private boolean playing=false;
-    public boolean connected=false;
+    private boolean playing = false;
+    public boolean connected = false;
     public AdvancedPlayer player;
 
     private InetAddress serverAddress;
@@ -37,7 +37,8 @@ public class RoomConnection implements Runnable {
 
     public boolean dcFromRoom() {
         try {
-            player.close();
+            if (player != null)
+                player.close();
             communicationSocket.close();
             streamingSocket.close();
             return true;
@@ -47,19 +48,19 @@ public class RoomConnection implements Runnable {
         }
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         String serverAddress = args[0];
         int roomPort = new Integer(args[1]);
 
         try {
-            RoomConnection client = new RoomConnection(InetAddress.getByName(serverAddress),roomPort);
+            RoomConnection client = new RoomConnection(InetAddress.getByName(serverAddress), roomPort);
             new Thread(client).start();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
     }
 
-    public RoomConnection(InetAddress serverAddress, int roomPort){
+    public RoomConnection(InetAddress serverAddress, int roomPort) {
         try {
             this.serverAddress = serverAddress;
             this.roomPort = roomPort;
@@ -73,24 +74,22 @@ public class RoomConnection implements Runnable {
 
             int streamingPort = 0;
             //receive streaming port
-            while(streamingPort == 0){
+            while (streamingPort == 0) {
                 Message message = (Message) in.readObject();
-                if(message.getType().equals(Message.Type.STREAM)){
+                if (message.getType().equals(Message.Type.STREAM)) {
                     streamingPort = new Integer(message.getArgs()[0]);
-                    System.out.println("Streaming Port: "+streamingPort);
-                    this.connected=true;
+                    System.out.println("Streaming Port: " + streamingPort);
+                    this.connected = true;
                 }
             }
-            this.streamingSocket = new Socket(serverAddress,streamingPort);
+            this.streamingSocket = new Socket(serverAddress, streamingPort);
             //requestSong("mama.wma", false);
             streamIn = streamingSocket.getInputStream();
             streamOut = streamingSocket.getOutputStream();
             this.play();
-        }
-        catch (ConnectException c) {
+        } catch (ConnectException c) {
             connected = false;
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -102,7 +101,7 @@ public class RoomConnection implements Runnable {
         out.writeObject(message);
     }
 
-    private Message getMessage(){
+    private Message getMessage() {
         try {
             return (Message) in.readObject();
         } catch (IOException e) {
@@ -113,19 +112,18 @@ public class RoomConnection implements Runnable {
         return null;
     }
 
-    public boolean requestSong(String url, boolean isSoundCloud){
+    public boolean requestSong(String url, boolean isSoundCloud) {
         DateFormat format = new SimpleDateFormat("hh:mm:ss");
         String dateMsg = format.format(new Date());
         if (isSoundCloud) {
             try {
-                sendMessage(new RequestMessage(RequestMessage.RequestType.SOUNDCLOUD, Client.getInstance().getToken(), new String[]{url,dateMsg}));
+                sendMessage(new RequestMessage(RequestMessage.RequestType.SOUNDCLOUD, Client.getInstance().getToken(), new String[]{url, dateMsg}));
                 return true;
             } catch (IOException e) {
                 return false;
             }
-        }
-        else {
-            Message m = new RequestMessage(RequestMessage.RequestType.STREAM_SONG,Client.getInstance().getToken(), new String[]{url, dateMsg});
+        } else {
+            Message m = new RequestMessage(RequestMessage.RequestType.STREAM_SONG, Client.getInstance().getToken(), new String[]{url, dateMsg});
             System.out.println(m.toString());
             try {
                 sendMessage(m);
@@ -180,7 +178,7 @@ public class RoomConnection implements Runnable {
         return true;
     }
 
-    public void skip(){
+    public void skip() {
         try {
             sendMessage(new Message(Message.Type.VOTE_SKIP, Client.getInstance().getToken(), new String[]{}));
         } catch (IOException e) {
@@ -188,13 +186,13 @@ public class RoomConnection implements Runnable {
         }
     }
 
-    public void play(){
-        RoomConnection c= this;
+    public void play() {
+        RoomConnection c = this;
         new Thread() {
             @Override
             public void run() {
                 try {
-                    c.player=new AdvancedPlayer(c.streamIn);
+                    c.player = new AdvancedPlayer(c.streamIn);
                     c.player.play();
                 } catch (JavaLayerException e) {
                     e.printStackTrace();
@@ -205,9 +203,9 @@ public class RoomConnection implements Runnable {
 
     @Override
     public void run() {
-        while(connected){
-            if(communicationSocket.isClosed()){
-                connected=false;
+        while (connected) {
+            if (communicationSocket.isClosed()) {
+                connected = false;
                 break;
             }
 
@@ -231,7 +229,7 @@ public class RoomConnection implements Runnable {
     }
 
     private void handleMessage(Message message) {
-        switch(message.getType()){
+        switch (message.getType()) {
             case MUSIC:
                 System.out.println(message.toString());
                 break;

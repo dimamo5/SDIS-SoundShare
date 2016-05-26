@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Created by duarte on 25-05-2016.
  */
-public class Token implements Serializable{
+public class Token implements Serializable {
     protected String token;
 
     public Token(String token) {

@@ -4,7 +4,7 @@ package client.commands;
  * Created by duarte on 24-05-2016.
  */
 public class CommandException extends Exception {
-    public CommandException(String message){
+    public CommandException(String message) {
         super(message);
     }
 

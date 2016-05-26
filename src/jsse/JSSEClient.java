@@ -12,8 +12,8 @@ public class JSSEClient {
     public static void main(String[] args) {
 
         try {
-            System.setProperty("javax.net.ssl.trustStore","keystore");
-            System.setProperty("javax.net.ssl.trustStorePassword","123456");
+            System.setProperty("javax.net.ssl.trustStore", "keystore");
+            System.setProperty("javax.net.ssl.trustStorePassword", "123456");
 
             SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
             SSLSocket sslsocket = (SSLSocket) sslsocketfactory.createSocket("localhost", 9999);

@@ -17,7 +17,7 @@ import static streaming.Room.FRAMESIZE;
 /**
  * Created by diogo on 12/05/2016.
  */
-public class ClientHandler implements Runnable{
+public class ClientHandler implements Runnable {
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private Socket communicationSocket;
@@ -25,7 +25,7 @@ public class ClientHandler implements Runnable{
     private InputStream streamIn;
     private boolean connected = true;
     private Room room;
-    private int userId = new Random().nextInt(2048)+1;
+    private int userId = new Random().nextInt(2048) + 1;
     private Database db;
     private Token token;
     private String username;
@@ -42,7 +42,7 @@ public class ClientHandler implements Runnable{
         return username;
     }
 
-    public ClientHandler(Socket socket, Room room){
+    public ClientHandler(Socket socket, Room room) {
         this.db = Singleton.getInstance().getDatabase();
         this.room = room;
         this.communicationSocket = socket;
@@ -55,10 +55,10 @@ public class ClientHandler implements Runnable{
             //message de recepçao de token
             boolean loggedIn = false;
 
-            while(!loggedIn){
+            while (!loggedIn) {
                 Message m = (Message) in.readObject();
 
-                if(m.getType() == Message.Type.ONLY_TOKEN) {
+                if (m.getType() == Message.Type.ONLY_TOKEN) {
                     loggedIn = true;
                     this.token = m.getToken();
 
@@ -69,14 +69,14 @@ public class ClientHandler implements Runnable{
             }
 
             //Send message with the streaming port for the client to connect to in order to receive streaming data
-            out.writeObject(new Message(Message.Type.STREAM, null, new String[]{roomStreamingSocket.getLocalPort()+""} ));
+            out.writeObject(new Message(Message.Type.STREAM, null, new String[]{roomStreamingSocket.getLocalPort() + ""}));
             this.streamingSocket = roomStreamingSocket.accept();
-         } catch (IOException | ClassNotFoundException e) {
-             e.printStackTrace();
-         }
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void send(byte[] bytes){
+    public void send(byte[] bytes) {
         try {
             streamingSocket.getOutputStream().write(bytes, 0, FRAMESIZE);
         } catch (IOException e) {
@@ -84,7 +84,7 @@ public class ClientHandler implements Runnable{
         }
     }
 
-    public void sendMessage(Message message){
+    public void sendMessage(Message message) {
         try {
             out.writeObject(message);
         } catch (IOException e) {
@@ -100,9 +100,9 @@ public class ClientHandler implements Runnable{
         this.connected = connected;
     }
 
-    public void handleMessage(Message message){
-        try{
-            switch (message.getType()){
+    public void handleMessage(Message message) {
+        try {
+            switch (message.getType()) {
                 case VOTE_SKIP:
                     if (db.verifyToken(message.getToken().getToken()))
                         room.voteSkip(getUserId());
@@ -116,7 +116,7 @@ public class ClientHandler implements Runnable{
                             case STREAM_SONG:
                                 System.out.println(message);
                                 readSongFromUser(message.getArgs()[0]);
-                                room.getPlaylist().addRequestedUploadedTrack(message.getArgs()[0],token.getToken());
+                                room.getPlaylist().addRequestedUploadedTrack(message.getArgs()[0], token.getToken());
                                 sendMessage(new Message(Message.Type.TRUE, null, message.getArgs()));
                                 break;
                             default:
@@ -127,7 +127,7 @@ public class ClientHandler implements Runnable{
                 default:
                     throw new MessageException("Message Type not valid");
             }
-        }catch (MessageException e) {
+        } catch (MessageException e) {
             e.printStackTrace();
         }
 
@@ -147,7 +147,7 @@ public class ClientHandler implements Runnable{
             chunks = dis.readShort();
 
             for (int i = 0; i < chunks; i++) {
-                dis.read(bytes, 0,Room.FRAMESIZE);
+                dis.read(bytes, 0, Room.FRAMESIZE);
                 outputStream.write(bytes);
             }
 
@@ -169,8 +169,8 @@ public class ClientHandler implements Runnable{
 
     @Override
     public void run() {
-        while(connected){
-            if(communicationSocket.isClosed()){
+        while (connected) {
+            if (communicationSocket.isClosed()) {
                 setConnected(false);
                 break;
             }

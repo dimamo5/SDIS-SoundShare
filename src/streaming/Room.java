@@ -20,7 +20,7 @@ import java.util.concurrent.Semaphore;
 /**
  * Created by diogo on 12/05/2016.
  */
-public class Room implements Runnable{
+public class Room implements Runnable {
     public static final int DEFAULTPORT = 5000;
     public static final int FRAMESIZE = 2048;
     private static final int MAX_NUM_SKIP_VOTES = 5;
@@ -28,7 +28,7 @@ public class Room implements Runnable{
     private ServerSocket socket;
     private int port = 0;
     private ArrayList<ClientHandler> clients = new ArrayList<>();
-    private Map<String,String> clientList = new HashMap<>();
+    private Map<String, String> clientList = new HashMap<>();
     public Semaphore clientsSemaphore = new Semaphore(1);
     private Timer timer = new Timer();
     private double musicSec = 0;
@@ -47,7 +47,7 @@ public class Room implements Runnable{
     }
 
     public void fillPlayList() {
-        new Converter("resources/batmobile.wav","resources/batmobile.mp3").encodeMP3();
+        new Converter("resources/batmobile.wav", "resources/batmobile.mp3").encodeMP3();
         //new Converter("resources/little_mermaid_choices.wav","resources/mermaid.mp3").encodeMP3();
 
         //playlist.addRequestedUploadedTrack("batmobile.mp3", "Local");
@@ -56,7 +56,7 @@ public class Room implements Runnable{
         //playlist.addRequestedUploadedTrack("renegades.mp3", "Local");
 
         try {
-            SCTrack scTrack = trackGetter.getTrackByName("numb","client01");
+            SCTrack scTrack = trackGetter.getTrackByName("numb", "client01");
             playlist.addRequestedTrack(scTrack);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -93,9 +93,9 @@ public class Room implements Runnable{
         }
     }
 
-    public void voteSkip(int user){
+    public void voteSkip(int user) {
         skipList.add(user);
-        if (skipList.size() >= MAX_NUM_SKIP_VOTES){
+        if (skipList.size() >= MAX_NUM_SKIP_VOTES) {
             try {
                 skipTrack();
             } catch (InterruptedException e) {
@@ -112,50 +112,51 @@ public class Room implements Runnable{
         sendNewTrack(playlist.getCurrentTrack());
     }
 
-    public void sendSkipMessage(){
+    public void sendSkipMessage() {
         Message message = new Message(Message.Type.SKIP);
-        for(ClientHandler client : clients){
+        for (ClientHandler client : clients) {
             client.sendMessage(message);
         }
     }
 
     public void sendNewTrack(Track track) {
+        System.out.println("new");
+        // ENVIAR TODA A GENTE
         final Room room = this;
         for (ClientHandler clientHandler : clients)
             new Thread() {
                 @Override
                 public void run() {
-                    Track t = playlist.getNextTrack();
-                    if (t != null)
-                        playlist.getNextTrack().sendTrack(0,room);
+                    if (track != null) {
+                        track.sendTrack(0, room, clientHandler);
+                    }
                 }
             }.start();
     }
 
     public void sendActualTrack(ClientHandler u) {
+        System.out.println("actual");
+        // ENVIAR SO UM HANDLER
         final Room room = this;
         new Thread() {
             @Override
             public void run() {
-                System.out.println("send actual track");
-                playlist.getCurrentTrack().sendTrack(musicSec,room);
+                playlist.getCurrentTrack().sendTrack(musicSec, room, u);
             }
         }.start();
     }
 
-    public void sendNewTrackMessageToAllClients(Track track, double sec) {
-        for (ClientHandler clientHandler :clients){
-            sendMusicMessage(clientHandler, track,sec);
-        }
+    public void sendNewTrackMessageToAllClients(Track track, double sec, ClientHandler c) {
+            sendMusicMessage(c, track, sec);
     }
 
 
-     public void sendRoomInfoMessage(ClientHandler user, String clients, String playlist){
-        InfoMessage message = new InfoMessage(clients,playlist);
+    public void sendRoomInfoMessage(ClientHandler user, String clients, String playlist) {
+        InfoMessage message = new InfoMessage(clients, playlist);
         user.sendMessage(message);
     }
 
-    public void sendMusicMessage(ClientHandler user, Track track, double sec){
+    public void sendMusicMessage(ClientHandler user, Track track, double sec) {
         MusicMessage message = new MusicMessage(track, sec);
         user.sendMessage(message);
     }
@@ -168,7 +169,7 @@ public class Room implements Runnable{
         this.clients = clients;
     }
 
-    public void startTimer(){
+    public void startTimer() {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -176,27 +177,25 @@ public class Room implements Runnable{
                 Track currentTrack = playlist.getCurrentTrack();
 
                 if (currentTrack == null) {
-                    System.out.println("musica nao corre");
                     return;
                 }
 
-                System.out.println("atual: " + playlist.getCurrentPosition());
                 Track t1 = playlist.getNextTrack();
                 // ELEE CORRERA RINAM MUSICA 15 secs TODO
                 if (musicSec == currentTrack.getInfo().getFullTime()) {
-                    if(currentTrack != null && currentTrack.isSent()) {
-                        if (playlist.skipTrack())
-                            sendNewTrack(playlist.getCurrentTrack());
+                    if (currentTrack != null && currentTrack.isSent()) {
+                        // DIZER A PLAYLIST QUE ESTMAMOS NA PROXIMA MUSICA
+                        playlist.skipTrack();
+                        musicSec = 0;
                     }
-                    musicSec=0;
-                } else if ((t1 != null) && ((musicSec / playlist.getCurrentTrack().getInfo().getFullTime() >= 0.9) && (t1.isSent()) )) {
+                } else if ((t1 != null) && ((musicSec / playlist.getCurrentTrack().getInfo().getFullTime() >= 0.9) && (t1.isSent()))) {
                     System.out.println("new song 0.9");
-                    Track t = playlist.getNextTrack();
-                    if(t!=null && !t.isSent()) {
-                        t.setSent(true);
+                    // ENVIAR PROXIMA TRACK
+                    if (t1 != null && !t1.isSent()) {
+                        t1.setSent(true);
                         sendNewTrack(playlist.getNextTrack());
                     }
-                } else if (!playlist.getCurrentTrack().isSent()) {
+                } else if (!playlist.getCurrentTrack().isSent()) { // INICIO DA PLAYLIST QUANDO ESTA VAZIA
                     System.out.println("new song");
                     try {
                         clientsSemaphore.acquire();
@@ -213,7 +212,7 @@ public class Room implements Runnable{
         }, 500, 500);
     }
 
-    public void removeClientFromList(ClientHandler clientHandler){
+    public void removeClientFromList(ClientHandler clientHandler) {
         clientList.remove(clientHandler.getToken());
         clients.remove(clientHandler);
     }
@@ -229,12 +228,12 @@ public class Room implements Runnable{
                 Socket connectionSocket = socket.accept();
                 connectionSocket.setSendBufferSize(64000);
                 clientsSemaphore.acquire();
-                ClientHandler c = new ClientHandler(connectionSocket,this);
+                ClientHandler c = new ClientHandler(connectionSocket, this);
                 new Thread(c).start();
 
                 clients.add(c);
-                this.clientList.put(c.getToken().getToken(),c.getUsername());
-                sendRoomInfoMessage(c,getClientListString(), getPlaylist().getPlaylistString());
+                this.clientList.put(c.getToken().getToken(), c.getUsername());
+                sendRoomInfoMessage(c, getClientListString(), getPlaylist().getPlaylistString());
 
                 Track t = this.playlist.getCurrentTrack();
                 if (t != null) {
@@ -258,7 +257,7 @@ public class Room implements Runnable{
         String clients_list;
         sb = new StringBuilder();
         int i = 0;
-        for(Map.Entry<String,String> entry : this.clientList.entrySet()) {
+        for (Map.Entry<String, String> entry : this.clientList.entrySet()) {
             i++;
             sb.append(i);
             sb.append(": ");

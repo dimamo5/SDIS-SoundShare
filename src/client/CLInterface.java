@@ -14,20 +14,20 @@ public class CLInterface implements Runnable {
 
     }
 
-    public void println(String string){
+    public void println(String string) {
         System.out.println(string);
     }
 
-    public Credential receiveInputCredentials(){
+    public Credential receiveInputCredentials() {
         Scanner reader = new Scanner(System.in);
         System.out.print("Name: ");
         String name = reader.next();
         System.out.print("Pass: ");
         String pass = reader.next();
-        return new Credential(name,pass);
+        return new Credential(name, pass);
     }
 
-    public int choosePortFromList(String list){
+    public int choosePortFromList(String list) {
         System.out.print("Select room port: ");
         Scanner reader = new Scanner(System.in);
         int port = reader.nextInt();
@@ -45,7 +45,7 @@ public class CLInterface implements Runnable {
     public void run() {
         Scanner input = new Scanner(System.in);
 
-        while(true) {
+        while (true) {
             System.out.print("Command: ");
             try {
                 handleCommands(input.nextLine());

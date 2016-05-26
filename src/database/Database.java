@@ -26,7 +26,7 @@ public class Database {
 
     private enum Query_types {INSERT, SELECT, DELETE, UPDATE}
 
-    public Database(){
+    public Database() {
         this("soundshare");
     }
 
@@ -83,7 +83,7 @@ public class Database {
         String[] values = {client_token};
         ArrayList result = (ArrayList) this.execute_sql(Query_types.SELECT.name(), sql, values);
 
-        return result.size()!=0 ? null : result.get(0).toString();
+        return result.size() != 0 ? null : result.get(0).toString();
     }
 
     /*
@@ -137,8 +137,7 @@ public class Database {
             if (arr.get(0).get(1).equals(username)) {
                 return generateToken(Integer.parseInt(arr.get(0).get(0)));
             } else return "ERROR";
-        }
-        catch (IndexOutOfBoundsException i) {
+        } catch (IndexOutOfBoundsException i) {
             return "ERROR";
         }
     }
@@ -156,8 +155,8 @@ public class Database {
     public boolean verifyToken(String token) {
         String sql = "SELECT * FROM USERS WHERE ACCESSTOKEN =?";
         String[] values = {token};
-        ArrayList result= (ArrayList) this.execute_sql(Query_types.SELECT.name(), sql, values);
-        return result.size()!=0;
+        ArrayList result = (ArrayList) this.execute_sql(Query_types.SELECT.name(), sql, values);
+        return result.size() != 0;
     }
 
     public boolean deleteToken(String token) {

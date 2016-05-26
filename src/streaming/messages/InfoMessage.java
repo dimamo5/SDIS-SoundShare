@@ -5,11 +5,11 @@ package streaming.messages;
  */
 public class InfoMessage extends Message {
 
-    public InfoMessage(String clients, String playlist){
+    public InfoMessage(String clients, String playlist) {
         super(Type.INFO_ROOM);
         this.args = new String[2];
-        this.args[0]=clients; //clients
-        this.args[1]=playlist; //playlist
+        this.args[0] = clients; //clients
+        this.args[1] = playlist; //playlist
     }
 
     @Override

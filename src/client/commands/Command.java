@@ -43,11 +43,11 @@ public class Command {
             case LOGOUT:
                 return validateArgsLength(0, args);
             case CONNECT_ROOM:
-                if(!validateArgsLength(1, args))
+                if (!validateArgsLength(1, args))
                     return false;
                 if (!NumberUtils.isNumber(args[1]))
                     throw new CommandException("Argument number 1, port, must be an integer");
-                else{
+                else {
                     return true;
                 }
             case DISCONNECT_ROOM:

@@ -14,7 +14,7 @@ import java.net.UnknownHostException;
 /**
  * Created by duarte on 21-05-2016.
  */
-public class Client{
+public class Client {
 
     private static Client ourInstance = new Client();
 
@@ -28,7 +28,8 @@ public class Client{
     }
 
 
-    private Client() {}
+    private Client() {
+    }
 
     public static void main(String[] args) {
 
@@ -36,12 +37,12 @@ public class Client{
         int sv_port = new Integer(args[1]);
 
         Client cli = Client.getInstance();
-        cli.start(address,sv_port);
+        cli.start(address, sv_port);
     }
 
-    private void start(String sv_address, int sv_port){
+    private void start(String sv_address, int sv_port) {
 
-        this.serverConnection = new ServerConnection(sv_address,sv_port);
+        this.serverConnection = new ServerConnection(sv_address, sv_port);
 
         login();
 
@@ -72,26 +73,26 @@ public class Client{
         Credential credentials_CLI = getClInterface().receiveInputCredentials();
 
         //loop while not successfully connected
-        while(!getServerConnection().connectToServer(credentials_CLI)){
+        while (!getServerConnection().connectToServer(credentials_CLI)) {
             Client.getInstance().getClInterface().println("Invalid Login!");
             credentials_CLI = Client.getInstance().getClInterface().receiveInputCredentials();
         }
     }
 
-    private void logout(){
+    private void logout() {
         getServerConnection().logout();
         setToken(null);
     }
 
 
-    void executeCommand(Command command){
+    void executeCommand(Command command) {
         try {
-            switch (command.getType()){
+            switch (command.getType()) {
                 case SKIP:
                     this.roomConnection.skip();
                     break;
                 case REQUEST:
-                    if(this.roomConnection != null)
+                    if (this.roomConnection != null)
                         this.getRoomConnection().requestSong(command.getArgs()[0], Boolean.parseBoolean(command.getArgs()[1]));
                     else
                         this.clInterface.println("You have to be connected to a room in order to request a song!");
@@ -100,10 +101,10 @@ public class Client{
                     logout();
                     break;
                 case CREATE_ROOM:
-                    getServerConnection().sendMessage(new Message(Message.Type.NEW_ROOM,getToken()));
+                    getServerConnection().sendMessage(new Message(Message.Type.NEW_ROOM, getToken()));
                     Message message = this.getServerConnection().receiveMessage();
-                    if(message.getType().equals(Message.Type.NEW_ROOM)){
-                        getClInterface().println("New room created in port: "+message.getArgs()[0]);
+                    if (message.getType().equals(Message.Type.NEW_ROOM)) {
+                        getClInterface().println("New room created in port: " + message.getArgs()[0]);
                     }
                     break;
                 case CONNECT_ROOM:
@@ -114,8 +115,7 @@ public class Client{
                                 this.clInterface.println("That port is not valid.");
                                 this.roomConnection = null;
                             }
-                        }
-                        catch (UnknownHostException e) {
+                        } catch (UnknownHostException e) {
                             e.printStackTrace();
                         }
                     else this.clInterface.println("Trying to connect to a room when you are already connected");
@@ -124,11 +124,11 @@ public class Client{
                     if (this.roomConnection != null) {
                         this.roomConnection.dcFromRoom();
                         this.roomConnection = null;
-                    }
-                    else this.clInterface.println("Trying to disconnect from a room when you are already disconnected");
+                    } else
+                        this.clInterface.println("Trying to disconnect from a room when you are already disconnected");
                     break;
                 case ROOM_LIST:
-                    getServerConnection().sendMessage(new Message(Message.Type.ROOM_LIST,token));
+                    getServerConnection().sendMessage(new Message(Message.Type.ROOM_LIST, token));
                     Message roomList = getServerConnection().receiveMessage();
                     getClInterface().println(roomList.toString());
                     break;

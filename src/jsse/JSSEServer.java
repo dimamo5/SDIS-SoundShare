@@ -15,10 +15,10 @@ public class JSSEServer {
         SSLSocket sslsocket = null;
 
         try {
-            System.setProperty("javax.net.ssl.keyStore","keystore");
-            System.setProperty("javax.net.ssl.keyStorePassword","123456");
+            System.setProperty("javax.net.ssl.keyStore", "keystore");
+            System.setProperty("javax.net.ssl.keyStorePassword", "123456");
 
-     SSLServerSocketFactory sslserversocketfactory =
+            SSLServerSocketFactory sslserversocketfactory =
                     (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
 
             sslserversocket =
@@ -42,19 +42,18 @@ public class JSSEServer {
                 System.out.flush();
             }
         } catch (SocketException exception) {
-            if(exception.toString().equals("java.net.SocketException: Connection reset")){
+            if (exception.toString().equals("java.net.SocketException: Connection reset")) {
                 System.out.println("End point(client) disconnected.");
                 try {
-                   if(sslsocket != null) {
-                       sslsocket.close(); //close this point
-                   }
+                    if (sslsocket != null) {
+                        sslsocket.close(); //close this point
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
             exception.printStackTrace();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

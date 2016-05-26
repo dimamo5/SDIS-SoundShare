@@ -15,7 +15,7 @@ public class Playlist {
     private int playlist_actual_pos = -1;
     private boolean repeat = false;
 
-    public Track getCurrentTrack(){
+    public Track getCurrentTrack() {
         if ((playlist.size() <= playlist_actual_pos) || (playlist_actual_pos == -1))
             return null;
         else return playlist.get(playlist_actual_pos);
@@ -26,15 +26,15 @@ public class Playlist {
     }
 
     public Track getNextTrack() {
-        if(playlist_actual_pos +1 >= playlist.size() && !isRepeat()){
+        if (playlist_actual_pos + 1 >= playlist.size() && !isRepeat()) {
             return null;
-        }else{
-            if(playlist_actual_pos >= playlist.size() && isRepeat()){
+        } else {
+            if (playlist_actual_pos >= playlist.size() && isRepeat()) {
                 playlist_actual_pos = -1;
             }
-            Track next_track = playlist.get(playlist_actual_pos +1);
+            Track next_track = playlist.get(playlist_actual_pos + 1);
 
-            if(playlist_actual_pos >= playlist.size() && isRepeat()) {
+            if (playlist_actual_pos >= playlist.size() && isRepeat()) {
                 playlist_actual_pos = -1;
             }
 
@@ -42,42 +42,42 @@ public class Playlist {
         }
     }
 
-    public boolean skipTrack(){
-        if(playlist_actual_pos +1 >= playlist.size() && !isRepeat()){
+    public boolean skipTrack() {
+        if (playlist_actual_pos + 1 >= playlist.size() && !isRepeat()) {
             return false;
-        }else{
-            if(playlist_actual_pos >= playlist.size() && isRepeat()){
+        } else {
+            if (playlist_actual_pos >= playlist.size() && isRepeat()) {
                 playlist_actual_pos = -1;
             }
             playlist_actual_pos++;
 
-            if(playlist_actual_pos >= playlist.size() && isRepeat()) {
+            if (playlist_actual_pos >= playlist.size() && isRepeat()) {
                 playlist_actual_pos = -1;
             }
             return true;
         }
     }
 
-    public void addRequestedTrack(Track track){
-            playlist.add(track);
-            if(playlist_actual_pos ==-1){
-                playlist_actual_pos =0;
-            }
+    public void addRequestedTrack(Track track) {
+        playlist.add(track);
+        if (playlist_actual_pos == -1) {
+            playlist_actual_pos = 0;
+        }
 
     }
 
     public void addRequestedUploadedTrack(String music, String clientNo) {
-        UploadedTrack uploadedTrack = new UploadedTrack(music,clientNo);
+        UploadedTrack uploadedTrack = new UploadedTrack(music, clientNo);
         addRequestedTrack(uploadedTrack);
 
     }
 
     public Track getPreviousTrack() {
-        if(playlist_actual_pos == 0 && !isRepeat()){
+        if (playlist_actual_pos == 0 && !isRepeat()) {
             return null;
-        }else{
+        } else {
 
-            if(playlist_actual_pos ==0 && isRepeat()){
+            if (playlist_actual_pos == 0 && isRepeat()) {
                 playlist_actual_pos = playlist.size();
             }
 
@@ -92,7 +92,7 @@ public class Playlist {
         return repeat;
     }
 
-    public boolean isEmpty(){
+    public boolean isEmpty() {
         return playlist.isEmpty();
     }
 
@@ -104,13 +104,13 @@ public class Playlist {
         return false;
     }
 
-    public List getCurrentOrderedPlaylist(){
+    public List getCurrentOrderedPlaylist() {
         int i = 0;
         ArrayList<String> tracks = new ArrayList<>();
-        for(i = 0; i < playlist.size(); i++){
-            if(playlist.get(i) instanceof SCTrack){
+        for (i = 0; i < playlist.size(); i++) {
+            if (playlist.get(i) instanceof SCTrack) {
                 tracks.add(((SCTrack) playlist.get(i)).getInfo().getTrackName());
-            }else{
+            } else {
                 tracks.add(((UploadedTrack) playlist.get(i)).getInfo().getTrackName());
             }
 
@@ -118,12 +118,12 @@ public class Playlist {
         return tracks;
     }
 
-    public String getPlaylistString(){
+    public String getPlaylistString() {
         StringBuilder sb = new StringBuilder();
         List l = getCurrentOrderedPlaylist();
 
-        for(int i=0; i < l.size(); i++) {
-            sb.append(i+1);
+        for (int i = 0; i < l.size(); i++) {
+            sb.append(i + 1);
             sb.append(": ");
             sb.append(l.get(i));
             sb.append("\n");

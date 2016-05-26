@@ -3,6 +3,7 @@ package player;
 import org.json.JSONException;
 import org.json.JSONObject;
 import soundcloud.SCComms;
+import streaming.ClientHandler;
 import streaming.Room;
 import server.Singleton;
 
@@ -12,7 +13,7 @@ import java.util.Map;
 /**
  * Created by Sonhs on 20/05/2016.
  */
-public class SCTrack extends Track{
+public class SCTrack extends Track {
 
     private JSONObject track;
     private String stream_url;
@@ -31,7 +32,7 @@ public class SCTrack extends Track{
         Map info_track = SCComms.get_info(track);
         info = new InfoMusic((String) info_track.get("title"),
                 (String) info_track.get("author"),
-                (int) info_track.get("duration"),(long) info_track.get("original_content_size"));
+                (int) info_track.get("duration"), (long) info_track.get("original_content_size"));
         System.out.println("dur: " + info_track.get("duration"));
 
         return info;
@@ -50,7 +51,7 @@ public class SCTrack extends Track{
     }
 
     @Override
-    public void sendTrack(double sec, Room room){
+    public void sendTrack(double sec, Room room, ClientHandler c) {
         BufferedInputStream stream = new BufferedInputStream(this.getStream());
 
         setSent(true);
@@ -59,8 +60,8 @@ public class SCTrack extends Track{
         double frameToElapseRounded = Math.round(frameToElapse);
         System.out.println("Enviar " + this.getTrackName() + " - " + this.getInfo().getAuthor() + " Duration: " + this.getInfo().getFullTime());
 
-        room.sendNewTrackMessageToAllClients(this, sec);
-        sendTrackFromStream(room, stream, frameToElapseRounded, true);
+        room.sendMusicMessage(c, this, sec);
+        sendTrackFromStream(room, stream, frameToElapseRounded, true, c);
     }
 
     @Override

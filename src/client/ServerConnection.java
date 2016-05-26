@@ -20,7 +20,7 @@ public class ServerConnection {
 
     private SSLSocketFactory sslsocketfactory;
     private SSLSocket sslsocket;
-    private  String serverAddress;
+    private String serverAddress;
     private int serverPort;
     private final int sslPort = 9000;
 
@@ -40,8 +40,8 @@ public class ServerConnection {
         this.serverAddress = serverAddress;
         this.serverPort = serverPort;
 
-        System.setProperty("javax.net.ssl.trustStore","keystore");
-        System.setProperty("javax.net.ssl.trustStorePassword","123456");
+        System.setProperty("javax.net.ssl.trustStore", "keystore");
+        System.setProperty("javax.net.ssl.trustStorePassword", "123456");
         try {
             sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
             sslsocket = (SSLSocket) sslsocketfactory.createSocket(serverAddress, sslPort);
@@ -58,7 +58,7 @@ public class ServerConnection {
         try {
             sendConnectMessage(credentials);
 
-            if(!receiveToken()){
+            if (!receiveToken()) {
                 return false;
             }
 
@@ -77,7 +77,7 @@ public class ServerConnection {
         try {
             Message message = (Message) inputStream.readObject();
 
-            if(!message.getType().equals(Message.Type.TOKEN))
+            if (!message.getType().equals(Message.Type.TOKEN))
                 return false;
 
             Client.getInstance().setToken(message.getToken());
@@ -89,11 +89,11 @@ public class ServerConnection {
         return false;
     }
 
-    public void logout(){
-        sendMessage(new Message(Message.Type.DISCONNECT,Client.getInstance().getToken()));
+    public void logout() {
+        sendMessage(new Message(Message.Type.DISCONNECT, Client.getInstance().getToken()));
     }
 
-    public void sendMessage(Message message){
+    public void sendMessage(Message message) {
         try {
             this.outputstream.writeObject(message);
         } catch (IOException e) {
@@ -102,7 +102,7 @@ public class ServerConnection {
     }
 
 
-    public Message receiveMessage(){
+    public Message receiveMessage() {
         try {
             return (Message) this.inputStream.readObject();
         } catch (IOException e) {
@@ -130,7 +130,7 @@ public class ServerConnection {
     }
 
     private void sendConnectMessage(Credential credentials) throws IOException {
-        Message connectMessage = new Message(Message.Type.CONNECT,new String[]{credentials.getUsername(),credentials.getPassword()});
+        Message connectMessage = new Message(Message.Type.CONNECT, new String[]{credentials.getUsername(), credentials.getPassword()});
         outputstream.writeObject(connectMessage);
     }
 }

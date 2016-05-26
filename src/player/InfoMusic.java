@@ -29,16 +29,15 @@ public class InfoMusic {
     }
 
     //sctrack
-    public InfoMusic(String title, String author, int duration_in_ms,long size_in_bytes){
+    public InfoMusic(String title, String author, int duration_in_ms, long size_in_bytes) {
         this.title = title;
         this.author = author;
-        this.fullTime = duration_in_ms/1000;
-        splitToComponentTimes((long)(duration_in_ms/1000)); //to seconds
+        this.fullTime = duration_in_ms / 1000;
+        splitToComponentTimes((long) (duration_in_ms / 1000)); //to seconds
         this.size = size_in_bytes;
     }
 
-    public void splitToComponentTimes(Long duration)
-    {
+    public void splitToComponentTimes(Long duration) {
         int hours = (int) (duration / 3600);
         int remainder = (int) (duration - hours * 3600);
         int mins = remainder / 60;

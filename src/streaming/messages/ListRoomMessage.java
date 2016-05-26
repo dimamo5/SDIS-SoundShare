@@ -18,7 +18,7 @@ public class ListRoomMessage extends Message {
 
         Iterator it = rooms.entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next();
+            Map.Entry pair = (Map.Entry) it.next();
             System.out.println(pair.getKey() + " = " + pair.getValue());
             Room r = (Room) pair.getValue();
 
@@ -36,7 +36,7 @@ public class ListRoomMessage extends Message {
         StringBuilder sb = new StringBuilder();
         sb.append(type.toString());
         sb.append(" Rooms available: ");
-        for (int i = 0; i < args.length; i = i + 2)  {
+        for (int i = 0; i < args.length; i = i + 2) {
             sb.append(args[i]);
             sb.append(" ");
             sb.append(args[i + 1]);

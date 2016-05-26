@@ -8,7 +8,7 @@ import java.io.Serializable;
  * Created by duarte on 14-05-2016.
  */
 public class Message implements Serializable {
-    public enum Type{
+    public enum Type {
         DISCONNECT,
         CONNECT,
         INFO_ROOM,
@@ -30,7 +30,7 @@ public class Message implements Serializable {
     protected Token token;
     protected String[] args;
 
-    public Message(Type type, String... args){
+    public Message(Type type, String... args) {
         this.type = type;
         this.args = args;
     }
@@ -41,7 +41,10 @@ public class Message implements Serializable {
         this.args = args;
     }
 
-    public Message(){};
+    public Message() {
+    }
+
+    ;
 
     public Message(Type type) {
         this.type = type;
@@ -75,7 +78,7 @@ public class Message implements Serializable {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        switch(this.type) {
+        switch (this.type) {
             case MUSIC:
                 //Override na class MusicMessage.java
                 break;
@@ -104,8 +107,8 @@ public class Message implements Serializable {
                 break;
             case TRUE:
                 sb.append(type.toString());
-                for(String argument : args){
-                    sb.append(" "+argument);
+                for (String argument : args) {
+                    sb.append(" " + argument);
                 }
                 return sb.toString();
 

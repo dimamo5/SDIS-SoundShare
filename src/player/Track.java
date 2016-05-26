@@ -14,11 +14,11 @@ public abstract class Track {
     //private Date requestTimestamp = new Date();
     protected InfoMusic info;
     private String clientRequested;
-    private boolean sent=false;
+    private boolean sent = false;
     private InputStream stream;
     private File f;
 
-    public Track(String clientRequested){
+    public Track(String clientRequested) {
         this.clientRequested = clientRequested;
     }
 
@@ -46,9 +46,9 @@ public abstract class Track {
 
     abstract public String getStream_url();
 
-    abstract public void sendTrack(double sec, Room room);
+    abstract public void sendTrack(double sec, Room room, ClientHandler c);
 
-    protected void sendTrackFromStream(Room room, BufferedInputStream stream, double frameToElapseRounded, boolean isSoundCloud) {
+    protected void sendTrackFromStream(Room room, BufferedInputStream stream, double frameToElapseRounded, boolean isSoundCloud, ClientHandler c) {
         ArrayList<ClientHandler> clients = room.getClients();
         byte[] buf = new byte[Room.FRAMESIZE];
 
@@ -64,21 +64,13 @@ public abstract class Track {
 
         int i = 0;
         try {
-            while(stream.read(buf,0,buf.length) != -1){
+            while (stream.read(buf, 0, buf.length) != -1) {
                 i++;
                 if (isSoundCloud) {
                     outputStream.write(buf, 0, buf.length);
                 }
                 if (i >= frameToElapseRounded)
-                    try {
-                        room.clientsSemaphore.acquire();
-                        for(ClientHandler client : clients){
-                            client.send(buf);
-                        }
-                        room.clientsSemaphore.release();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    c.send(buf);
                 buf = new byte[Room.FRAMESIZE];
             }
             if (isSoundCloud)

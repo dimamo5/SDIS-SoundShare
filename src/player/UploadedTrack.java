@@ -1,5 +1,6 @@
 package player;
 
+import streaming.ClientHandler;
 import streaming.Room;
 
 import java.io.*;
@@ -10,17 +11,17 @@ import java.io.*;
 public class UploadedTrack extends Track {
 
     private File file;
-    private String filename=null;
+    private String filename = null;
 
     public UploadedTrack(String filename, String clientRequested) {
         super(clientRequested);
         this.filename = filename;
-        this.file=new File(System.getProperty("user.dir") + "/resources/" + filename);
+        this.file = new File(System.getProperty("user.dir") + "/resources/" + filename);
         this.info = new InfoMusic(file);
         initializeStream();
     }
 
-    private void initializeStream(){
+    private void initializeStream() {
         try {
             this.setStream(new FileInputStream(file));
         } catch (FileNotFoundException e) {
@@ -58,7 +59,7 @@ public class UploadedTrack extends Track {
         return getInfo().getAuthor();
     }
 
-    public void sendTrack(double sec, Room room) {
+    public void sendTrack(double sec, Room room, ClientHandler c) {
         byte[] buf = new byte[Room.FRAMESIZE];
         setSent(true);
         File f = getFile();
@@ -67,7 +68,7 @@ public class UploadedTrack extends Track {
 
         System.out.println("Enviar " + this.getTrackName() + " - " + this.getInfo().getAuthor() + " Duration: " + this.getInfo().getFullTime());
 
-        room.sendNewTrackMessageToAllClients(this, sec);
+        room.sendMusicMessage(c, this, sec);
 
         double bytesperSec = getBytesPerSec();
         double frameToElapse = bytesperSec * sec / Room.FRAMESIZE;
@@ -75,7 +76,7 @@ public class UploadedTrack extends Track {
 
         System.out.println("Tamanho ficheiro: " + f.length() + " Bytes per sec: " + bytesperSec + " Frames passed: " + frameToElapse);
 
-        sendTrackFromStream(room,stream,frameToElapseRounded, false);
+        sendTrackFromStream(room, stream, frameToElapseRounded, false, c);
     }
 
     @Override
