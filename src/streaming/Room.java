@@ -189,35 +189,11 @@ public class Room implements Runnable{
                 ClientHandler c = new ClientHandler(connectionSocket,this);
                 new Thread(c).start();
 
-                String play_list, clients_list;
-                StringBuilder sb = new StringBuilder();
-                List l = this.playlist.getCurrentOrderedPlaylist();
-
-                for(int i=0; i < l.size(); i++) {
-                    sb.append(i+1);
-                    sb.append(": ");
-                    sb.append(l.get(i));
-                    sb.append("\n");
-                }
-                play_list = sb.toString();
-
-                sb = new StringBuilder(); int i = 0;
-                for(Map.Entry<String,String> entry : this.client_list.entrySet()) {
-                    i++;
-                    sb.append(i);
-                    sb.append(": ");
-                    sb.append(entry);
-                    sb.append("\n");
-                }
-                clients_list = sb.toString();
-
                 clients.add(c);
-                this.client_list.put(c.getClient_token().getToken(),c.getClient_username()); //regista utilizador
-
-                sendRoomInfoMessage(c,clients_list, play_list);
+                this.client_list.put(c.getClient_token().getToken(),c.getClient_username());
+                sendRoomInfoMessage(c,getClientListString(), getPlaylist().getPlaylistString());
                 sendMusicMessage(c,this.playlist.getCurrentTrack(),musicSec);
                 sendActualTrack(c);
-
                 clientsSemaphore.release();
                 if (clients.size() == 1) {
                     musicSec = 0;
@@ -230,5 +206,21 @@ public class Room implements Runnable{
                 e.printStackTrace();
             }
         }
+    }
+
+    private String getClientListString() {
+        StringBuilder sb;
+        String clients_list;
+        sb = new StringBuilder();
+        int i = 0;
+        for(Map.Entry<String,String> entry : this.client_list.entrySet()) {
+            i++;
+            sb.append(i);
+            sb.append(": ");
+            sb.append(entry);
+            sb.append("\n");
+        }
+        clients_list = sb.toString();
+        return clients_list;
     }
 }

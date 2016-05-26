@@ -21,8 +21,6 @@ public class Client{
     private CLInterface clInterface = new CLInterface();
     private Token token;
 
-    private boolean stopLoop = false;
-
     public static Client getInstance() {
         return ourInstance;
     }
@@ -84,7 +82,7 @@ public class Client{
     }
 
 
-    public void executeCommand(Command command){
+    void executeCommand(Command command){
         try {
             switch (command.getType()){
                 case SKIP:
@@ -92,7 +90,7 @@ public class Client{
                     break;
                 case REQUEST:
                     if(this.roomConnection != null)
-                        this.roomConnection.requestSong(command.getArgs()[0], Boolean.parseBoolean(command.getArgs()[1]));
+                        this.getRoomConnection().requestSong(command.getArgs()[0], Boolean.parseBoolean(command.getArgs()[1]));
                     else
                         this.clInterface.println("You have to be connected to a room in order to request a song!");
                     break;
@@ -135,28 +133,16 @@ public class Client{
         }
     }
 
-    public RoomConnection getRoomConnection() {
+    private RoomConnection getRoomConnection() {
         return roomConnection;
     }
 
-    public void setRoomConnection(RoomConnection roomConnection) {
-        this.roomConnection = roomConnection;
-    }
-
-    public CLInterface getClInterface() {
+    private CLInterface getClInterface() {
         return clInterface;
     }
 
-    public void setClInterface(CLInterface clInterface) {
-        this.clInterface = clInterface;
-    }
-
-    public ServerConnection getServerConnection() {
+    private ServerConnection getServerConnection() {
         return serverConnection;
-    }
-
-    public void setServerConnection(ServerConnection serverConnection) {
-        this.serverConnection = serverConnection;
     }
 
     public Token getToken() {

@@ -111,4 +111,18 @@ public class Playlist {
         }
         return tracks;
     }
+
+    public String getPlaylistString(){
+        StringBuilder sb = new StringBuilder();
+        List l = getCurrentOrderedPlaylist();
+
+        for(int i=0; i < l.size(); i++) {
+            sb.append(i+1);
+            sb.append(": ");
+            sb.append(l.get(i));
+            sb.append("\n");
+        }
+        String playlist = sb.toString();
+        return playlist;
+    }
 }

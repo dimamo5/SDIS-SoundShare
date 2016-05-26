@@ -20,23 +20,16 @@ public class Singleton {
         return soundCloudComms;
     }
 
-    public void setSoundCloudComms(SCComms soundCloudComms) {
-        this.soundCloudComms = soundCloudComms;
-    }
 
     public Database getDatabase() {
         return database;
     }
 
-    public void setDatabase(Database database) {
-        this.database = database;
-    }
-
-    public Server getServer() {
+    Server getServer() {
         return server;
     }
 
-    public void setServer(Server server) {
+    void setServer(Server server) {
         this.server = server;
     }
 

@@ -23,7 +23,7 @@ public class Command {
         parseCommand(command);
     }
 
-    public void parseCommand(String command) throws CommandException {
+    private void parseCommand(String command) throws CommandException {
         String[] args = command.split("\\s+");
 
         this.type = parseType(args[0]);
@@ -36,13 +36,13 @@ public class Command {
     private boolean parseArgs(Type type) throws CommandException {
         switch (type) {
             case SKIP:
-                return validateArgsLength(1);
+                return validateArgsLength(0);
             case REQUEST:
-                return validateArgsLength(2);
+                return validateArgsLength(2) && ("true".equalsIgnoreCase(args[2]) || "false".equalsIgnoreCase(args[2]));
             case LOGOUT:
-                return validateArgsLength(1);
+                return validateArgsLength(0);
             case CONNECT_ROOM:
-                if(!validateArgsLength(2))
+                if(!validateArgsLength(1))
                     return false;
                 if (!NumberUtils.isNumber(getArgs()[1]))
                     throw new CommandException("Argument number 1, port, must be an integer");
@@ -50,25 +50,25 @@ public class Command {
                     return true;
                 }
             case DISCONNECT_ROOM:
-                return validateArgsLength(1);
+                return validateArgsLength(0);
             case CREATE_ROOM:
-                return validateArgsLength(1);
+                return validateArgsLength(0);
             case ROOM_LIST:
-                return validateArgsLength(1);
+                return validateArgsLength(0);
             default:
                 throw new CommandException("Invalid command type");
         }
     }
 
-    public boolean validateArgsLength(int numArgsExpected) throws CommandException {
-        if (args.length != numArgsExpected) {
+    private boolean validateArgsLength(int numArgsExpected) throws CommandException {
+        if (args.length != numArgsExpected-1) {
             throw new CommandException("Number of arguments expected: " + numArgsExpected + ". Given: " + (args.length - 1));
         }
         return true;
     }
 
 
-    public Type parseType(String type) throws CommandException {
+    private Type parseType(String type) throws CommandException {
         for (Type enumType : Command.Type.values()) {
             if (type.equalsIgnoreCase(enumType.toString()))
                 return enumType;
