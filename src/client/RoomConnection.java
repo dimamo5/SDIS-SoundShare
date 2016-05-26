@@ -37,6 +37,7 @@ public class RoomConnection implements Runnable {
 
     public boolean dcFromRoom() {
         try {
+            player.close();
             communicationSocket.close();
             streamingSocket.close();
             return true;
