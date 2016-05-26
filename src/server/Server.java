@@ -1,6 +1,7 @@
 package server;
 
 import database.Database;
+import player.Track;
 import streaming.Room;
 
 import javax.net.ssl.SSLServerSocket;
@@ -8,6 +9,8 @@ import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
 import java.io.*;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
 
 public class Server implements Runnable{
     private Hashtable<Integer, Room> rooms = new Hashtable<>();
@@ -20,6 +23,26 @@ public class Server implements Runnable{
         Thread msgHandling = new Thread(s);
         msgHandling.start();
         s.newRoom(Room.DEFAULTPORT);
+    }
+
+    public String roomsToString() {
+        String[] args = new String[rooms.size() * 2];
+        int i = 0;
+
+        Iterator it = rooms.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            System.out.println(pair.getKey() + " = " + pair.getValue());
+            Room r = (Room) pair.getValue();
+
+            args[i] = String.valueOf(r.getPort());
+            Track t = r.getPlaylist().getCurrentTrack();
+            if (t == null)
+                args[i + 1] = "No music playing";
+            else args[i + 1] = t.getInfo().getTitle();
+            i = i + 2;
+        }
+        return args.toString();
     }
 
     public Server() {

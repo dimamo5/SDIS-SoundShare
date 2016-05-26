@@ -4,6 +4,7 @@ import auth.Credential;
 import auth.Token;
 import client.commands.Command;
 import client.commands.CommandException;
+import server.Singleton;
 import streaming.messages.Message;
 
 import java.net.ConnectException;
@@ -43,7 +44,6 @@ public class Client{
         this.serverConnection = new ServerConnection(sv_address,sv_port);
 
         login();
-
         String list = this.serverConnection.getRoom_list();
 
         if(list != null)

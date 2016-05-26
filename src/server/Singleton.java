@@ -25,7 +25,7 @@ public class Singleton {
         return database;
     }
 
-    Server getServer() {
+    public Server getServer() {
         return server;
     }
 
@@ -35,4 +35,5 @@ public class Singleton {
 
     private Singleton() {
     }
+
 }
