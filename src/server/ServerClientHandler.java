@@ -19,7 +19,7 @@ public class ServerClientHandler implements Runnable {
     protected SSLSocket socket;
     protected ObjectInputStream in;
     protected ObjectOutputStream out;
-    protected boolean loggedIn = false;
+    protected boolean loggedIn = true;
 
     public ServerClientHandler(SSLSocket socket) {
         this.socket = socket;
