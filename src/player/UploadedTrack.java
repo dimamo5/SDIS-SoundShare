@@ -54,7 +54,6 @@ public class UploadedTrack extends Track {
         return getInfo().getFullTime();
     }
 
-
     public String getAuthor() {
         return getInfo().getAuthor();
     }
@@ -70,13 +69,14 @@ public class UploadedTrack extends Track {
 
         room.sendMusicMessage(c, this, sec);
 
+        int chunks = (int) f.length() / Room.FRAMESIZE;
         double bytesperSec = getBytesPerSec();
         double frameToElapse = bytesperSec * sec / Room.FRAMESIZE;
         double frameToElapseRounded = Math.round(frameToElapse);
 
         System.out.println("Tamanho ficheiro: " + f.length() + " Bytes per sec: " + bytesperSec + " Frames passed: " + frameToElapse);
 
-        sendTrackFromStream(room, stream, frameToElapseRounded, false, c);
+        sendTrackFromStream(room, stream, chunks, frameToElapseRounded, false, c);
     }
 
     @Override

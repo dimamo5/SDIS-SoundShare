@@ -48,7 +48,7 @@ public abstract class Track {
 
     abstract public void sendTrack(double sec, Room room, ClientHandler c);
 
-    protected void sendTrackFromStream(Room room, BufferedInputStream stream, double frameToElapseRounded, boolean isSoundCloud, ClientHandler c) {
+    protected void sendTrackFromStream(Room room, BufferedInputStream stream, int chunks, double frameToElapseRounded, boolean isSoundCloud, ClientHandler c) {
         ArrayList<ClientHandler> clients = room.getClients();
         byte[] buf = new byte[Room.FRAMESIZE];
 
@@ -62,18 +62,16 @@ public abstract class Track {
             }
         }
 
-        int i = 0;
         try {
             System.out.println("ENVIAR TRACKAS NISDN");
-            while (stream.read(buf, 0, buf.length) != -1) {
-                i++;
-                if (isSoundCloud) {
-                    outputStream.write(buf, 0, buf.length);
-                }
+
+            for (int i = 0; i < chunks; i++) {
+                stream.read(buf, 0, Room.FRAMESIZE);
+
                 if (i >= frameToElapseRounded)
                     c.send(buf);
-                buf = new byte[Room.FRAMESIZE];
             }
+
             if (isSoundCloud)
                 outputStream.close();
         } catch (IOException e) {

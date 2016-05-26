@@ -61,7 +61,7 @@ public class SCTrack extends Track {
         System.out.println("Enviar " + this.getTrackName() + " - " + this.getInfo().getAuthor() + " Duration: " + this.getInfo().getFullTime());
 
         room.sendMusicMessage(c, this, sec);
-        sendTrackFromStream(room, stream, frameToElapseRounded, true, c);
+        sendTrackFromStream(room, stream, 0, frameToElapseRounded, true, c);
     }
 
     @Override
