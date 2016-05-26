@@ -14,6 +14,7 @@ public class Message implements Serializable {
         INFO_ROOM,
         STREAM,
         VOTE_SKIP,
+        SKIP,
         REQUEST,
         TOKEN,
         VOTE_KICK,
