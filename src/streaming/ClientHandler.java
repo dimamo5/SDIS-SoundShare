@@ -116,6 +116,7 @@ public class ClientHandler implements Runnable{
                             case STREAM_SONG:
                                 System.out.println(message);
                                 readSongFromUser(message.getArgs()[0]);
+                                room.getPlaylist().addRequestedUploadedTrack(message.getArgs()[0],token.getToken());
                                 sendMessage(new Message(Message.Type.TRUE, null, message.getArgs()));
                                 break;
                             default:
@@ -141,9 +142,15 @@ public class ClientHandler implements Runnable{
             int read = 0;
             byte[] bytes = new byte[Room.FRAMESIZE];
 
-            while ((read = streamIn.read(bytes)) != -1) {
-                outputStream.write(bytes, 0, read);
+            DataInputStream dis = new DataInputStream(streamIn);
+            int chunks = 0;
+            chunks = dis.readShort();
+
+            for (int i = 0; i < chunks; i++) {
+                dis.read(bytes, 0,Room.FRAMESIZE);
+                outputStream.write(bytes);
             }
+
             outputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -183,6 +190,7 @@ public class ClientHandler implements Runnable{
         this.room.removeClientFromList(this);
 
         try {
+            System.out.println("ENTRARRR");
             streamingSocket.close();
         } catch (IOException e) {
             e.printStackTrace();

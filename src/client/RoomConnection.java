@@ -8,6 +8,7 @@ import streaming.Room;
 import streaming.messages.RequestMessage;
 
 import java.io.*;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -80,10 +81,15 @@ public class RoomConnection implements Runnable {
                 }
             }
             this.streamingSocket = new Socket(serverAddress,streamingPort);
-            requestSong("mama.wma", false);
+            //requestSong("mama.wma", false);
             streamIn = streamingSocket.getInputStream();
+            streamOut = streamingSocket.getOutputStream();
             this.play();
-        } catch (IOException ex) {
+        }
+        catch (ConnectException c) {
+            connected = false;
+        }
+        catch (IOException ex) {
             ex.printStackTrace();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -143,22 +149,29 @@ public class RoomConnection implements Runnable {
 
         int chunks = (int) f.length() / Room.FRAMESIZE;
         BufferedInputStream bis = new BufferedInputStream(fis);
-
+        DataOutputStream dos = new DataOutputStream(streamOut);
+        try {
+            dos.writeShort(chunks);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         System.out.println("Tamanho ficheiro: " + f.length() + " Dividido em: " + f.length() / Room.FRAMESIZE);
 
         for (int m = 0; m < chunks; m++) {
             try {
                 bis.read(mybytearray, 0, Room.FRAMESIZE);
-                streamingSocket.getOutputStream().write(mybytearray, 0, FRAMESIZE);
+                dos.write(mybytearray, 0, FRAMESIZE);
             } catch (IOException e) {
                 e.printStackTrace();
                 return false;
             }
         }
+
         try {
             if (fis != null) {
                 bis.close();
                 fis.close();
+
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -179,7 +192,6 @@ public class RoomConnection implements Runnable {
         new Thread() {
             @Override
             public void run() {
-                System.out.println("Playing!");
                 try {
                     c.player=new AdvancedPlayer(c.streamIn);
                     c.player.play();

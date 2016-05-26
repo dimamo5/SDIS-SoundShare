@@ -70,7 +70,7 @@ public class Room implements Runnable{
     }
 
     public Room(int port) {
-        this.fillPlayList();
+        //this.fillPlayList();
 
         try {
             socket = new ServerSocket(port);
@@ -127,7 +127,7 @@ public class Room implements Runnable{
                 public void run() {
                     Track t = playlist.getNextTrack();
                     if (t != null)
-                        playlist.getNextTrack().sendTrack(musicSec,room);
+                        playlist.getNextTrack().sendTrack(0,room);
                 }
             }.start();
     }
@@ -174,17 +174,39 @@ public class Room implements Runnable{
             public void run() {
                 musicSec += 0.5;
                 Track currentTrack = playlist.getCurrentTrack();
+
+                if (currentTrack == null) {
+                    System.out.println("musica nao corre");
+                    return;
+                }
+
+                System.out.println("atual: " + playlist.getCurrentPosition());
+                Track t1 = playlist.getNextTrack();
+                // ELEE CORRERA RINAM MUSICA 15 secs TODO
                 if (musicSec == currentTrack.getInfo().getFullTime()) {
-                    if(currentTrack != null && !currentTrack.isSent()){
-                        playlist.skipTrack();
-                        sendNewTrack(playlist.getCurrentTrack());
+                    if(currentTrack != null && currentTrack.isSent()) {
+                        if (playlist.skipTrack())
+                            sendNewTrack(playlist.getCurrentTrack());
                     }
                     musicSec=0;
-                } else if (musicSec / playlist.getCurrentTrack().getInfo().getFullTime() >= 0.9) {
+                } else if ((t1 != null) && ((musicSec / playlist.getCurrentTrack().getInfo().getFullTime() >= 0.9) && (t1.isSent()) )) {
+                    System.out.println("new song 0.9");
                     Track t = playlist.getNextTrack();
                     if(t!=null && !t.isSent()) {
                         t.setSent(true);
                         sendNewTrack(playlist.getNextTrack());
+                    }
+                } else if (!playlist.getCurrentTrack().isSent()) {
+                    System.out.println("new song");
+                    try {
+                        clientsSemaphore.acquire();
+                        musicSec = 0;
+                        for (int j = 0; j < clients.size(); j++) {
+                            sendActualTrack(clients.get(j));
+                        }
+                        clientsSemaphore.release();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -213,8 +235,12 @@ public class Room implements Runnable{
                 clients.add(c);
                 this.clientList.put(c.getToken().getToken(),c.getUsername());
                 sendRoomInfoMessage(c,getClientListString(), getPlaylist().getPlaylistString());
-                sendMusicMessage(c,this.playlist.getCurrentTrack(),musicSec);
-                sendActualTrack(c);
+
+                Track t = this.playlist.getCurrentTrack();
+                if (t != null) {
+                    sendMusicMessage(c, t, musicSec);
+                    sendActualTrack(c);
+                }
                 clientsSemaphore.release();
                 if (clients.size() == 1) {
                     musicSec = 0;

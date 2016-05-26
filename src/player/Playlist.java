@@ -16,7 +16,13 @@ public class Playlist {
     private boolean repeat = false;
 
     public Track getCurrentTrack(){
-        return playlist.get(playlist_actual_pos);
+        if ((playlist.size() <= playlist_actual_pos) || (playlist_actual_pos == -1))
+            return null;
+        else return playlist.get(playlist_actual_pos);
+    }
+
+    public int getCurrentPosition() {
+        return playlist_actual_pos;
     }
 
     public Track getNextTrack() {

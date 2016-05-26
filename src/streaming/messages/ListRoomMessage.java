@@ -1,6 +1,7 @@
 package streaming.messages;
 
 import auth.Token;
+import player.Track;
 import streaming.Room;
 
 import java.util.*;
@@ -22,7 +23,10 @@ public class ListRoomMessage extends Message {
             Room r = (Room) pair.getValue();
 
             this.args[i] = String.valueOf(r.getPort());
-            this.args[i + 1] = r.getPlaylist().getCurrentTrack().getInfo().getTitle();
+            Track t = r.getPlaylist().getCurrentTrack();
+            if (t == null)
+                this.args[i + 1] = "No music playing";
+            else this.args[i + 1] = t.getInfo().getTitle();
             i = i + 2;
         }
     }

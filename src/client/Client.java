@@ -6,6 +6,7 @@ import client.commands.Command;
 import client.commands.CommandException;
 import streaming.messages.Message;
 
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -107,10 +108,13 @@ public class Client{
                 case CONNECT_ROOM:
                     if (this.roomConnection == null)
                         try {
-                            System.out.println(InetAddress.getByName(this.serverConnection.getServerAddress()));
-                            System.out.println(command.getArgs()[0]);
                             this.roomConnection = new RoomConnection(InetAddress.getByName(this.serverConnection.getServerAddress()), Integer.parseInt(command.getArgs()[0]));
-                        } catch (UnknownHostException e) {
+                            if (!this.roomConnection.connected) {
+                                this.clInterface.println("That port is not valid.");
+                                this.roomConnection = null;
+                            }
+                        }
+                        catch (UnknownHostException e) {
                             e.printStackTrace();
                         }
                     else this.clInterface.println("Trying to connect to a room when you are already connected");

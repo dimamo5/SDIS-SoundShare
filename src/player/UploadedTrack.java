@@ -60,7 +60,6 @@ public class UploadedTrack extends Track {
 
     public void sendTrack(double sec, Room room) {
         byte[] buf = new byte[Room.FRAMESIZE];
-
         setSent(true);
         File f = getFile();
         int songTime = info.getFullTime();
