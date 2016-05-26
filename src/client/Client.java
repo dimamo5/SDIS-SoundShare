@@ -44,14 +44,15 @@ public class Client{
         this.serverConnection = new ServerConnection(sv_address,sv_port);
 
         login();
+
+        /*
         String list = this.serverConnection.getRoom_list();
 
         if(list != null)
             System.out.println("Room list:\n"+ list+"\n");
         else
             System.out.println("Room list: (Empty)");
-
-
+        */
 
         //recebe input (porta) do user
         /*int room_port = this.clInterface.choosePortFromList(this.serverConnection.getRoom_list());

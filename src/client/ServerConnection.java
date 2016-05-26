@@ -29,21 +29,7 @@ public class ServerConnection {
     private ObjectInputStream inputStream;
 
     public String getRoom_list() {
-        StringBuilder sb = new StringBuilder();
-
-        Iterator it = Singleton.getInstance().getServer().getRooms().entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next();
-            Room r = (Room) pair.getValue();
-
-            sb.append(String.valueOf(r.getPort()));
-            Track t = r.getPlaylist().getCurrentTrack();
-            if (t == null)
-                sb.append(" No music playing ");
-            else sb.append(" " +t.getInfo().getTitle() + " ");
-        }
-
-        return sb.toString();
+        return room_list;
     }
 
     public void setRoom_list(String room_list) {
