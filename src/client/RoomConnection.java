@@ -159,7 +159,7 @@ public class RoomConnection implements Runnable {
         for (int m = 0; m < chunks; m++) {
             try {
                 bis.read(mybytearray, 0, Room.FRAMESIZE);
-                dos.write(mybytearray, 0, FRAMESIZE);
+                dos.write(mybytearray, 0, Room.FRAMESIZE);
             } catch (IOException e) {
                 e.printStackTrace();
                 return false;

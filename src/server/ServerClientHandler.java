@@ -77,36 +77,39 @@ public class ServerClientHandler implements Runnable {
 
     @Override
     public void run() {
-        try {
+        while (loggedIn) {
+            try {
 
-            socket.startHandshake();
+                socket.startHandshake();
 
-            while (true) {
-                Message message = (Message) in.readObject();
-                handleMessage(message);
-            }
-
-
-        } catch (SocketException exception) {
-            if (exception.toString().equals("java.net.SocketException: Connection reset")) {
-                System.out.println("End point(client) disconnected.");
-                try {
-                    if (socket != null) {
-                        socket.close(); //close this point
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return;
+                while (true) {
+                    Message message = (Message) in.readObject();
+                    handleMessage(message);
                 }
+
+
+            } catch (SocketException exception) {
+                if (exception.toString().equals("java.net.SocketException: Connection reset")) {
+                    System.out.println("End point(client) disconnected.");
+                    try {
+                        if (socket != null) {
+                            loggedIn = false;
+                            socket.close(); //close this point
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                }
+                exception.printStackTrace();
+                return;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
             }
-            exception.printStackTrace();
             return;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         }
-        return;
     }
 }
