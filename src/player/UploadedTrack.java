@@ -63,7 +63,15 @@ public class UploadedTrack extends Track {
         setSent(true);
         File f = getFile();
         int songTime = info.getFullTime();
-        BufferedInputStream stream = new BufferedInputStream(this.getStream());
+
+        //BufferedInputStream stream = new BufferedInputStream(this.getStream());
+        /*FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(f);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        */
 
         System.out.println("Enviar " + this.getTrackName() + " - " + this.getInfo().getAuthor() + " Duration: " + this.getInfo().getFullTime());
 
@@ -76,7 +84,7 @@ public class UploadedTrack extends Track {
 
         System.out.println("Tamanho ficheiro: " + f.length() + " Bytes per sec: " + bytesperSec + " Frames passed: " + frameToElapse);
 
-        sendTrackFromStream(room, stream, chunks, frameToElapseRounded, false, c);
+        sendTrackFromStream(room, this.getStream(), chunks, frameToElapseRounded, false, c);
     }
 
     @Override
