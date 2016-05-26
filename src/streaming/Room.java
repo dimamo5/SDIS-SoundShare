@@ -27,7 +27,7 @@ public class Room implements Runnable{
     private ServerSocket socket;
     private int port = 0;
     private ArrayList<ClientHandler> clients = new ArrayList<>();
-    private Map<String,String> client_list = new HashMap<>();
+    private Map<String,String> clientList = new HashMap<>();
     public Semaphore clientsSemaphore = new Semaphore(1);
     private Timer timer = new Timer();
     private double musicSec = 0;
@@ -173,7 +173,10 @@ public class Room implements Runnable{
         }, 500, 500);
     }
 
-    // TODO: 22/05/2016 ON USER DISCONNECT DELETE USER FROM CLIENT_LIST
+    public void removeClientFromList(ClientHandler clientHandler){
+        clientList.remove(clientHandler.getToken());
+        clients.remove(clientHandler);
+    }
 
     @Override
     public void run() {
@@ -190,7 +193,7 @@ public class Room implements Runnable{
                 new Thread(c).start();
 
                 clients.add(c);
-                this.client_list.put(c.getClient_token().getToken(),c.getClient_username());
+                this.clientList.put(c.getToken().getToken(),c.getUsername());
                 sendRoomInfoMessage(c,getClientListString(), getPlaylist().getPlaylistString());
                 sendMusicMessage(c,this.playlist.getCurrentTrack(),musicSec);
                 sendActualTrack(c);
@@ -200,9 +203,7 @@ public class Room implements Runnable{
                 }
 
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
+            } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
         }
@@ -213,7 +214,7 @@ public class Room implements Runnable{
         String clients_list;
         sb = new StringBuilder();
         int i = 0;
-        for(Map.Entry<String,String> entry : this.client_list.entrySet()) {
+        for(Map.Entry<String,String> entry : this.clientList.entrySet()) {
             i++;
             sb.append(i);
             sb.append(": ");

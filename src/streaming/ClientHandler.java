@@ -27,31 +27,25 @@ public class ClientHandler implements Runnable{
     private Room room;
     private int userId = new Random().nextInt(2048)+1;
     private Database db;
-    private Token client_token;
-    private String client_username;
+    private Token token;
+    private String username;
 
-    public Token getClient_token() {
-        return client_token;
+    public Token getToken() {
+        return token;
     }
 
-    public void setClient_token(Token client_token) {
-        this.client_token = client_token;
+    public void setToken(Token token) {
+        this.token = token;
     }
 
-    public String getClient_username() {
-        return client_username;
-    }
-
-    public void setClient_username(String client_username) {
-        this.client_username = client_username;
+    public String getUsername() {
+        return username;
     }
 
     public ClientHandler(Socket socket, Room room){
         this.db = Singleton.getInstance().getDatabase();
         this.room = room;
         this.communicationSocket = socket;
-
-        // TODO: 19-05-2016 Verificar se ao criar o streaming socket desta maneira ele já atribuí um port para o client se ligar
 
         try {
             ServerSocket roomStreamingSocket = new ServerSocket(0);
@@ -66,11 +60,11 @@ public class ClientHandler implements Runnable{
 
                 if(m.getType() == Message.Type.ONLY_TOKEN) {
                     loggedIn = true;
-                    this.client_token = m.getToken();
+                    this.token = m.getToken();
 
                     //get user from database
-                    this.client_username = db.getUserByToken(this.client_token.getToken());
-                    System.out.println("client.RoomConnection: " + client_username + " " + client_token);
+                    this.username = db.getUserByToken(this.token.getToken());
+                    System.out.println("client.RoomConnection: " + username + " " + token);
                 }
             }
 
@@ -185,6 +179,8 @@ public class ClientHandler implements Runnable{
                 e.printStackTrace();
             }
         }
+
+        this.room.removeClientFromList(this);
 
         try {
             streamingSocket.close();
