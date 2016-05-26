@@ -115,8 +115,10 @@ public class ClientHandler implements Runnable {
                                 break;
                             case STREAM_SONG:
                                 System.out.println(message);
-                                readSongFromUser(message.getArgs()[0]);
-                                room.getPlaylist().addRequestedUploadedTrack(message.getArgs()[0], token.getToken());
+                                String temp = message.getArgs()[0];
+                                String[] t = temp.split("/");
+                                readSongFromUser(t[t.length - 1]);
+                                room.getPlaylist().addRequestedUploadedTrack(t[t.length - 1], token.getToken());
                                 sendMessage(new Message(Message.Type.TRUE, null, message.getArgs()));
                                 break;
                             default:

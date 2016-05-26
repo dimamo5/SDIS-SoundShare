@@ -64,6 +64,7 @@ public abstract class Track {
 
         int i = 0;
         try {
+            System.out.println("ENVIAR TRACKAS NISDN");
             while (stream.read(buf, 0, buf.length) != -1) {
                 i++;
                 if (isSoundCloud) {
