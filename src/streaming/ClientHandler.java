@@ -2,7 +2,10 @@ package streaming;
 
 import auth.Token;
 import database.Database;
+import org.json.JSONArray;
+import org.json.JSONException;
 import player.Converter;
+import player.SCTrack;
 import server.Singleton;
 import streaming.messages.Message;
 import streaming.messages.MessageException;
@@ -11,6 +14,7 @@ import streaming.messages.RequestMessage;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Random;
 
 import static streaming.Room.FRAMESIZE;
@@ -80,7 +84,11 @@ public class ClientHandler implements Runnable {
     public void send(byte[] bytes) {
         try {
             streamingSocket.getOutputStream().write(bytes, 0, FRAMESIZE);
-        } catch (IOException e) {
+        } catch (SocketException s) {
+            System.out.println("O client saiu");
+        }
+        catch (IOException e) {
+            // IR A ROOM
             e.printStackTrace();
         }
     }
@@ -113,6 +121,9 @@ public class ClientHandler implements Runnable {
                         RequestMessage requestMessage = (RequestMessage) message;
                         switch (requestMessage.getRequestType()) {
                             case SOUNDCLOUD:
+                                SCTrack scTrack = room.getTrackGetter().getTrackByName(message.getArgs()[0], username);
+                                room.getPlaylist().addRequestedTrack(scTrack);
+                                sendMessage(new Message(Message.Type.TRUE, null, message.getArgs()));
                                 break;
                             case STREAM_SONG:
                                 System.out.println(message);
@@ -131,6 +142,8 @@ public class ClientHandler implements Runnable {
                     throw new MessageException("Message Type not valid");
             }
         } catch (MessageException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 

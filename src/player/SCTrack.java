@@ -56,17 +56,19 @@ public class SCTrack extends Track {
 
         setSent(true);
         long bytesperSec = getBytesPerSec();
+        System.out.println("dbte" + bytesperSec);
         double frameToElapse = bytesperSec * sec / Room.FRAMESIZE;
         double frameToElapseRounded = Math.round(frameToElapse);
         System.out.println("Enviar " + this.getTrackName() + " - " + this.getInfo().getAuthor() + " Duration: " + this.getInfo().getFullTime());
 
         room.sendMusicMessage(c, this, sec);
-        sendTrackFromStream(room, stream, 0, frameToElapseRounded, true, c);
+        int chunks = (int) getInfo().getSize()/Room.FRAMESIZE;
+        sendTrackFromStream(room, stream,chunks, frameToElapseRounded, true, c);
     }
 
     @Override
     public long getBytesPerSec() {
-        return getStream_kbps();
+        return getStream_kbps() * (1000 / 8);
     }
 
     public void setStream_url(String stream_url) {

@@ -84,6 +84,10 @@ public class Room implements Runnable {
         return port;
     }
 
+    public TrackGetter getTrackGetter() {
+        return trackGetter;
+    }
+
     public void setPort(int port) {
         this.port = port;
         try {

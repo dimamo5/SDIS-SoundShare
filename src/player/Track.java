@@ -1,8 +1,10 @@
 package player;
 
+import server.Singleton;
 import streaming.Room;
 import streaming.ClientHandler;
 
+import java.awt.image.SinglePixelPackedSampleModel;
 import java.io.*;
 import java.util.ArrayList;
 
@@ -53,26 +55,25 @@ public abstract class Track {
 
         OutputStream outputStream = null;
         if (isSoundCloud) {
-            f = new File(System.getProperty("user.dir") + "/resources/soundcloud/" + info.getTrackName() + ".mp3");
-            try {
+            //f = new File(System.getProperty("user.dir") + "/resources/soundcloud/" + info.getTrackName() + ".mp3");
+            stream = Singleton.getInstance().getSoundCloudComms().getStreamData(Singleton.getInstance().getSoundCloudComms().get_stream_from_url(getStream_url()));
+            /*try {
                 outputStream = new FileOutputStream(f);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-            }
+            }*/
+
         }
 
         try {
-            System.out.println("ENVIAR TRACKAS NISDN");
-
             for (int i = 0; i < chunks; i++) {
                 stream.read(buf, 0, Room.FRAMESIZE);
-
                 if (i >= frameToElapseRounded)
                     c.send(buf);
             }
 
-            if (isSoundCloud)
-                outputStream.close();
+            /*if (isSoundCloud)
+                outputStream.close();*/
         } catch (IOException e) {
             e.printStackTrace();
         }

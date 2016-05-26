@@ -112,4 +112,7 @@ public class InfoMusic {
         return getTitle();
     }
 
+    public long getSize() {
+        return size;
+    }
 }
