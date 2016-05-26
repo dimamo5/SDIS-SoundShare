@@ -13,10 +13,9 @@ public class Server implements Runnable{
     private Hashtable<Integer, Room> rooms = new Hashtable<>();
     private final int ssl_port = 9000;
     private SSLServerSocket sslserversocket = null;
-    private Database db = null;
 
     public static void main(String[] args){
-        Server s = new Server();
+        Server s = Singleton.getInstance().getServer();
 
         Thread msgHandling = new Thread(s);
         msgHandling.start();
@@ -24,15 +23,12 @@ public class Server implements Runnable{
     }
 
     public Server() {
-        db = Singleton.getInstance().getDatabase();
-
         System.setProperty("javax.net.ssl.keyStore","keystore");
         System.setProperty("javax.net.ssl.keyStorePassword","123456");
 
         SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
         try {
             sslserversocket = (SSLServerSocket) sslserversocketfactory.createServerSocket(this.ssl_port);
-            Singleton.getInstance().setServer(this);
         } catch (IOException e) {
             e.printStackTrace();
         }
