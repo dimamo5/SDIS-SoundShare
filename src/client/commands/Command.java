@@ -27,41 +27,42 @@ public class Command {
         String[] args = command.split("\\s+");
 
         this.type = parseType(args[0]);
-        this.args = new String[args.length - 1];
-        System.arraycopy(args, 1, this.args, 0, args.length);
-
-        parseArgs(type);
+        if (args.length > 1) {
+            this.args = new String[args.length - 1];
+            parseArgs(type, args);
+            System.arraycopy(args, 1, this.args, 0, args.length - 1);
+        }
     }
 
-    private boolean parseArgs(Type type) throws CommandException {
+    private boolean parseArgs(Type type, String[] args) throws CommandException {
         switch (type) {
             case SKIP:
-                return validateArgsLength(0);
+                return validateArgsLength(0, args);
             case REQUEST:
-                return validateArgsLength(2) && ("true".equalsIgnoreCase(args[2]) || "false".equalsIgnoreCase(args[2]));
+                return validateArgsLength(2, args) && ("true".equalsIgnoreCase(args[2]) || "false".equalsIgnoreCase(args[2]));
             case LOGOUT:
-                return validateArgsLength(0);
+                return validateArgsLength(0, args);
             case CONNECT_ROOM:
-                if(!validateArgsLength(1))
+                if(!validateArgsLength(1, args))
                     return false;
-                if (!NumberUtils.isNumber(getArgs()[1]))
+                if (!NumberUtils.isNumber(args[1]))
                     throw new CommandException("Argument number 1, port, must be an integer");
                 else{
                     return true;
                 }
             case DISCONNECT_ROOM:
-                return validateArgsLength(0);
+                return validateArgsLength(0, args);
             case CREATE_ROOM:
-                return validateArgsLength(0);
+                return validateArgsLength(0, args);
             case ROOM_LIST:
-                return validateArgsLength(0);
+                return validateArgsLength(0, args);
             default:
                 throw new CommandException("Invalid command type");
         }
     }
 
-    private boolean validateArgsLength(int numArgsExpected) throws CommandException {
-        if (args.length != numArgsExpected-1) {
+    private boolean validateArgsLength(int numArgsExpected, String[] args) throws CommandException {
+        if ((args.length - 1) != numArgsExpected) {
             throw new CommandException("Number of arguments expected: " + numArgsExpected + ". Given: " + (args.length - 1));
         }
         return true;

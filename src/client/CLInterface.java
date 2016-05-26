@@ -48,7 +48,7 @@ public class CLInterface implements Runnable {
         while(true) {
             System.out.print("Command: ");
             try {
-                handleCommands(input.next());
+                handleCommands(input.nextLine());
             } catch (CommandException e) {
                 e.printStackTrace();
             }

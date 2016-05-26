@@ -107,6 +107,8 @@ public class Client{
                 case CONNECT_ROOM:
                     if (this.roomConnection == null)
                         try {
+                            System.out.println(InetAddress.getByName(this.serverConnection.getServerAddress()));
+                            System.out.println(command.getArgs()[0]);
                             this.roomConnection = new RoomConnection(InetAddress.getByName(this.serverConnection.getServerAddress()), Integer.parseInt(command.getArgs()[0]));
                         } catch (UnknownHostException e) {
                             e.printStackTrace();
