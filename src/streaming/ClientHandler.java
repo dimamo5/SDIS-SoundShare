@@ -2,6 +2,7 @@ package streaming;
 
 import auth.Token;
 import database.Database;
+import player.Converter;
 import server.Singleton;
 import streaming.messages.Message;
 import streaming.messages.MessageException;
@@ -152,7 +153,6 @@ public class ClientHandler implements Runnable {
                 dis.read(bytes, 0, Room.FRAMESIZE);
                 outputStream.write(bytes);
             }
-
             outputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -183,6 +183,7 @@ public class ClientHandler implements Runnable {
                     handleMessage(message);
                 }).start();
             } catch (IOException e) {
+                connected = false;
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();

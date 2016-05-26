@@ -49,7 +49,6 @@ public abstract class Track {
     abstract public void sendTrack(double sec, Room room, ClientHandler c);
 
     protected void sendTrackFromStream(Room room, BufferedInputStream stream, double frameToElapseRounded, boolean isSoundCloud, ClientHandler c) {
-        ArrayList<ClientHandler> clients = room.getClients();
         byte[] buf = new byte[Room.FRAMESIZE];
 
         OutputStream outputStream = null;
