@@ -68,7 +68,9 @@ public class Playlist {
 
     public void addRequestedUploadedTrack(String music, String clientNo) {
         UploadedTrack uploadedTrack = new UploadedTrack(music, clientNo);
+        System.out.println("Adicionou musica");
         addRequestedTrack(uploadedTrack);
+        System.out.println("Tamanho: " + this.playlist.size() + " " + this.playlist_actual_pos);
 
     }
 

@@ -197,7 +197,7 @@ public class ClientHandler implements Runnable {
                 }).start();
             } catch (IOException e) {
                 connected = false;
-                e.printStackTrace();
+                //e.printStackTrace();
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }

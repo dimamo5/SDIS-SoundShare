@@ -182,23 +182,23 @@ public class Room implements Runnable {
 
                 if (currentTrack == null) {
                     return;
-                }
+                }else
+                    System.out.println(currentTrack.isSent());
 
                 Track t1 = playlist.getNextTrack();
 
+
                 // ELEE CORRERA RINAM MUSICA 15 secs TODO
-                if (musicSec >= currentTrack.getInfo().getFullTime()) {
-                    if (currentTrack != null && currentTrack.isSent()) {
+                if (musicSec >= currentTrack.getInfo().getFullTime()&& currentTrack.isSent()) {
                         // DIZER A PLAYLIST QUE ESTMAMOS NA PROXIMA MUSICA
                         if (playlist.skipTrack())
                             musicSec = 0;
-                    }
                 } else if ((t1 != null) && ((musicSec / playlist.getCurrentTrack().getInfo().getFullTime() >= 0.9) && (!t1.isSent()))) {
                     System.out.println("new song 0.9");
                     // ENVIAR PROXIMA TRACK
                     t1.setSent(true);
                     sendNewTrack(playlist.getNextTrack());
-                } else if (!playlist.getCurrentTrack().isSent()) { // INICIO DA PLAYLIST QUANDO ESTA VAZIA
+                } else if (!currentTrack.isSent()) { // INICIO DA PLAYLIST QUANDO ESTA VAZIA
                     System.out.println("new song");
                     try {
                         clientsSemaphore.acquire();

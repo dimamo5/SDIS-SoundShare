@@ -32,6 +32,7 @@ public class RoomConnection implements Runnable {
     public boolean connected = false;
     public AdvancedPlayer player;
 
+
     private InetAddress serverAddress;
     private int roomPort;
 
@@ -169,6 +170,7 @@ public class RoomConnection implements Runnable {
         try {
             if (fis != null) {
                 bis.close();
+                System.out.println("fechou");
                 fis.close();
 
             }
