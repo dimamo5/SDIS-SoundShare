@@ -185,20 +185,19 @@ public class Room implements Runnable {
                 }
 
                 Track t1 = playlist.getNextTrack();
+
                 // ELEE CORRERA RINAM MUSICA 15 secs TODO
-                if (musicSec == currentTrack.getInfo().getFullTime()) {
+                if (musicSec >= currentTrack.getInfo().getFullTime()) {
                     if (currentTrack != null && currentTrack.isSent()) {
                         // DIZER A PLAYLIST QUE ESTMAMOS NA PROXIMA MUSICA
-                        playlist.skipTrack();
-                        musicSec = 0;
+                        if (playlist.skipTrack())
+                            musicSec = 0;
                     }
-                } else if ((t1 != null) && ((musicSec / playlist.getCurrentTrack().getInfo().getFullTime() >= 0.9) && (t1.isSent()))) {
+                } else if ((t1 != null) && ((musicSec / playlist.getCurrentTrack().getInfo().getFullTime() >= 0.9) && (!t1.isSent()))) {
                     System.out.println("new song 0.9");
                     // ENVIAR PROXIMA TRACK
-                    if (t1 != null && !t1.isSent()) {
-                        t1.setSent(true);
-                        sendNewTrack(playlist.getNextTrack());
-                    }
+                    t1.setSent(true);
+                    sendNewTrack(playlist.getNextTrack());
                 } else if (!playlist.getCurrentTrack().isSent()) { // INICIO DA PLAYLIST QUANDO ESTA VAZIA
                     System.out.println("new song");
                     try {

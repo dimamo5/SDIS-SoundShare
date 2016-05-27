@@ -57,6 +57,11 @@ public abstract class Track {
         if (isSoundCloud) {
             //f = new File(System.getProperty("user.dir") + "/resources/soundcloud/" + info.getTrackName() + ".mp3");
             stream = Singleton.getInstance().getSoundCloudComms().getStreamData(Singleton.getInstance().getSoundCloudComms().get_stream_from_url(getStream_url()));
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             /*try {
                 outputStream = new FileOutputStream(f);
             } catch (FileNotFoundException e) {

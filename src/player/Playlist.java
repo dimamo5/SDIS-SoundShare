@@ -26,15 +26,15 @@ public class Playlist {
     }
 
     public Track getNextTrack() {
-        if (playlist_actual_pos + 1 >= playlist.size() && !isRepeat()) {
+        if (playlist_actual_pos + 1 >= playlist.size()) {
             return null;
         } else {
-            if (playlist_actual_pos >= playlist.size() && isRepeat()) {
+            if (playlist_actual_pos >= playlist.size()) {
                 playlist_actual_pos = -1;
             }
             Track next_track = playlist.get(playlist_actual_pos + 1);
 
-            if (playlist_actual_pos >= playlist.size() && isRepeat()) {
+            if (playlist_actual_pos >= playlist.size()) {
                 playlist_actual_pos = -1;
             }
 
@@ -43,15 +43,15 @@ public class Playlist {
     }
 
     public boolean skipTrack() {
-        if (playlist_actual_pos + 1 >= playlist.size() && !isRepeat()) {
+        if (playlist_actual_pos + 1 >= playlist.size()) {
             return false;
         } else {
-            if (playlist_actual_pos >= playlist.size() && isRepeat()) {
+            if (playlist_actual_pos >= playlist.size()) {
                 playlist_actual_pos = -1;
             }
             playlist_actual_pos++;
 
-            if (playlist_actual_pos >= playlist.size() && isRepeat()) {
+            if (playlist_actual_pos >= playlist.size()) {
                 playlist_actual_pos = -1;
             }
             return true;
@@ -73,11 +73,11 @@ public class Playlist {
     }
 
     public Track getPreviousTrack() {
-        if (playlist_actual_pos == 0 && !isRepeat()) {
+        if (playlist_actual_pos == 0) {
             return null;
         } else {
 
-            if (playlist_actual_pos == 0 && isRepeat()) {
+            if (playlist_actual_pos == 0) {
                 playlist_actual_pos = playlist.size();
             }
 

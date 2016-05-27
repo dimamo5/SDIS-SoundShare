@@ -85,7 +85,7 @@ public class ClientHandler implements Runnable {
         try {
             streamingSocket.getOutputStream().write(bytes, 0, FRAMESIZE);
         } catch (SocketException s) {
-            System.out.println("O client saiu");
+            s.printStackTrace();
         }
         catch (IOException e) {
             // IR A ROOM
