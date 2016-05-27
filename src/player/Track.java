@@ -52,14 +52,15 @@ public abstract class Track {
 
     protected void sendTrackFromStream(Room room, InputStream stream, int chunks, double frameToElapseRounded, boolean isSoundCloud, ClientHandler c) {
         byte[] buf = new byte[Room.FRAMESIZE];
+        FileOutputStream fos = null;
 
-        OutputStream outputStream = null;
         if (isSoundCloud) {
             //f = new File(System.getProperty("user.dir") + "/resources/soundcloud/" + info.getTrackName() + ".mp3");
             stream = Singleton.getInstance().getSoundCloudComms().getStreamData(Singleton.getInstance().getSoundCloudComms().get_stream_from_url(getStream_url()));
             try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
+                File f1 = new File(System.getProperty("user.dir") + "/resources/soundcloud/" + info.getTrackName() + ".mp3");
+                fos = new FileOutputStream(f1);
+            } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
             /*try {
@@ -72,13 +73,16 @@ public abstract class Track {
 
         try {
             for (int i = 0; i < chunks; i++) {
-                stream.read(buf, 0, Room.FRAMESIZE);
+                if (stream.read(buf, 0, Room.FRAMESIZE) == -1)
+                    break;
+                if (isSoundCloud)
+                    fos.write(buf);
                 if (i >= frameToElapseRounded)
                     c.send(buf);
             }
-
-            /*if (isSoundCloud)
-                outputStream.close();*/
+            if (isSoundCloud) {
+                fos.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
