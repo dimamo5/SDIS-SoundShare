@@ -1,11 +1,11 @@
 package player;
 
+import server.Singleton;
 import streaming.Room;
 import streaming.ClientHandler;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.awt.image.SinglePixelPackedSampleModel;
+import java.io.*;
 import java.util.ArrayList;
 
 /**
@@ -16,10 +16,11 @@ public abstract class Track {
     //private Date requestTimestamp = new Date();
     protected InfoMusic info;
     private String clientRequested;
-    private boolean sent=false;
+    private boolean sent = false;
     private InputStream stream;
+    private File f;
 
-    public Track(String clientRequested){
+    public Track(String clientRequested) {
         this.clientRequested = clientRequested;
     }
 
@@ -47,26 +48,42 @@ public abstract class Track {
 
     abstract public String getStream_url();
 
-    abstract public void sendTrack(double sec, Room room);
+    abstract public void sendTrack(double sec, Room room, ClientHandler c);
 
-    protected void sendTrackFromStream(Room room, BufferedInputStream stream, double frameToElapseRounded) {
-        ArrayList<ClientHandler> clients = room.getClients();
+    protected void sendTrackFromStream(Room room, InputStream stream, int chunks, double frameToElapseRounded, boolean isSoundCloud, ClientHandler c) {
         byte[] buf = new byte[Room.FRAMESIZE];
-        int i = 0;
+        FileOutputStream fos = null;
+
+        if (isSoundCloud) {
+            //f = new File(System.getProperty("user.dir") + "/resources/soundcloud/" + info.getTrackName() + ".mp3");
+            stream = Singleton.getInstance().getSoundCloudComms().getStreamData(Singleton.getInstance().getSoundCloudComms().get_stream_from_url(getStream_url()));
+            try {
+                File f1 = new File(System.getProperty("user.dir") + "/resources/soundcloud/" + info.getTrackName() + ".mp3");
+                fos = new FileOutputStream(f1);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            /*try {
+                outputStream = new FileOutputStream(f);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }*/
+
+        }
+
         try {
-            while(stream.read(buf,0,buf.length) != -1){
-                i++;
-                if (i >= frameToElapseRounded)
-                    try {
-                        room.clientsSemaphore.acquire();
-                        for(ClientHandler client : clients){
-                            client.send(buf);
-                        }
-                        room.clientsSemaphore.release();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                buf = new byte[Room.FRAMESIZE];
+            for (int i = 0; i < chunks; i++) {
+                if (stream.read(buf, 0, Room.FRAMESIZE) == -1)
+                    break;
+                if (isSoundCloud)
+                    fos.write(buf);
+                if (i >= frameToElapseRounded) {
+                    if (c.isConnected())
+                        c.send(buf);
+                }
+            }
+            if (isSoundCloud) {
+                fos.close();
             }
         } catch (IOException e) {
             e.printStackTrace();

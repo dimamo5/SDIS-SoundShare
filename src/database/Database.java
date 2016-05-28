@@ -1,5 +1,6 @@
 package database;
 
+import javax.xml.crypto.Data;
 import java.security.MessageDigest;
 import java.sql.*;
 import java.util.ArrayList;
@@ -21,22 +22,17 @@ public class Database {
 
     private String db_name = null;
     private Connection connection = null;
-    private static Database instance = null;
+
 
     private enum Query_types {INSERT, SELECT, DELETE, UPDATE}
 
-    ;
+    public Database() {
+        this("soundshare");
+    }
 
     public Database(String db_name) {
         this.db_name = db_name;
         init_db(db_name);
-    }
-
-    public static Database getInstance() {
-        if (instance == null) {
-            instance = new Database("soundshare");
-        }
-        return instance;
     }
 
     private void init_db(String db_name) {
@@ -80,6 +76,14 @@ public class Database {
             System.exit(0);
         }
         System.out.println("Table created successfully");
+    }
+
+    public String getUserByToken(String client_token) {
+        String sql = "SELECT * FROM USERS WHERE ACCESSTOKEN =?";
+        String[] values = {client_token};
+        ArrayList result = (ArrayList) this.execute_sql(Query_types.SELECT.name(), sql, values);
+
+        return result.size() != 0 ? null : result.get(0).toString();
     }
 
     /*
@@ -133,8 +137,7 @@ public class Database {
             if (arr.get(0).get(1).equals(username)) {
                 return generateToken(Integer.parseInt(arr.get(0).get(0)));
             } else return "ERROR";
-        }
-        catch (IndexOutOfBoundsException i) {
+        } catch (IndexOutOfBoundsException i) {
             return "ERROR";
         }
     }
@@ -152,8 +155,8 @@ public class Database {
     public boolean verifyToken(String token) {
         String sql = "SELECT * FROM USERS WHERE ACCESSTOKEN =?";
         String[] values = {token};
-        ArrayList result= (ArrayList) this.execute_sql(Query_types.SELECT.name(), sql, values);
-        return result.size()!=0;
+        ArrayList result = (ArrayList) this.execute_sql(Query_types.SELECT.name(), sql, values);
+        return result.size() != 0;
     }
 
     public boolean deleteToken(String token) {
@@ -250,7 +253,7 @@ public class Database {
 
     public static void main(String args[]) {
 
-        Database db = Database.getInstance();
+        Database db = new Database();
         db.insert_user("teste", "lol");
 
         /*String s=db.generateToken(2);

@@ -3,8 +3,9 @@ package player;
 import org.json.JSONException;
 import org.json.JSONObject;
 import soundcloud.SCComms;
+import streaming.ClientHandler;
 import streaming.Room;
-import util.ServerSingleton;
+import server.Singleton;
 
 import java.io.BufferedInputStream;
 import java.util.Map;
@@ -12,7 +13,7 @@ import java.util.Map;
 /**
  * Created by Sonhs on 20/05/2016.
  */
-public class SCTrack extends Track{
+public class SCTrack extends Track {
 
     private JSONObject track;
     private String stream_url;
@@ -23,7 +24,7 @@ public class SCTrack extends Track{
         this.track = track;
         stream_url = track.getString("stream_url");
         info = getMusicInfo(track);
-        this.setStream(ServerSingleton.getInstance().getSoundCloudComms().getStreamData(ServerSingleton.getInstance().getSoundCloudComms().get_stream_from_url(stream_url)));
+        this.setStream(Singleton.getInstance().getSoundCloudComms().getStreamData(Singleton.getInstance().getSoundCloudComms().get_stream_from_url(stream_url)));
     }
 
     private InfoMusic getMusicInfo(JSONObject track) {
@@ -31,7 +32,7 @@ public class SCTrack extends Track{
         Map info_track = SCComms.get_info(track);
         info = new InfoMusic((String) info_track.get("title"),
                 (String) info_track.get("author"),
-                (int) info_track.get("duration"),(long) info_track.get("original_content_size"));
+                (int) info_track.get("duration"), (long) info_track.get("original_content_size"));
         System.out.println("dur: " + info_track.get("duration"));
 
         return info;
@@ -50,7 +51,7 @@ public class SCTrack extends Track{
     }
 
     @Override
-    public void sendTrack(double sec, Room room){
+    public void sendTrack(double sec, Room room, ClientHandler c) {
         BufferedInputStream stream = new BufferedInputStream(this.getStream());
 
         setSent(true);
@@ -59,13 +60,15 @@ public class SCTrack extends Track{
         double frameToElapseRounded = Math.round(frameToElapse);
         System.out.println("Enviar " + this.getTrackName() + " - " + this.getInfo().getAuthor() + " Duration: " + this.getInfo().getFullTime());
 
-        room.sendNewTrackMessageToAllClients(this, sec);
-        sendTrackFromStream(room, stream, frameToElapseRounded);
+        room.sendMusicMessage(c, this, sec);
+        System.out.println("size: " + getInfo().getSize());
+        int chunks = (int) getInfo().getSize()/Room.FRAMESIZE;
+        sendTrackFromStream(room, stream,chunks, frameToElapseRounded, true, c);
     }
 
     @Override
     public long getBytesPerSec() {
-        return getStream_kbps();
+        return getStream_kbps() * (1000 / 8);
     }
 
     public void setStream_url(String stream_url) {

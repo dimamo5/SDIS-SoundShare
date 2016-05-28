@@ -1,7 +1,6 @@
 package streaming.messages;
 
-import player.Track;
-import player.UploadedTrack;
+import auth.Token;
 
 import java.io.Serializable;
 
@@ -9,50 +8,54 @@ import java.io.Serializable;
  * Created by duarte on 14-05-2016.
  */
 public class Message implements Serializable {
-    public enum Type{
+    public enum Type {
         DISCONNECT,
         CONNECT,
+        INFO_ROOM,
         STREAM,
         VOTE_SKIP,
         SKIP,
         REQUEST,
+        TOKEN,
         VOTE_KICK,
         MUSIC,
         TRUE,
-        FALSE
+        FALSE,
+        ROOM_LIST,
+        NEW_ROOM,
+        ONLY_TOKEN //é usado
     }
 
     protected Type type;
+    protected Token token;
+    protected String[] args;
 
-    public String getToken() {
-        return token;
+    public Message(Type type, String... args) {
+        this.type = type;
+        this.args = args;
     }
 
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    protected String token;
-    protected String[] arg;
-
-    public Message(Type type, String token, String[] arg) {
+    public Message(Type type, Token token, String... args) {
         this.type = type;
         this.token = token;
-        this.arg = arg;
+        this.args = args;
     }
 
-    public Message(){};
+    public Message() {
+    }
+
+    ;
 
     public Message(Type type) {
         this.type = type;
     }
 
-    public String[] getArg() {
-        return arg;
+    public String[] getArgs() {
+        return args;
     }
 
-    public void setArg(String[] arg) {
-        this.arg = arg;
+    public void setArgs(String[] args) {
+        this.args = args;
     }
 
     public Type getType() {
@@ -63,10 +66,19 @@ public class Message implements Serializable {
         this.type = type;
     }
 
+    public Token getToken() {
+        return token;
+    }
+
+    public void setToken(Token token) {
+        this.token = token;
+    }
+
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        switch(this.type) {
+        switch (this.type) {
             case MUSIC:
                 //Override na class MusicMessage.java
                 break;
@@ -84,17 +96,22 @@ public class Message implements Serializable {
                 sb.append(type.toString());
                 sb.append(" " + token);
                 sb.append(" Request for song ");
-                sb.append(arg[0]);
+                sb.append(args[0]);
                 sb.append(" ");
-                sb.append(arg[1]);
+                sb.append(args[1]);
                 return sb.toString();
             case FALSE:
+                break;
+            case TOKEN:
+
+                break;
             case TRUE:
                 sb.append(type.toString());
-                for(String argument : arg){
-                    sb.append(" "+argument);
+                for (String argument : args) {
+                    sb.append(" " + argument);
                 }
                 return sb.toString();
+
             default:
                 break;
         }

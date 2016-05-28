@@ -31,12 +31,12 @@ public class Converter {
             Encoder enc = new Encoder();
             EncodingAttributes att = new EncodingAttributes();
             InfoMusic inf = new InfoMusic(fileConvert);
-            att.setDuration((float)inf.getFullTime());
+            att.setDuration((float) inf.getFullTime());
             AudioAttributes audioAttributes = new AudioAttributes();
 
             audioAttributes.setBitRate(BITRATE);
             audioAttributes.setChannels(CHANNELS);
-            audioAttributes.setSamplingRate((int)SAMPLE);
+            audioAttributes.setSamplingRate((int) SAMPLE);
 
             att.setAudioAttributes(audioAttributes);
             att.setFormat("mp3");

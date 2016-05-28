@@ -58,6 +58,7 @@ public class SCComms {
 
     /**
      * Searchs for a track on SoundCloud
+     *
      * @param track_name user input to get searched
      * @returns the search's result's list (can be empty if no valid result found) or null if any error ocurred
      */
@@ -139,7 +140,7 @@ public class SCComms {
     }
 
 
-    public String get_stream_from_track(JSONObject track){
+    public String get_stream_from_track(JSONObject track) {
         String stream_url = null;
         try {
             stream_url = track.getString("stream_url");
@@ -152,7 +153,7 @@ public class SCComms {
         return get_stream_url_location(stream_url);
     }
 
-    public String get_stream_from_url(String stream_url){
+    public String get_stream_from_url(String stream_url) {
         return get_stream_url_location(stream_url);
     }
 
@@ -235,14 +236,14 @@ public class SCComms {
 
 
     public static Map get_info(JSONObject track) {
-        Map info = new HashMap<String,String>();
+        Map info = new HashMap<String, String>();
 
         try {
-            info.put("title",track.get("title"));
+            info.put("title", track.get("title"));
             info.put("duration", track.get("duration"));
             info.put("author", track.getJSONObject("user").get("username"));
-            info.put("original_content_size",track.getLong("original_content_size"));
-            info.put("stream",track.getString("stream_url"));
+            info.put("original_content_size", track.getLong("original_content_size"));
+            info.put("stream", track.getString("stream_url"));
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -256,12 +257,12 @@ public class SCComms {
        @param stream_url the stream url
        @return InputStream data
      */
-    public InputStream getStreamData(String stream_url){
+    public InputStream getStreamData(String stream_url) {
 
         InputStream in = null;
 
         try {
-           in =  new BufferedInputStream(new URL(stream_url).openStream());
+            in = new BufferedInputStream(new URL(stream_url).openStream());
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,17 +1,20 @@
 package streaming;
 
+import auth.Token;
 import database.Database;
-import player.InfoMusic;
-import player.Track;
-import player.UploadedTrack;
+import org.json.JSONArray;
+import org.json.JSONException;
+import player.Converter;
+import player.SCTrack;
+import server.Singleton;
 import streaming.messages.Message;
 import streaming.messages.MessageException;
 import streaming.messages.RequestMessage;
 
-import javax.xml.crypto.Data;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Random;
 
 import static streaming.Room.FRAMESIZE;
@@ -19,7 +22,7 @@ import static streaming.Room.FRAMESIZE;
 /**
  * Created by diogo on 12/05/2016.
  */
-public class ClientHandler implements Runnable{
+public class ClientHandler implements Runnable {
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private Socket communicationSocket;
@@ -27,38 +30,71 @@ public class ClientHandler implements Runnable{
     private InputStream streamIn;
     private boolean connected = true;
     private Room room;
-    private int userId = new Random().nextInt(2048)+1;
+    private int userId = new Random().nextInt(2048) + 1;
     private Database db;
+    private Token token;
+    private String username;
 
-    public ClientHandler(Socket socket, Room room){
-        this.db = Database.getInstance();
+    public Token getToken() {
+        return token;
+    }
+
+    public void setToken(Token token) {
+        this.token = token;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public ClientHandler(Socket socket, Room room) {
+        this.db = Singleton.getInstance().getDatabase();
         this.room = room;
         this.communicationSocket = socket;
 
-        // TODO: 19-05-2016 Verificar se ao criar o streaming socket desta maneira ele já atribuí um port para o client se ligar
-
         try {
-            ServerSocket serverSocketStreaming = new ServerSocket(0);
+            ServerSocket roomStreamingSocket = new ServerSocket(0);
             this.out = new ObjectOutputStream(this.communicationSocket.getOutputStream());
             this.in = new ObjectInputStream(this.communicationSocket.getInputStream());
 
-            //Send message with the streaming port for the ClientHandler to connect to in order to receive streaming data
-            out.writeObject(new Message(Message.Type.STREAM, "", new String[]{serverSocketStreaming.getLocalPort()+""} ));
-            this.streamingSocket = serverSocketStreaming.accept();
-         } catch (IOException e) {
-             e.printStackTrace();
-         }
-    }
+            //message de recepçao de token
+            boolean loggedIn = false;
 
-    public void send(byte[] bytes){
-        try {
-            streamingSocket.getOutputStream().write(bytes, 0, FRAMESIZE);
-        } catch (IOException e) {
+            while (!loggedIn) {
+                Message m = (Message) in.readObject();
+
+                if (m.getType() == Message.Type.ONLY_TOKEN) {
+                    loggedIn = true;
+                    this.token = m.getToken();
+
+                    //get user from database
+                    this.username = db.getUserByToken(this.token.getToken());
+                    System.out.println("client.RoomConnection: " + username + " " + token);
+                }
+            }
+
+            //Send message with the streaming port for the client to connect to in order to receive streaming data
+            out.writeObject(new Message(Message.Type.STREAM, null, new String[]{roomStreamingSocket.getLocalPort() + ""}));
+            this.streamingSocket = roomStreamingSocket.accept();
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 
-    public void sendMessage(Message message){
+    public void send(byte[] bytes) {
+        try {
+            streamingSocket.getOutputStream().write(bytes, 0, FRAMESIZE);
+        } catch (SocketException s) {
+            System.out.println("Client disconnected abruptly");
+            connected = false;
+        }
+        catch (IOException e) {
+            // IR A ROOM
+            e.printStackTrace();
+        }
+    }
+
+    public void sendMessage(Message message) {
         try {
             out.writeObject(message);
         } catch (IOException e) {
@@ -74,23 +110,30 @@ public class ClientHandler implements Runnable{
         this.connected = connected;
     }
 
-    public void handleMessage(Message message){
-        try{
-            switch (message.getType()){
+    public void handleMessage(Message message) {
+        try {
+            switch (message.getType()) {
                 case VOTE_SKIP:
-                    if (db.verifyToken(message.getToken()))
+                    if (db.verifyToken(message.getToken().getToken())) {
                         room.voteSkip(getUserId());
+                    }
                     break;
                 case REQUEST:
-                    if (db.verifyToken(message.getToken())) {
+                    if (db.verifyToken(message.getToken().getToken())) {
                         RequestMessage requestMessage = (RequestMessage) message;
                         switch (requestMessage.getRequestType()) {
                             case SOUNDCLOUD:
+                                SCTrack scTrack = room.getTrackGetter().getTrackByName(message.getArgs()[0], username);
+                                room.getPlaylist().addRequestedTrack(scTrack);
+                                sendMessage(new Message(Message.Type.TRUE, null, message.getArgs()));
                                 break;
                             case STREAM_SONG:
                                 System.out.println(message);
-                                readSongFromUser(message.getArg()[0]);
-                                sendMessage(new Message(Message.Type.TRUE, "", message.getArg()));
+                                String temp = message.getArgs()[0];
+                                String[] t = temp.split("/");
+                                readSongFromUser(t[t.length - 1]);
+                                room.getPlaylist().addRequestedUploadedTrack(t[t.length - 1], token.getToken());
+                                sendMessage(new Message(Message.Type.TRUE, null, message.getArgs()));
                                 break;
                             default:
                                 break;
@@ -100,7 +143,9 @@ public class ClientHandler implements Runnable{
                 default:
                     throw new MessageException("Message Type not valid");
             }
-        }catch (MessageException e) {
+        } catch (MessageException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
@@ -110,15 +155,24 @@ public class ClientHandler implements Runnable{
         try {
             streamIn = streamingSocket.getInputStream();
             // write the inputStream to a FileOutputStream
-            OutputStream outputStream = new FileOutputStream(new File(System.getProperty("user.dir") + "/resources/" + filename));
+            File f = new File(System.getProperty("user.dir") + "/resources/" + filename);
+            OutputStream outputStream = new FileOutputStream(f);
 
             int read = 0;
             byte[] bytes = new byte[Room.FRAMESIZE];
 
-            while ((read = streamIn.read(bytes)) != -1) {
-                outputStream.write(bytes, 0, read);
+            DataInputStream dis = new DataInputStream(streamIn);
+            int chunks = 0;
+            chunks = dis.readShort();
+
+            for (int i = 0; i < chunks; i++) {
+                dis.read(bytes, 0, Room.FRAMESIZE);
+                outputStream.write(bytes);
             }
             outputStream.close();
+            if (chunks == 0)
+                f.delete();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -136,8 +190,8 @@ public class ClientHandler implements Runnable{
 
     @Override
     public void run() {
-        while(connected){
-            if(communicationSocket.isClosed()){
+        while (connected) {
+            if (communicationSocket.isClosed()) {
                 setConnected(false);
                 break;
             }
@@ -148,14 +202,17 @@ public class ClientHandler implements Runnable{
                     handleMessage(message);
                 }).start();
             } catch (IOException e) {
-                e.printStackTrace();
+                connected = false;
+                //e.printStackTrace();
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
-
         }
 
+        this.room.removeClientFromList(this);
+
         try {
+            System.out.println("ENTRARRR");
             streamingSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
