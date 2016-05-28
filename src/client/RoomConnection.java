@@ -251,7 +251,6 @@ public class RoomConnection implements Runnable {
                 try {
                     byte[] b = new byte[Room.FRAMESIZE];
                     streamIn.skip(Integer.MAX_VALUE);
-
                     //player = new AdvancedPlayer(streamIn);
                     //player.play();
                 } catch (IOException e) {

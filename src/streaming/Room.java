@@ -249,7 +249,7 @@ public class Room implements Runnable {
 
                 Track t = this.playlist.getCurrentTrack();
                 if (t != null) {
-                    sendMusicMessage(c, t, musicSec);
+                    //sendMusicMessage(c, t, musicSec);
                     sendActualTrack(c);
                 }
                 clientsSemaphore.release();
