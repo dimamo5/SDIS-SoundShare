@@ -7,6 +7,9 @@ import streaming.messages.Message;
 import streaming.Room;
 import streaming.messages.RequestMessage;
 
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.*;
 import java.net.*;
 import java.text.DateFormat;
@@ -136,6 +139,17 @@ public class RoomConnection implements Runnable {
     public boolean sendSong(String filename) {
         byte[] mybytearray = new byte[Room.FRAMESIZE];
         File f = new File(System.getProperty("user.dir") + "/" + filename);
+        AudioFileFormat format = null;
+        try {
+            format = AudioSystem.getAudioFileFormat(f);
+        } catch (UnsupportedAudioFileException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (format.) {
+
+        }
 
         FileInputStream fis = null;
         try {
