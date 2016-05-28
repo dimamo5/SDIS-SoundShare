@@ -34,6 +34,7 @@ public class Room implements Runnable {
     private double musicSec = 0;
     private Playlist playlist = new Playlist();
     private Set<Integer> skipList = new TreeSet<>();
+    private boolean skipBool = false;
 
     private TrackGetter trackGetter = new TrackGetter(Singleton.getInstance().getSoundCloudComms());
 
@@ -113,7 +114,7 @@ public class Room implements Runnable {
         skipList.clear();
         playlist.skipTrack();
         sendSkipMessage();
-        //Thread.sleep(2000);
+        skipBool = true;
     }
 
     public void sendSkipMessage() {
@@ -180,6 +181,14 @@ public class Room implements Runnable {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
+
+                if (skipBool)
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
                 musicSec += 0.5;
                 Track currentTrack = playlist.getCurrentTrack();
 

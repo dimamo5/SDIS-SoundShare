@@ -47,22 +47,18 @@ public class CLInterface implements Runnable {
     @Override
     public void run() {
             Scanner input = new Scanner(System.in);
-            while (commandNext) {
+            while (true) {
                 System.out.print("Command: ");
                 try {
                     handleCommands(input.nextLine());
                 } catch (CommandException e) {
                     e.printStackTrace();
                 }
-                commandNext = false;
+                try {
+                    Thread.sleep(2000); //para aparecer command depois do print das msgs
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
-    }
-
-    public Boolean isCommandNext() {
-        return commandNext;
-    }
-
-    public void setCommandNext() {
-        this.commandNext = true;
     }
 }

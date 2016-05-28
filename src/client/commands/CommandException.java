@@ -13,7 +13,5 @@ public class CommandException extends Exception {
     @Override
     public void printStackTrace() {
         System.out.println(getMessage());
-        Client.getInstance().getClInterface().setCommandNext();
-        Client.getInstance().getClInterface().run();
     }
 }

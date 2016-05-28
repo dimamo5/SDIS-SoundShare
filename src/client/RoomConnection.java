@@ -215,11 +215,16 @@ public class RoomConnection implements Runnable {
             }
 
             try {
-                final Message message = (Message) in.readObject();
+                final Message message;
+                message = (Message) in.readObject();
+
                 new Thread(() -> {
                     handleMessage(message);
                 }).start();
-            } catch (IOException e) {
+            } catch (SocketException s) {
+                return;
+            }
+            catch (IOException e) {
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
@@ -227,7 +232,8 @@ public class RoomConnection implements Runnable {
         }
 
         try {
-            streamingSocket.close();
+            if (streamingSocket != null)
+                streamingSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -237,20 +243,17 @@ public class RoomConnection implements Runnable {
         switch (message.getType()) {
             case MUSIC:
                 System.out.println(message.toString());
-                Client.getInstance().getClInterface().setCommandNext();
-                Client.getInstance().getClInterface().run();
                 break;
             case TRUE:
                 System.out.println(message.toString());
-                Client.getInstance().getClInterface().setCommandNext();
-                Client.getInstance().getClInterface().run();
                 break;
             case SKIP:
-                System.out.println("SKIP");
-                Client.getInstance().getClInterface().setCommandNext();
-                Client.getInstance().getClInterface().run();
                 try {
-                    streamIn.skip(streamIn.available());
+                    byte[] b = new byte[Room.FRAMESIZE];
+                    streamIn.skip(Integer.MAX_VALUE);
+
+                    //player = new AdvancedPlayer(streamIn);
+                    //player.play();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
