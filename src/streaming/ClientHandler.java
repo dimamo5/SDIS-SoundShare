@@ -114,8 +114,10 @@ public class ClientHandler implements Runnable {
         try {
             switch (message.getType()) {
                 case VOTE_SKIP:
-                    if (db.verifyToken(message.getToken().getToken()))
+                    if (db.verifyToken(message.getToken().getToken())) {
+                        System.out.println("in:");
                         room.voteSkip(getUserId());
+                    }
                     break;
                 case REQUEST:
                     if (db.verifyToken(message.getToken().getToken())) {

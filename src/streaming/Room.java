@@ -23,7 +23,7 @@ import java.util.concurrent.Semaphore;
 public class Room implements Runnable {
     public static final int DEFAULTPORT = 5000;
     public static final int FRAMESIZE = 2048;
-    private static final int MAX_NUM_SKIP_VOTES = 5;
+    private static final int MAX_NUM_SKIP_VOTES = 1;
 
     private ServerSocket socket;
     private int port = 0;
@@ -98,6 +98,7 @@ public class Room implements Runnable {
     }
 
     public void voteSkip(int user) {
+        System.out.println("out: " + user);
         skipList.add(user);
         if (skipList.size() >= MAX_NUM_SKIP_VOTES) {
             try {
