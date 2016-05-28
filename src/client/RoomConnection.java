@@ -8,10 +8,7 @@ import streaming.Room;
 import streaming.messages.RequestMessage;
 
 import java.io.*;
-import java.net.ConnectException;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -189,14 +186,20 @@ public class RoomConnection implements Runnable {
     }
 
     public void play() {
-        RoomConnection c = this;
+        final RoomConnection c = this;
         new Thread() {
             @Override
             public void run() {
                 try {
                     c.player = new AdvancedPlayer(c.streamIn);
                     c.player.play();
-                } catch (JavaLayerException e) {
+                }
+                catch (java.lang.ArrayIndexOutOfBoundsException a) {
+                    System.out.println("bug do 580");
+                    //a.printStackTrace();
+                    c.play();
+                }
+                catch (JavaLayerException e) {
                     e.printStackTrace();
                 }
             }

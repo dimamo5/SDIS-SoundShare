@@ -77,8 +77,10 @@ public abstract class Track {
                     break;
                 if (isSoundCloud)
                     fos.write(buf);
-                if (i >= frameToElapseRounded)
-                    c.send(buf);
+                if (i >= frameToElapseRounded) {
+                    if (c.isConnected())
+                        c.send(buf);
+                }
             }
             if (isSoundCloud) {
                 fos.close();

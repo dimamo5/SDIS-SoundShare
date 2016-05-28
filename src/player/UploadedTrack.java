@@ -83,7 +83,6 @@ public class UploadedTrack extends Track {
         double frameToElapseRounded = Math.round(frameToElapse);
 
         System.out.println("Tamanho ficheiro: " + f.length() + " Bytes per sec: " + bytesperSec + " Frames passed: " + frameToElapse);
-
         sendTrackFromStream(room, fis, chunks, frameToElapseRounded, false, c);
     }
 

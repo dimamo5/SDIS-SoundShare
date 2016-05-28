@@ -89,19 +89,17 @@ public class ServerClientHandler implements Runnable {
 
 
             } catch (SocketException exception) {
-                if (exception.toString().equals("java.net.SocketException: Connection reset")) {
-                    System.out.println("End point(client) disconnected.");
-                    try {
-                        if (socket != null) {
-                            loggedIn = false;
-                            socket.close(); //close this point
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return;
+                System.out.println("End point(client) disconnected.");
+                try {
+                    if (socket != null) {
+                        loggedIn = false;
+                        socket.close(); //close this point
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
                 }
-                exception.printStackTrace();
+                //exception.printStackTrace();
                 return;
             } catch (IOException e) {
                 e.printStackTrace();

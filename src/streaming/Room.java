@@ -132,7 +132,8 @@ public class Room implements Runnable {
                 @Override
                 public void run() {
                     if (track != null) {
-                        track.sendTrack(0, room, clientHandler);
+                        if (clientHandler.isConnected())
+                            track.sendTrack(0, room, clientHandler);
                     }
                 }
             }.start();
@@ -145,7 +146,8 @@ public class Room implements Runnable {
         new Thread() {
             @Override
             public void run() {
-                playlist.getCurrentTrack().sendTrack(musicSec, room, u);
+                if (u.isConnected())
+                    playlist.getCurrentTrack().sendTrack(musicSec, room, u);
             }
         }.start();
     }

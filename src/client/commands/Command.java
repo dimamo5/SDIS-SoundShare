@@ -27,11 +27,10 @@ public class Command {
         String[] args = command.split("\\s+");
 
         this.type = parseType(args[0]);
-        if (args.length > 1) {
-            this.args = new String[args.length - 1];
-            parseArgs(type, args);
+        this.args = new String[args.length - 1];
+        parseArgs(type, args);
+        if (args.length > 1)
             System.arraycopy(args, 1, this.args, 0, args.length - 1);
-        }
     }
 
     private boolean parseArgs(Type type, String[] args) throws CommandException {

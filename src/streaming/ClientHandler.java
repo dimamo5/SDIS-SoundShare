@@ -85,7 +85,8 @@ public class ClientHandler implements Runnable {
         try {
             streamingSocket.getOutputStream().write(bytes, 0, FRAMESIZE);
         } catch (SocketException s) {
-            s.printStackTrace();
+            System.out.println("Client disconnected abruptly");
+            connected = false;
         }
         catch (IOException e) {
             // IR A ROOM
