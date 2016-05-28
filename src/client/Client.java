@@ -110,7 +110,8 @@ public class Client {
                 case ROOM_LIST:
                     getServerConnection().sendMessage(new Message(Message.Type.ROOM_LIST, token));
                     Message roomList = getServerConnection().receiveMessage();
-                    getClInterface().println(roomList.toString());
+                    if (roomList != null)
+                        getClInterface().println(roomList.toString());
                     break;
                 default:
                     throw new CommandException("Error executing the command");

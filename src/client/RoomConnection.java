@@ -194,11 +194,6 @@ public class RoomConnection implements Runnable {
                     c.player = new AdvancedPlayer(c.streamIn);
                     c.player.play();
                 }
-                catch (java.lang.ArrayIndexOutOfBoundsException a) {
-                    System.out.println("bug do 580");
-                    //a.printStackTrace();
-                    c.play();
-                }
                 catch (JavaLayerException e) {
                     e.printStackTrace();
                 }

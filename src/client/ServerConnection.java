@@ -7,9 +7,11 @@ import server.Singleton;
 import streaming.Room;
 import streaming.messages.Message;
 
+import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
+import java.net.SocketException;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -73,9 +75,11 @@ public class ServerConnection {
         return false;
     }
 
-    private boolean receiveToken() throws IOException {
+    private boolean receiveToken() {
         try {
-            Message message = (Message) inputStream.readObject();
+            Message message = null;
+            if (!sslsocket.isClosed())
+                message = (Message) inputStream.readObject();
 
             if (!message.getType().equals(Message.Type.TOKEN))
                 return false;
@@ -83,7 +87,11 @@ public class ServerConnection {
             Client.getInstance().setToken(message.getToken());
             return true;
 
-        } catch (ClassNotFoundException e) {
+        } catch (IOException s) {
+            System.out.println("Server shutdown abruptly.");
+            return false;
+        }
+        catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
         return false;
@@ -97,7 +105,8 @@ public class ServerConnection {
         try {
             this.outputstream.writeObject(message);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Server shutdown abruptly.");
+            return;
         }
     }
 
@@ -106,7 +115,8 @@ public class ServerConnection {
         try {
             return (Message) this.inputStream.readObject();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Server shutdown abruptly.");
+            return null;
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -129,8 +139,15 @@ public class ServerConnection {
         this.serverPort = serverPort;
     }
 
-    private void sendConnectMessage(Credential credentials) throws IOException {
+    private void sendConnectMessage(Credential credentials) {
         Message connectMessage = new Message(Message.Type.CONNECT, new String[]{credentials.getUsername(), credentials.getPassword()});
-        outputstream.writeObject(connectMessage);
+        try {
+            if (!sslsocket.isClosed())
+                outputstream.writeObject(connectMessage);
+        }
+        catch (IOException s) {
+            System.out.println("Server shutdown abruptly.");
+            return;
+        }
     }
 }
