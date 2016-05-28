@@ -1,5 +1,7 @@
 package client.commands;
 
+import client.Client;
+
 /**
  * Created by duarte on 24-05-2016.
  */
@@ -11,5 +13,7 @@ public class CommandException extends Exception {
     @Override
     public void printStackTrace() {
         System.out.println(getMessage());
+        Client.getInstance().getClInterface().setCommandNext();
+        Client.getInstance().getClInterface().run();
     }
 }

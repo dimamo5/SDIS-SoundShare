@@ -237,12 +237,18 @@ public class RoomConnection implements Runnable {
         switch (message.getType()) {
             case MUSIC:
                 System.out.println(message.toString());
+                Client.getInstance().getClInterface().setCommandNext();
+                Client.getInstance().getClInterface().run();
                 break;
             case TRUE:
                 System.out.println(message.toString());
-                //sendSong(message.getArgs()[0]);
+                Client.getInstance().getClInterface().setCommandNext();
+                Client.getInstance().getClInterface().run();
                 break;
             case SKIP:
+                System.out.println("SKIP");
+                Client.getInstance().getClInterface().setCommandNext();
+                Client.getInstance().getClInterface().run();
                 try {
                     streamIn.skip(streamIn.available());
                 } catch (IOException e) {

@@ -98,8 +98,8 @@ public class Room implements Runnable {
     }
 
     public void voteSkip(int user) {
-        System.out.println("out: " + user);
         skipList.add(user);
+        System.out.println("size: " + skipList.size());
         if (skipList.size() >= MAX_NUM_SKIP_VOTES) {
             try {
                 skipTrack();
@@ -113,13 +113,13 @@ public class Room implements Runnable {
         skipList.clear();
         playlist.skipTrack();
         sendSkipMessage();
-        Thread.sleep(2000);
-        sendNewTrack(playlist.getCurrentTrack());
+        //Thread.sleep(2000);
     }
 
     public void sendSkipMessage() {
         Message message = new Message(Message.Type.SKIP);
         for (ClientHandler client : clients) {
+            System.out.println("SKIP CLIENT");
             client.sendMessage(message);
         }
     }
@@ -185,11 +185,8 @@ public class Room implements Runnable {
 
                 if (currentTrack == null) {
                     return;
-                }else
-                    System.out.println(currentTrack.isSent());
-
+                }
                 Track t1 = playlist.getNextTrack();
-
 
                 // ELEE CORRERA RINAM MUSICA 15 secs TODO
                 if (musicSec >= currentTrack.getInfo().getFullTime()&& currentTrack.isSent()) {

@@ -46,26 +46,6 @@ public class Client {
 
         login();
 
-        /*
-        String list = this.serverConnection.getRoom_list();
-
-        if(list != null)
-            System.out.println("Room list:\n"+ list+"\n");
-        else
-            System.out.println("Room list: (Empty)");
-        */
-
-        //recebe input (porta) do user
-        /*int room_port = this.clInterface.choosePortFromList(this.serverConnection.getRoom_list());
-        InetAddress address = null;
-        try {
-             address = InetAddress.getByName(sv_address);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-
-        this.roomConnection = new RoomConnection(address,room_port);*/
-
         new Thread(this.clInterface).start();
     }
 
@@ -90,15 +70,20 @@ public class Client {
             switch (command.getType()) {
                 case SKIP:
                     this.roomConnection.skip();
+                    this.clInterface.setCommandNext();
+                    this.clInterface.run();
                     break;
                 case REQUEST:
                     if (this.roomConnection != null)
                         this.getRoomConnection().requestSong(command.getArgs()[0], Boolean.parseBoolean(command.getArgs()[1]));
-                    else
-                        this.clInterface.println("You have to be connected to a room in order to request a song!");
+                    else this.clInterface.println("You have to be connected to a room in order to request a song!");
+                    this.clInterface.setCommandNext();
+                    this.clInterface.run();
                     break;
                 case LOGOUT:
                     logout();
+                    this.clInterface.setCommandNext();
+                    this.clInterface.run();
                     break;
                 case CREATE_ROOM:
                     getServerConnection().sendMessage(new Message(Message.Type.NEW_ROOM, getToken()));
@@ -106,11 +91,14 @@ public class Client {
                     if (message.getType().equals(Message.Type.NEW_ROOM)) {
                         getClInterface().println("New room created in port: " + message.getArgs()[0]);
                     }
+                    this.clInterface.setCommandNext();
+                    this.clInterface.run();
                     break;
                 case CONNECT_ROOM:
                     if (this.roomConnection == null)
                         try {
                             this.roomConnection = new RoomConnection(InetAddress.getByName(this.serverConnection.getServerAddress()), Integer.parseInt(command.getArgs()[0]));
+                            new Thread(roomConnection).start();
                             if (!this.roomConnection.connected) {
                                 this.clInterface.println("That port is not valid.");
                                 this.roomConnection = null;
@@ -119,6 +107,8 @@ public class Client {
                             e.printStackTrace();
                         }
                     else this.clInterface.println("Trying to connect to a room when you are already connected");
+                    this.clInterface.setCommandNext();
+                    this.clInterface.run();
                     break;
                 case DISCONNECT_ROOM:
                     if (this.roomConnection != null) {
@@ -126,13 +116,19 @@ public class Client {
                         this.roomConnection = null;
                     } else
                         this.clInterface.println("Trying to disconnect from a room when you are already disconnected");
+                    this.clInterface.setCommandNext();
+                    this.clInterface.run();
                     break;
                 case ROOM_LIST:
                     getServerConnection().sendMessage(new Message(Message.Type.ROOM_LIST, token));
                     Message roomList = getServerConnection().receiveMessage();
                     getClInterface().println(roomList.toString());
+                    this.clInterface.setCommandNext();
+                    this.clInterface.run();
                     break;
                 default:
+                    this.clInterface.setCommandNext();
+                    this.clInterface.run();
                     throw new CommandException("Error executing the command");
             }
         } catch (CommandException e) {
@@ -144,7 +140,7 @@ public class Client {
         return roomConnection;
     }
 
-    private CLInterface getClInterface() {
+    public CLInterface getClInterface() {
         return clInterface;
     }
 

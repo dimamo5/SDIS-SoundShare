@@ -10,8 +10,11 @@ import java.util.Scanner;
  * Created by duarte on 24-05-2016.
  */
 public class CLInterface implements Runnable {
-    public CLInterface() {
 
+    public Boolean commandNext = false;
+
+    public CLInterface() {
+        commandNext = true;
     }
 
     public void println(String string) {
@@ -43,16 +46,23 @@ public class CLInterface implements Runnable {
 
     @Override
     public void run() {
-        Scanner input = new Scanner(System.in);
-
-        while (true) {
-            System.out.print("Command: ");
-            try {
-                handleCommands(input.nextLine());
-            } catch (CommandException e) {
-                e.printStackTrace();
+            Scanner input = new Scanner(System.in);
+            while (commandNext) {
+                System.out.print("Command: ");
+                try {
+                    handleCommands(input.nextLine());
+                } catch (CommandException e) {
+                    e.printStackTrace();
+                }
+                commandNext = false;
             }
-        }
+    }
 
+    public Boolean isCommandNext() {
+        return commandNext;
+    }
+
+    public void setCommandNext() {
+        this.commandNext = true;
     }
 }
