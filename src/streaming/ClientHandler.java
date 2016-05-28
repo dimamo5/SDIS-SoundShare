@@ -155,7 +155,8 @@ public class ClientHandler implements Runnable {
         try {
             streamIn = streamingSocket.getInputStream();
             // write the inputStream to a FileOutputStream
-            OutputStream outputStream = new FileOutputStream(new File(System.getProperty("user.dir") + "/resources/" + filename));
+            File f = new File(System.getProperty("user.dir") + "/resources/" + filename);
+            OutputStream outputStream = new FileOutputStream(f);
 
             int read = 0;
             byte[] bytes = new byte[Room.FRAMESIZE];
@@ -169,6 +170,9 @@ public class ClientHandler implements Runnable {
                 outputStream.write(bytes);
             }
             outputStream.close();
+            if (chunks == 0)
+                f.delete();
+
         } catch (IOException e) {
             e.printStackTrace();
         }

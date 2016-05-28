@@ -140,16 +140,6 @@ public class RoomConnection implements Runnable {
         byte[] mybytearray = new byte[Room.FRAMESIZE];
         File f = new File(System.getProperty("user.dir") + "/" + filename);
         AudioFileFormat format = null;
-        try {
-            format = AudioSystem.getAudioFileFormat(f);
-        } catch (UnsupportedAudioFileException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (format.) {
-
-        }
 
         FileInputStream fis = null;
         try {
@@ -161,11 +151,33 @@ public class RoomConnection implements Runnable {
         int chunks = (int) f.length() / Room.FRAMESIZE;
         BufferedInputStream bis = new BufferedInputStream(fis);
         DataOutputStream dos = new DataOutputStream(streamOut);
+
+        // VERIFICA SE É AUDIO
+        try {
+            format = AudioSystem.getAudioFileFormat(f);
+        } catch (UnsupportedAudioFileException e) {
+            try {
+                dos.writeShort(0);
+                if (f != null) {
+                    bis.close();
+                    fis.close();
+                }
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         try {
             dos.writeShort(chunks);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
+
         System.out.println("Tamanho ficheiro: " + f.length() + " Dividido em: " + f.length() / Room.FRAMESIZE);
 
         for (int m = 0; m < chunks; m++) {
@@ -181,9 +193,7 @@ public class RoomConnection implements Runnable {
         try {
             if (fis != null) {
                 bis.close();
-                System.out.println("fechou");
                 fis.close();
-
             }
         } catch (IOException e) {
             e.printStackTrace();
