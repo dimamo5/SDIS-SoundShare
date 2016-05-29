@@ -81,7 +81,10 @@ public class Client {
 
     private void logout() {
         getServerConnection().logout();
+        getRoomConnection().dcFromRoom();
+        getRoomConnection().connected=false;
         setToken(null);
+        System.exit(1);
     }
 
 
