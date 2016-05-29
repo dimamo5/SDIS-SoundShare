@@ -49,7 +49,6 @@ public class ServerManager {
                         while ((line = reader.readLine())!= null) {
                             System.out.println(line);
                         }
-                        System.out.println("teste");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
