@@ -79,7 +79,6 @@ public class RoomConnection implements Runnable {
                 Message message = (Message) in.readObject();
                 if (message.getType().equals(Message.Type.STREAM)) {
                     streamingPort = new Integer(message.getArgs()[0]);
-                    System.out.println("Streaming Port: " + streamingPort);
                     this.connected = true;
                 }
             }

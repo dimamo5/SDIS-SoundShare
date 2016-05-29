@@ -100,7 +100,6 @@ public class Room implements Runnable {
 
     public void voteSkip(int user) {
         skipList.add(user);
-        System.out.println("size: " + skipList.size());
         if (skipList.size() >= MAX_NUM_SKIP_VOTES) {
             try {
                 skipTrack();
@@ -120,13 +119,11 @@ public class Room implements Runnable {
     public void sendSkipMessage() {
         Message message = new Message(Message.Type.SKIP);
         for (ClientHandler client : clients) {
-            System.out.println("SKIP CLIENT");
             client.sendMessage(message);
         }
     }
 
     public void sendNewTrack(Track track) {
-        System.out.println("new");
         // ENVIAR TODA A GENTE
         final Room room = this;
         for (ClientHandler clientHandler : clients)
@@ -142,7 +139,6 @@ public class Room implements Runnable {
     }
 
     public void sendActualTrack(ClientHandler u) {
-        System.out.println("actual");
         // ENVIAR SO UM HANDLER
         final Room room = this;
         new Thread() {
@@ -203,12 +199,10 @@ public class Room implements Runnable {
                         if (playlist.skipTrack())
                             musicSec = 0;
                 } else if ((t1 != null) && ((musicSec / playlist.getCurrentTrack().getInfo().getFullTime() >= 0.9) && (!t1.isSent()))) {
-                    System.out.println("new song 0.9");
                     // ENVIAR PROXIMA TRACK
                     t1.setSent(true);
                     sendNewTrack(playlist.getNextTrack());
                 } else if (!currentTrack.isSent()) { // INICIO DA PLAYLIST QUANDO ESTA VAZIA
-                    System.out.println("new song");
                     try {
                         clientsSemaphore.acquire();
                         musicSec = 0;

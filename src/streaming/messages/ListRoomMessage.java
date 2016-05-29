@@ -19,7 +19,6 @@ public class ListRoomMessage extends Message {
         Iterator it = rooms.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pair = (Map.Entry) it.next();
-            System.out.println(pair.getKey() + " = " + pair.getValue());
             Room r = (Room) pair.getValue();
 
             this.args[i] = String.valueOf(r.getPort());

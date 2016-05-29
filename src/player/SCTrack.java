@@ -33,7 +33,6 @@ public class SCTrack extends Track {
         info = new InfoMusic((String) info_track.get("title"),
                 (String) info_track.get("author"),
                 (int) info_track.get("duration"), (long) info_track.get("original_content_size"));
-        System.out.println("dur: " + info_track.get("duration"));
 
         return info;
     }
@@ -61,7 +60,6 @@ public class SCTrack extends Track {
         System.out.println("Enviar " + this.getTrackName() + " - " + this.getInfo().getAuthor() + " Duration: " + this.getInfo().getFullTime());
 
         room.sendMusicMessage(c, this, sec);
-        System.out.println("size: " + getInfo().getSize());
         int chunks = (int) getInfo().getSize()/Room.FRAMESIZE;
         sendTrackFromStream(room, stream,chunks, frameToElapseRounded, true, c);
     }

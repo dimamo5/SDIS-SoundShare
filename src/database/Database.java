@@ -52,7 +52,6 @@ public class Database {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             System.exit(0);
         }
-        System.out.println("Connected to database successfully");
     }
 
     /*
@@ -109,7 +108,6 @@ public class Database {
     private void close_connection() {
         try {
             this.connection.close();
-            System.out.println("Closed connection");
         } catch (Exception e) {
             System.err.println("Error closing connection");
             e.printStackTrace();
