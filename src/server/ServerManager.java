@@ -61,7 +61,7 @@ public class ServerManager {
     private boolean pingServer() {
         System.out.print("Pinging server with: ");
         try {
-            channel.setSoTimeout(1);
+            channel.setSoTimeout(10);
             channel.send(pack);
             byte[] b = new byte[256];
             channel.receive(new DatagramPacket(b, 256));

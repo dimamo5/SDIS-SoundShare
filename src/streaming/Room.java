@@ -33,7 +33,7 @@ public class Room implements Runnable {
     private Timer timer = new Timer();
     private double musicSec = 0;
     private Playlist playlist = new Playlist();
-    private Set<Integer> skipList = new TreeSet<>();
+    private Set<Integer> skipList = new HashSet<>();
     private boolean skipBool = false;
 
     private TrackGetter trackGetter = new TrackGetter(Singleton.getInstance().getSoundCloudComms());
