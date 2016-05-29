@@ -33,7 +33,8 @@ public class Room implements Runnable {
     private Timer timer = new Timer();
     private double musicSec = 0;
     private Playlist playlist = new Playlist();
-    private Set<Integer> skipList = new TreeSet<>();
+    private Set<Integer> skipList = new HashSet<>();
+    private boolean skipBool = false;
 
     private TrackGetter trackGetter = new TrackGetter(Singleton.getInstance().getSoundCloudComms());
 
@@ -98,8 +99,8 @@ public class Room implements Runnable {
     }
 
     public void voteSkip(int user) {
-        System.out.println("out: " + user);
         skipList.add(user);
+        System.out.println("size: " + skipList.size());
         if (skipList.size() >= MAX_NUM_SKIP_VOTES) {
             try {
                 skipTrack();
@@ -113,13 +114,13 @@ public class Room implements Runnable {
         skipList.clear();
         playlist.skipTrack();
         sendSkipMessage();
-        Thread.sleep(2000);
-        sendNewTrack(playlist.getCurrentTrack());
+        skipBool = true;
     }
 
     public void sendSkipMessage() {
         Message message = new Message(Message.Type.SKIP);
         for (ClientHandler client : clients) {
+            System.out.println("SKIP CLIENT");
             client.sendMessage(message);
         }
     }
@@ -180,16 +181,21 @@ public class Room implements Runnable {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
+
+                if (skipBool)
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
                 musicSec += 0.5;
                 Track currentTrack = playlist.getCurrentTrack();
 
                 if (currentTrack == null) {
                     return;
-                }else
-                    System.out.println(currentTrack.isSent());
-
+                }
                 Track t1 = playlist.getNextTrack();
-
 
                 // ELEE CORRERA RINAM MUSICA 15 secs TODO
                 if (musicSec >= currentTrack.getInfo().getFullTime()&& currentTrack.isSent()) {
@@ -243,7 +249,7 @@ public class Room implements Runnable {
 
                 Track t = this.playlist.getCurrentTrack();
                 if (t != null) {
-                    sendMusicMessage(c, t, musicSec);
+                    //sendMusicMessage(c, t, musicSec);
                     sendActualTrack(c);
                 }
                 clientsSemaphore.release();

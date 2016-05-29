@@ -7,10 +7,12 @@ import soundcloud.SCComms;
  * Created by duarte on 24-05-2016.
  */
 public class Singleton {
+    private final int PORT = 8000;
+
     private static Singleton ourInstance = new Singleton();
     private SCComms soundCloudComms = new SCComms();
     private Database database = new Database();
-    private Server server = new Server();
+    private Server server = new Server(PORT);
 
     public static Singleton getInstance() {
         return ourInstance;

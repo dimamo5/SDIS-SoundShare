@@ -1,5 +1,7 @@
 package client.commands;
 
+import client.Client;
+
 /**
  * Created by duarte on 24-05-2016.
  */

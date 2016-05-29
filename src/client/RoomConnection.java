@@ -7,6 +7,9 @@ import streaming.messages.Message;
 import streaming.Room;
 import streaming.messages.RequestMessage;
 
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.*;
 import java.net.*;
 import java.text.DateFormat;
@@ -136,6 +139,7 @@ public class RoomConnection implements Runnable {
     public boolean sendSong(String filename) {
         byte[] mybytearray = new byte[Room.FRAMESIZE];
         File f = new File(System.getProperty("user.dir") + "/" + filename);
+        AudioFileFormat format = null;
 
         FileInputStream fis = null;
         try {
@@ -147,11 +151,33 @@ public class RoomConnection implements Runnable {
         int chunks = (int) f.length() / Room.FRAMESIZE;
         BufferedInputStream bis = new BufferedInputStream(fis);
         DataOutputStream dos = new DataOutputStream(streamOut);
+
+        // VERIFICA SE É AUDIO
+        try {
+            format = AudioSystem.getAudioFileFormat(f);
+        } catch (UnsupportedAudioFileException e) {
+            try {
+                dos.writeShort(0);
+                if (f != null) {
+                    bis.close();
+                    fis.close();
+                }
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         try {
             dos.writeShort(chunks);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
+
         System.out.println("Tamanho ficheiro: " + f.length() + " Dividido em: " + f.length() / Room.FRAMESIZE);
 
         for (int m = 0; m < chunks; m++) {
@@ -167,9 +193,7 @@ public class RoomConnection implements Runnable {
         try {
             if (fis != null) {
                 bis.close();
-                System.out.println("fechou");
                 fis.close();
-
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -194,11 +218,6 @@ public class RoomConnection implements Runnable {
                     c.player = new AdvancedPlayer(c.streamIn);
                     c.player.play();
                 }
-                catch (java.lang.ArrayIndexOutOfBoundsException a) {
-                    System.out.println("bug do 580");
-                    //a.printStackTrace();
-                    c.play();
-                }
                 catch (JavaLayerException e) {
                     e.printStackTrace();
                 }
@@ -215,11 +234,16 @@ public class RoomConnection implements Runnable {
             }
 
             try {
-                final Message message = (Message) in.readObject();
+                final Message message;
+                message = (Message) in.readObject();
+
                 new Thread(() -> {
                     handleMessage(message);
                 }).start();
-            } catch (IOException e) {
+            } catch (SocketException s) {
+                return;
+            }
+            catch (IOException e) {
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
@@ -227,7 +251,8 @@ public class RoomConnection implements Runnable {
         }
 
         try {
-            streamingSocket.close();
+            if (streamingSocket != null)
+                streamingSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -240,11 +265,13 @@ public class RoomConnection implements Runnable {
                 break;
             case TRUE:
                 System.out.println(message.toString());
-                //sendSong(message.getArgs()[0]);
                 break;
             case SKIP:
                 try {
-                    streamIn.skip(streamIn.available());
+                    byte[] b = new byte[Room.FRAMESIZE];
+                    streamIn.skip(Integer.MAX_VALUE);
+                    //player = new AdvancedPlayer(streamIn);
+                    //player.play();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

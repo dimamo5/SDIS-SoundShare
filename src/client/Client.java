@@ -46,26 +46,6 @@ public class Client {
 
         login();
 
-        /*
-        String list = this.serverConnection.getRoom_list();
-
-        if(list != null)
-            System.out.println("Room list:\n"+ list+"\n");
-        else
-            System.out.println("Room list: (Empty)");
-        */
-
-        //recebe input (porta) do user
-        /*int room_port = this.clInterface.choosePortFromList(this.serverConnection.getRoom_list());
-        InetAddress address = null;
-        try {
-             address = InetAddress.getByName(sv_address);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-
-        this.roomConnection = new RoomConnection(address,room_port);*/
-
         new Thread(this.clInterface).start();
     }
 
@@ -97,8 +77,7 @@ public class Client {
                 case REQUEST:
                     if (this.roomConnection != null)
                         this.getRoomConnection().requestSong(command.getArgs()[0], Boolean.parseBoolean(command.getArgs()[1]));
-                    else
-                        this.clInterface.println("You have to be connected to a room in order to request a song!");
+                    else this.clInterface.println("You have to be connected to a room in order to request a song!");
                     break;
                 case LOGOUT:
                     logout();
@@ -114,6 +93,7 @@ public class Client {
                     if (this.roomConnection == null)
                         try {
                             this.roomConnection = new RoomConnection(InetAddress.getByName(this.serverConnection.getServerAddress()), Integer.parseInt(command.getArgs()[0]));
+                            new Thread(roomConnection).start();
                             if (!this.roomConnection.connected) {
                                 this.clInterface.println("That port is not valid.");
                                 this.roomConnection = null;
@@ -133,7 +113,8 @@ public class Client {
                 case ROOM_LIST:
                     getServerConnection().sendMessage(new Message(Message.Type.ROOM_LIST, token));
                     Message roomList = getServerConnection().receiveMessage();
-                    getClInterface().println(roomList.toString());
+                    if (roomList != null)
+                        getClInterface().println(roomList.toString());
                     break;
                 default:
                     throw new CommandException("Error executing the command");
@@ -147,7 +128,7 @@ public class Client {
         return roomConnection;
     }
 
-    private CLInterface getClInterface() {
+    public CLInterface getClInterface() {
         return clInterface;
     }
 
