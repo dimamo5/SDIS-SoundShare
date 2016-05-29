@@ -1,5 +1,6 @@
 package server;
 
+import org.omg.SendingContext.RunTime;
 import streaming.Room;
 
 import javax.net.ssl.SSLServerSocket;
@@ -17,6 +18,9 @@ public class Server implements Runnable {
     private final String MSG = "AYY CAPTAIN";
     private DatagramSocket channel;
     private SSLServerSocket sslserversocket = null;
+    private final int CHECK_TIME = 30000; //2 mins
+    private Timer time = new Timer();
+    private final int minimumMemory = 50000;
 
 
     public static void main(String[] args) {
@@ -28,12 +32,12 @@ public class Server implements Runnable {
 
 
     public Server(int port) {
+        checkOverload();
         try {
             channel = new DatagramSocket(port);
         } catch (SocketException e) {
             e.printStackTrace();
         }
-
         //CONNECT TO EXTERN SERVICE
         new Thread() {
             public void run() {
@@ -63,6 +67,28 @@ public class Server implements Runnable {
         }
     }
 
+
+    public void checkOverload() {
+        time.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (minimumMemory > (Runtime.getRuntime().freeMemory()/1024) ) {
+                    ProcessBuilder pb = new ProcessBuilder("cmd.exe","/c","java -cp out\\production\\SDIS-SoundShare;lib\\commons-lang3-3.4.jar;lib\\java-api-wrapper-1.2.0-all.jar;lib\\jave-1.0.2.jar;lib\\jl1.0.1.jar;lib\\mp3spi1.9.5.jar;lib\\sqlite-jdbc-3.8.11.2.jar;lib\\tritonus_share.jar server.Server");
+                    pb.redirectOutput();
+                    try {
+                        Process p = pb.start();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                        String line = "";
+                        while ((line = reader.readLine())!= null) {
+                            System.out.println(line);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }, 0, CHECK_TIME); //checkar de 30 em 30 secs
+    }
 
     @Override
     public void run() {

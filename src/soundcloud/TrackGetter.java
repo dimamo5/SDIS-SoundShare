@@ -15,9 +15,7 @@ public class TrackGetter {
     }
 
     public SCTrack getTrackByName(String songName, String clientNo) throws JSONException {
-        System.out.println("entrar");
         JSONObject track = (JSONObject) comms.search_for_track(songName).get(0);
-        System.out.println("sair");
         SCTrack scTrack = new SCTrack(clientNo, track);
         return scTrack;
 

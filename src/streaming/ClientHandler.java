@@ -69,7 +69,6 @@ public class ClientHandler implements Runnable {
 
                     //get user from database
                     this.username = db.getUserByToken(this.token.getToken());
-                    System.out.println("client.RoomConnection: " + username + " " + token);
                 }
             }
 
@@ -212,7 +211,6 @@ public class ClientHandler implements Runnable {
         this.room.removeClientFromList(this);
 
         try {
-            System.out.println("ENTRARRR");
             streamingSocket.close();
         } catch (IOException e) {
             e.printStackTrace();

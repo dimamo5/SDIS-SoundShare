@@ -69,7 +69,6 @@ public class SCComms {
 
         try {
             final Request resource = Request.to(request);
-            System.out.println("GET " + resource);
 
             HttpResponse resp = wrapper.get(resource);
 
@@ -144,7 +143,6 @@ public class SCComms {
         String stream_url = null;
         try {
             stream_url = track.getString("stream_url");
-            System.out.println(stream_url);
 
         } catch (JSONException e) {
             e.printStackTrace();
